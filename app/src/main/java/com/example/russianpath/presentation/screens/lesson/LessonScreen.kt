@@ -1,6 +1,7 @@
 package com.example.russianpath.presentation.screens.lesson
 
 import androidx.compose.animation.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -8,17 +9,21 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.russianpath.R
 import com.example.russianpath.domain.model.QuestionType
+import com.example.russianpath.presentation.components.LivesDisplay
 import com.example.russianpath.presentation.screens.lesson.components.*
 import com.example.russianpath.presentation.theme.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LessonScreen(
     lessonId: String,
@@ -67,22 +72,20 @@ fun LessonScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Text("←", fontSize = 24.sp)
+                        Image(
+                            painter = painterResource(R.drawable.ic_lock),
+                            contentDescription = "Назад",
+                            modifier = Modifier.size(24.dp),
+                            contentScale = ContentScale.Fit
+                        )
                     }
                 },
                 actions = {
-                    // Счетчик жизней
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
+                    LivesDisplay(
+                        currentLives = livesRemaining,
+                        maxLives = 5,
                         modifier = Modifier.padding(end = 16.dp)
-                    ) {
-                        repeat(livesRemaining) {
-                            Text("❤️", fontSize = 20.sp)
-                        }
-                        repeat(5 - livesRemaining) {
-                            Text("🖤", fontSize = 20.sp)
-                        }
-                    }
+                    )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface,
@@ -91,69 +94,92 @@ fun LessonScreen(
             )
         }
     ) { paddingValues ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
             if (currentQuestion != null) {
-                // Область вопроса
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth()
-                        .padding(24.dp),
-                    contentAlignment = Alignment.Center
+                Column(
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    QuestionCard(
-                        question = currentQuestion,
-                        isCorrect = isCorrect,
-                        showHint = showHint,
-                        onAnswer = { answer ->
-                            userAnswer = answer
-                            viewModel.checkAnswer(answer)
+                    // Область вопроса
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxWidth()
+                            .padding(24.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        QuestionCard(
+                            question = currentQuestion,
+                            isCorrect = isCorrect,
+                            showHint = showHint,
+                            onAnswer = { answer ->
+                                userAnswer = answer
+                                viewModel.checkAnswer(answer)
+                            }
+                        )
+                    }
+                    
+                    // Кнопка подсказки
+                    if (isCorrect == null) {
+                        TextButton(
+                            onClick = { viewModel.showHint() },
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                                .padding(bottom = 8.dp)
+                        ) {
+                            Image(
+                                painter = painterResource(R.drawable.ic_hint),
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp),
+                                contentScale = ContentScale.Fit
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Подсказка (-10 💎)")
                         }
-                    )
-                }
-                
-                // Обратная связь
-                AnimatedVisibility(
-                    visible = isCorrect != null,
-                    enter = slideInVertically() + fadeIn(),
-                    exit = slideOutVertically() + fadeOut()
-                ) {
-                    FeedbackBar(
-                        isCorrect = isCorrect ?: false,
-                        hintText = if (!(isCorrect ?: true)) currentQuestion?.hintText else null
-                    )
-                }
-                
-                // Кнопка продолжения
-                Button(
-                    onClick = {
-                        if (currentIndex < totalQuestions - 1) {
-                            viewModel.nextQuestion()
-                        } else {
-                            val stars = viewModel.completeLesson()
-                            val xp = stars * 20 - mistakesCount * 2
-                            onLessonComplete(stars, xp)
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp)
-                        .height(56.dp),
-                    enabled = isCorrect != null,
-                    shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (isCorrect == true) SuccessGreen else VasilisaBlue
-                    )
-                ) {
-                    Text(
-                        text = if (currentIndex < totalQuestions - 1) "Далее →" else "Завершить урок ✓",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold
-                    )
+                    }
+                    
+                    // Обратная связь
+                    AnimatedVisibility(
+                        visible = isCorrect != null,
+                        enter = slideInVertically() + fadeIn(),
+                        exit = slideOutVertically() + fadeOut()
+                    ) {
+                        FeedbackBar(
+                            isCorrect = isCorrect ?: false,
+                            hintText = if (!(isCorrect ?: true)) currentQuestion?.hintText else null
+                        )
+                    }
+                    
+                    // Кнопка продолжения
+                    Button(
+                        onClick = {
+                            if (currentIndex < totalQuestions - 1) {
+                                viewModel.nextQuestion()
+                            } else {
+                                val stars = viewModel.completeLesson()
+                                val xp = stars * 20 - mistakesCount * 2
+                                onLessonComplete(stars, xp)
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(24.dp)
+                            .height(56.dp),
+                        enabled = isCorrect != null,
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (isCorrect == true) SuccessGreen else VasilisaBlue
+                        )
+                    ) {
+                        Text(
+                            text = if (currentIndex < totalQuestions - 1) "Далее →" else "Завершить урок ✓",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
                 }
             }
         }
@@ -176,20 +202,40 @@ fun FeedbackBar(isCorrect: Boolean, hintText: String?) {
             modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = if (isCorrect) "✅ Отлично!" else "❌ Неправильно",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = if (isCorrect) SuccessGreen else ErrorRed
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(
+                        if (isCorrect) R.drawable.ic_check else R.drawable.ic_cross
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp),
+                    contentScale = ContentScale.Fit
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = if (isCorrect) "Отлично!" else "Неправильно",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = if (isCorrect) SuccessGreen else ErrorRed
+                )
+            }
             
             if (!isCorrect && hintText != null) {
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "💡 Подсказка: $hintText",
-                    color = Color.Gray,
-                    textAlign = TextAlign.Center
-                )
+                Row {
+                    Image(
+                        painter = painterResource(R.drawable.ic_hint),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Подсказка: $hintText",
+                        color = Color.Gray,
+                        textAlign = TextAlign.Center
+                    )
+                }
             }
         }
     }
