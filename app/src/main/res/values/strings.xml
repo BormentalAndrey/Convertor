@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Русский Путь</string>
+    <string name="mascot_name_vasilisa">Василиса</string>
+    <string name="mascot_name_knopa">Кнопа</string>
+    <string name="dashboard_title">Твой путь знаний</string>
+    <string name="lesson_complete">Урок пройден!</string>
+    <string name="hint_cost">Подсказка (-10 💎)</string>
+    <string name="lives_restore">Жизни восстановятся через 30 мин.</string>
+</resources>
