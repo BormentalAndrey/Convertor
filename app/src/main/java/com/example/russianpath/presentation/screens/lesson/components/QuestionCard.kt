@@ -10,6 +10,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.russianpath.domain.model.Question
 import com.example.russianpath.domain.model.QuestionType
+// ИСПРАВЛЕНО: Импортируем все вложенные элементы разметки вопросов, если они разнесены по файлам
+import com.example.russianpath.presentation.screens.lesson.components.*
 
 @Composable
 fun QuestionCard(
