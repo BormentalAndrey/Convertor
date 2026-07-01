@@ -29,7 +29,6 @@ fun NavGraph() {
     
     NavHost(navController = navController, startDestination = Screen.Dashboard.route) {
         composable(Screen.Dashboard.route) {
-            // ИСПРАВЛЕНО: Передаем navController напрямую, либо проверь имена колбеков в DashboardScreen.kt
             DashboardScreen(
                 navController = navController
             )
@@ -41,11 +40,15 @@ fun NavGraph() {
         ) { backStackEntry ->
             val lessonId = backStackEntry.arguments?.getString("lessonId") ?: return@composable
             
-            // ИСПРАВЛЕНО: Современный Compose не требует передачи lessonId вручную в экран,
-            // так как LessonViewModel забирает его из SavedStateHandle автоматически.
+            // ИСПРАВЛЕНО: Убран navController (LessonScreen его не принимает),
+            // добавлен onComplete для перехода на экран результатов.
             LessonScreen(
-                navController = navController,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                onComplete = {
+                    navController.navigate(Screen.Result.createRoute(lessonId, stars = 3, xp = 100)) {
+                        popUpTo(Screen.Dashboard.route)
+                    }
+                }
             )
         }
         
