@@ -2,11 +2,17 @@ package com.example.russianpath.presentation.components
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -20,14 +26,15 @@ fun MascotAnimation(
     mascotType: MascotType = MascotType.KNOPA
 ) {
     // Анимация пульсации для PNG
-    val infiniteTransition = rememberInfiniteTransition()
+    val infiniteTransition = rememberInfiniteTransition(label = "MascotPulse")
     val scale by infiniteTransition.animateFloat(
         initialValue = 1f,
         targetValue = 1.05f,
         animationSpec = infiniteRepeatable(
             animation = tween(800, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
-        )
+        ),
+        label = "ScaleAnimation"
     )
     
     // Прыгающая анимация для радостного состояния
@@ -37,7 +44,8 @@ fun MascotAnimation(
         animationSpec = infiniteRepeatable(
             animation = tween(500, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
-        )
+        ),
+        label = "JumpAnimation"
     )
     
     Box(
@@ -84,7 +92,8 @@ fun MascotAnimationStatic(
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessLow
-        )
+        ),
+        label = "RotationAnimation"
     )
     
     val scaleAnim by animateFloatAsState(
@@ -94,7 +103,8 @@ fun MascotAnimationStatic(
             MascotMood.IDLE -> 1f
             MascotMood.EXCITED -> 1.15f
         },
-        animationSpec = tween(300)
+        animationSpec = tween(300),
+        label = "ScaleStaticAnimation"
     )
     
     Box(
@@ -129,7 +139,6 @@ enum class MascotMood {
     EXCITED
 }
 
-// Компонент для анимированного появления конфетти (используя PNG)
 @Composable
 fun ConfettiAnimation(
     modifier: Modifier = Modifier,
@@ -137,7 +146,8 @@ fun ConfettiAnimation(
 ) {
     val alpha by animateFloatAsState(
         targetValue = if (isVisible) 1f else 0f,
-        animationSpec = tween(500)
+        animationSpec = tween(500),
+        label = "ConfettiAlpha"
     )
     
     val confettiScale by animateFloatAsState(
@@ -145,7 +155,8 @@ fun ConfettiAnimation(
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessLow
-        )
+        ),
+        label = "ConfettiScale"
     )
     
     if (alpha > 0f) {
@@ -161,7 +172,6 @@ fun ConfettiAnimation(
     }
 }
 
-// Анимированная звезда
 @Composable
 fun AnimatedStar(
     modifier: Modifier = Modifier,
@@ -174,7 +184,7 @@ fun AnimatedStar(
             durationMillis = 500,
             delayMillis = delay
         ),
-        finishedListener = {}
+        label = "StarScale"
     )
     
     Image(
@@ -204,7 +214,8 @@ fun LivesDisplay(
             
             val alpha by animateFloatAsState(
                 targetValue = if (isFilled) 1f else 0.3f,
-                animationSpec = tween(300)
+                animationSpec = tween(300),
+                label = "HeartAlpha"
             )
             
             Image(
