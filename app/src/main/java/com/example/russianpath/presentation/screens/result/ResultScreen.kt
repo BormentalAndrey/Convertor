@@ -17,34 +17,19 @@ import com.example.russianpath.presentation.components.*
 import com.example.russianpath.presentation.theme.*
 
 @Composable
-// ИСПРАВЛЕНО: Добавлен lessonId
 fun ResultScreen(
-    lessonId: String = "",
-    stars: Int = 3,
-    xpEarned: Int = 50,
     onContinue: () -> Unit = {},
     onRepeat: () -> Unit = {}
 ) {
-    val infiniteTransition = rememberInfiniteTransition()
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(1000),
-            repeatMode = RepeatMode.Reverse
-        )
-    )
+    val stars = 3
+    val xpEarned = 100
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(
-                        if (stars >= 3) XpGold.copy(alpha = 0.2f)
-                        else VasilisaBlue.copy(alpha = 0.2f),
-                        Color.White
-                    )
+                    colors = listOf(XpGold.copy(alpha = 0.2f), Color.White)
                 )
             )
     ) {
@@ -57,42 +42,28 @@ fun ResultScreen(
         ) {
             KnopaImage(
                 modifier = Modifier.size(120.dp),
-                mood = when (stars) {
-                    3 -> KnopaMood.EXCITED
-                    2 -> KnopaMood.HAPPY
-                    else -> KnopaMood.SAD
-                }
+                mood = KnopaMood.EXCITED
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            if (stars >= 3) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    repeat(5) { EmojiText(Emoji.CONFETTI, fontSize = 32) }
-                }
-                Spacer(modifier = Modifier.height(16.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                repeat(5) { EmojiText(Emoji.CONFETTI, fontSize = 32) }
             }
 
+            Spacer(modifier = Modifier.height(16.dp))
+
             Text(
-                when (stars) {
-                    3 -> "Отлично!"
-                    2 -> "Хорошо!"
-                    else -> "Продолжай учиться!"
-                },
+                "Отлично!",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
-                color = when (stars) {
-                    3 -> XpGold
-                    2 -> VasilisaBlue
-                    else -> Color.Gray
-                }
+                color = XpGold
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 repeat(stars) { EmojiText(Emoji.STAR_GOLD, fontSize = 40) }
-                repeat(3 - stars) { EmojiText(Emoji.STAR_EMPTY, fontSize = 40) }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
