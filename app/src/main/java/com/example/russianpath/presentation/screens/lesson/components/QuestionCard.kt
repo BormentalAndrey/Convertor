@@ -7,11 +7,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.russianpath.domain.model.Question
 import com.example.russianpath.domain.model.QuestionType
-// ИСПРАВЛЕНО: Импортируем все вложенные элементы разметки вопросов, если они разнесены по файлам
-import com.example.russianpath.presentation.screens.lesson.components.*
+
+// ИСПРАВЛЕНО: Добавлены импорты для глобальных компонентов
+import com.example.russianpath.presentation.components.DragOrderQuestion
+import com.example.russianpath.presentation.components.AudioQuestion
 
 @Composable
 fun QuestionCard(
@@ -58,21 +59,27 @@ fun QuestionCard(
                 }
                 
                 QuestionType.DRAG_ORDER -> {
+                    // ИСПРАВЛЕНО: Адаптировано под новую сигнатуру DragOrderQuestion
                     DragOrderQuestion(
-                        words = question.draggableWords,
-                        correctOrder = question.correctOrder,
-                        isAnswered = isCorrect != null,
-                        onSubmit = onAnswer
+                        questionText = "Расставь по порядку:",
+                        shuffledParts = question.draggableWords,
+                        onAnswerReady = { parts -> 
+                            onAnswer(parts.joinToString(",")) 
+                        }
                     )
                 }
                 
                 QuestionType.AUDIO -> {
+                    // ИСПРАВЛЕНО: Адаптировано под новую сигнатуру AudioQuestion
                     AudioQuestion(
-                        audioPath = question.audioPath,
+                        questionText = "Прослушай и выбери правильный ответ:",
                         options = question.options,
-                        correctAnswer = question.correctAnswer,
-                        isAnswered = isCorrect != null,
-                        onSelect = onAnswer
+                        onPlayAudio = { 
+                            // TODO: Воспроизвести question.audioPath (пока заглушка для компилятора)
+                        },
+                        onAnswerSelected = { selected ->
+                            onAnswer(selected)
+                        }
                     )
                 }
             }
