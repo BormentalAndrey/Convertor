@@ -12,5 +12,6 @@ data class QuestionEntity(
     val dataJson: String,
     val correctAnswerJson: String,
     val hintText: String?,
-    val audioPath: String?
+    val audioPath: String?,
+    val ruleReference: String? // Добавлено для связи с грамматическими правилами в игре
 )
