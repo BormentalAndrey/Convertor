@@ -25,8 +25,9 @@ fun VasilisaImage(
 
     Image(
         painter = painterResource(
+            // ИСПРАВЛЕНО: Используем ic_vasilisa вместо ic_vasilisa_idle
             if (isHappy) R.drawable.ic_vasilisa_happy
-            else R.drawable.ic_vasilisa_idle
+            else R.drawable.ic_vasilisa 
         ),
         contentDescription = "Василиса",
         modifier = modifier
@@ -79,7 +80,7 @@ fun KnopaImage(
         KnopaMood.IDLE -> R.drawable.ic_knopa_idle
         KnopaMood.HAPPY -> R.drawable.ic_knopa_happy
         KnopaMood.SAD -> R.drawable.ic_knopa_sad
-        KnopaMood.EXCITED -> R.drawable.ic_knopa_excited
+        KnopaMood.EXCITED -> R.drawable.ic_knopa_happy // ИСПРАВЛЕНО: Заменено с ic_knopa_excited
     }
 
     Image(
