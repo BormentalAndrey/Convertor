@@ -5,6 +5,7 @@ import com.example.russianpath.data.local.entity.UserProgressEntity
 import com.example.russianpath.data.local.entity.LessonCompletionEntity
 import com.example.russianpath.domain.model.UserStats
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -28,10 +29,12 @@ class UserRepository @Inject constructor(
     }
     
     suspend fun loseLife() {
-        val progress = userProgressDao.getUserProgress()
-        // Получаем текущее значение
-        // Для упрощения используем прямой запрос
-        userProgressDao.updateLives(5) // Заглушка
+        // ИСПРАВЛЕНО: Заглушка удалена. Извлекаем текущее состояние из Flow и уменьшаем жизнь
+        val progress = userProgressDao.getUserProgress().first()
+        if (progress != null) {
+            val newLives = maxOf(0, progress.livesCount - 1)
+            userProgressDao.updateLives(newLives)
+        }
     }
     
     suspend fun completeLesson(
@@ -60,6 +63,6 @@ private fun UserProgressEntity.toDomainModel(): UserStats {
         longestStreak = longestStreak,
         gemsBalance = gemsBalance,
         livesCount = livesCount,
-        totalLessonsCompleted = totalLessonsCompleted
+        totalLessonsCompleted = lessonsCompleted // ИСПРАВЛЕНО: сопоставлено с полем в БД UserProgressEntity
     )
 }
