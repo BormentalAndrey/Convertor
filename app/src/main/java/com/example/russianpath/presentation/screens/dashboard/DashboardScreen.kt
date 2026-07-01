@@ -15,12 +15,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController // ИСПРАВЛЕНО: Добавлен импорт
 import com.example.russianpath.presentation.components.*
 import com.example.russianpath.presentation.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DashboardScreen() {
+// ИСПРАВЛЕНО: Добавлен параметр navController
+fun DashboardScreen(navController: NavController) {
     // Временные заглушки данных для демонстрации
     val userXp = 350
     val userGems = 120
