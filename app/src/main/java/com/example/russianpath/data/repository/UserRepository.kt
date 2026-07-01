@@ -29,7 +29,6 @@ class UserRepository @Inject constructor(
     }
     
     suspend fun loseLife() {
-        // ИСПРАВЛЕНО: Заглушка удалена. Извлекаем текущее состояние из Flow и уменьшаем жизнь
         val progress = userProgressDao.getUserProgress().first()
         if (progress != null) {
             val newLives = maxOf(0, progress.livesCount - 1)
@@ -63,6 +62,7 @@ private fun UserProgressEntity.toDomainModel(): UserStats {
         longestStreak = longestStreak,
         gemsBalance = gemsBalance,
         livesCount = livesCount,
-        totalLessonsCompleted = lessonsCompleted // ИСПРАВЛЕНО: сопоставлено с полем в БД UserProgressEntity
+        // ИСПРАВЛЕНО: Заменено на totalLessonsCompleted (должно совпадать с полем в БД)
+        totalLessonsCompleted = totalLessonsCompleted 
     )
 }
