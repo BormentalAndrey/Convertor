@@ -62,7 +62,6 @@ fun LessonScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // Вопрос
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
@@ -77,8 +76,7 @@ fun LessonScreen(
                         fontWeight = FontWeight.Bold
                     )
                     Spacer(modifier = Modifier.height(24.dp))
-                    
-                    // Варианты ответов
+
                     val options = listOf("Собирать", "Соберать", "Сабирать", "Собиреть")
                     options.forEach { option ->
                         Button(
@@ -101,7 +99,6 @@ fun LessonScreen(
                 }
             }
 
-            // Обратная связь
             AnimatedVisibility(visible = isCorrect != null) {
                 Card(
                     shape = RoundedCornerShape(16.dp),
@@ -122,14 +119,14 @@ fun LessonScreen(
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            if (isCorrect == true) "Отлично!" else "Неправильно. Подсказка: после корня есть суффикс -А-",
+                            if (isCorrect == true) "Отлично!"
+                            else "Неправильно. Подсказка: после корня есть суффикс -А-",
                             fontWeight = FontWeight.Bold
                         )
                     }
                 }
             }
 
-            // Кнопка "Далее"
             Button(
                 onClick = {
                     if (currentQuestion < totalQuestions - 1) {
