@@ -17,7 +17,9 @@ import com.example.russianpath.presentation.components.*
 import com.example.russianpath.presentation.theme.*
 
 @Composable
+// ИСПРАВЛЕНО: Добавлен lessonId
 fun ResultScreen(
+    lessonId: String = "",
     stars: Int = 3,
     xpEarned: Int = 50,
     onContinue: () -> Unit = {},
@@ -53,7 +55,6 @@ fun ResultScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // Кнопа реагирует на результат
             KnopaImage(
                 modifier = Modifier.size(120.dp),
                 mood = when (stars) {
@@ -65,7 +66,6 @@ fun ResultScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Конфетти для отличного результата
             if (stars >= 3) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     repeat(5) { EmojiText(Emoji.CONFETTI, fontSize = 32) }
@@ -90,7 +90,6 @@ fun ResultScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Звёзды
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 repeat(stars) { EmojiText(Emoji.STAR_GOLD, fontSize = 40) }
                 repeat(3 - stars) { EmojiText(Emoji.STAR_EMPTY, fontSize = 40) }
@@ -98,7 +97,6 @@ fun ResultScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // XP
             Card(
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(containerColor = XpGold.copy(alpha = 0.1f))
