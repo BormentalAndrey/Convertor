@@ -23,8 +23,7 @@ object DatabaseModule {
             AppDatabase::class.java,
             "russian_path.db"
         )
-        .createFromAsset("databases/russian_path.db") // если есть готовая БД в assets
-        .fallbackToDestructiveMigration()              // удалит старые данные при смене версии (для разработки)
+        .fallbackToDestructiveMigration() // удалит старые данные при смене версии
         .build()
     }
 
