@@ -1,6 +1,7 @@
 package com.example.russianpath.presentation.screens.dashboard
 
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,15 +15,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.airbnb.lottie.compose.*
 import com.example.russianpath.R
-import com.example.russianpath.presentation.components.MascotAnimation
+import com.example.russianpath.domain.model.Topic
+import com.example.russianpath.presentation.components.MascotAnimationStatic
+import com.example.russianpath.presentation.components.MascotMood
+import com.example.russianpath.presentation.components.MascotType
 import com.example.russianpath.presentation.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -46,77 +50,45 @@ fun DashboardScreen(
                     ) 
                 },
                 actions = {
-                    // Статистика пользователя
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(end = 8.dp)
                     ) {
-                        // XP
-                        Card(
-                            shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = XpGold.copy(alpha = 0.2f))
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text("⭐", fontSize = 18.sp)
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    "${userStats.totalXp}",
-                                    fontWeight = FontWeight.Bold,
-                                    color = XpGold
-                                )
-                            }
-                        }
+                        // XP с иконкой
+                        StatusChip(
+                            iconRes = R.drawable.ic_xp,
+                            value = "${userStats.totalXp}",
+                            color = XpGold
+                        )
                         
                         Spacer(modifier = Modifier.width(8.dp))
                         
-                        // Кристаллы
-                        Card(
-                            shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = GemCrystal.copy(alpha = 0.2f))
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text("💎", fontSize = 18.sp)
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    "${userStats.gemsBalance}",
-                                    fontWeight = FontWeight.Bold,
-                                    color = GemCrystal
-                                )
-                            }
-                        }
+                        // Кристаллы с иконкой
+                        StatusChip(
+                            iconRes = R.drawable.ic_diamond,
+                            value = "${userStats.gemsBalance}",
+                            color = GemCrystal
+                        )
                         
                         Spacer(modifier = Modifier.width(8.dp))
                         
                         // Жизни
-                        Card(
-                            shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = ErrorRed.copy(alpha = 0.2f))
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Text("❤️", fontSize = 18.sp)
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    "${userStats.livesCount}",
-                                    fontWeight = FontWeight.Bold,
-                                    color = ErrorRed
-                                )
-                            }
-                        }
+                        StatusChip(
+                            iconRes = R.drawable.ic_heart,
+                            value = "${userStats.livesCount}",
+                            color = ErrorRed
+                        )
                         
                         Spacer(modifier = Modifier.width(8.dp))
                         
                         // Профиль
                         IconButton(onClick = onProfileClick) {
-                            Text("👤", fontSize = 24.sp)
+                            Image(
+                                painter = painterResource(R.drawable.ic_profile),
+                                contentDescription = "Профиль",
+                                modifier = Modifier.size(32.dp),
+                                contentScale = ContentScale.Fit
+                            )
                         }
                     }
                 },
@@ -140,47 +112,11 @@ fun DashboardScreen(
                     )
                 )
         ) {
-            // Блок с маскотом и стриком
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                shape = RoundedCornerShape(24.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Маскот Кнопа (котёнок-помощник)
-                    MascotAnimation(
-                        modifier = Modifier.size(80.dp),
-                        isHappy = userStats.currentStreak > 0
-                    )
-                    
-                    Spacer(modifier = Modifier.width(16.dp))
-                    
-                    Column {
-                        Text(
-                            mascotMessage,
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.Medium
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text("🔥", fontSize = 20.sp)
-                            Text(
-                                "Серия: ${userStats.currentStreak} дней",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = KnopaOrange,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                }
-            }
+            // Блок с маскотом и информацией
+            MascotCard(
+                mascotMessage = mascotMessage,
+                streak = userStats.currentStreak
+            )
             
             // Заголовок раздела
             Text(
@@ -190,7 +126,7 @@ fun DashboardScreen(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
             
-            // Список тем (Древо навыков)
+            // Список тем
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(16.dp),
@@ -200,8 +136,9 @@ fun DashboardScreen(
                     TopicCard(
                         topic = topic,
                         onClick = {
-                            // Переход к первому уроку темы
-                            onLessonClick("lesson_${topic.id}_1")
+                            if (topic.isUnlocked) {
+                                onLessonClick("lesson_${topic.id}_1")
+                            }
                         }
                     )
                 }
@@ -211,8 +148,92 @@ fun DashboardScreen(
 }
 
 @Composable
+fun StatusChip(
+    iconRes: Int,
+    value: String,
+    color: Color
+) {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.2f))
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(
+                painter = painterResource(iconRes),
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                contentScale = ContentScale.Fit
+            )
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                value,
+                fontWeight = FontWeight.Bold,
+                color = color
+            )
+        }
+    }
+}
+
+@Composable
+fun MascotCard(
+    mascotMessage: String,
+    streak: Int
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        shape = RoundedCornerShape(24.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Маскот Кнопа
+            MascotAnimationStatic(
+                modifier = Modifier.size(80.dp),
+                mascotType = MascotType.KNOPA,
+                mood = if (streak > 0) MascotMood.HAPPY else MascotMood.IDLE
+            )
+            
+            Spacer(modifier = Modifier.width(16.dp))
+            
+            Column {
+                Text(
+                    mascotMessage,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(
+                        painter = painterResource(R.drawable.ic_streak),
+                        contentDescription = "Стрик",
+                        modifier = Modifier.size(20.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        "Серия: $streak дней",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = KnopaOrange,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun TopicCard(
-    topic: com.example.russianpath.domain.model.Topic,
+    topic: Topic,
     onClick: () -> Unit
 ) {
     val scaleAnim = remember { Animatable(1f) }
@@ -231,11 +252,7 @@ fun TopicCard(
             else 
                 MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
         ),
-        onClick = {
-            if (topic.isUnlocked) {
-                onClick()
-            }
-        }
+        onClick = onClick
     ) {
         Row(
             modifier = Modifier
@@ -254,10 +271,23 @@ fun TopicCard(
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    if (topic.isUnlocked) "📚" else "🔒",
-                    fontSize = 28.sp
-                )
+                if (topic.isUnlocked) {
+                    // Загружаем PNG иконку темы
+                    val iconRes = getTopicIcon(topic.iconName)
+                    Image(
+                        painter = painterResource(iconRes),
+                        contentDescription = topic.title,
+                        modifier = Modifier.size(36.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(R.drawable.ic_lock),
+                        contentDescription = "Заблокировано",
+                        modifier = Modifier.size(36.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                }
             }
             
             Spacer(modifier = Modifier.width(16.dp))
@@ -280,9 +310,8 @@ fun TopicCard(
                     maxLines = 2
                 )
                 
-                if (topic.isUnlocked) {
+                if (topic.isUnlocked && topic.completionPercentage > 0f) {
                     Spacer(modifier = Modifier.height(8.dp))
-                    // Прогресс-бар
                     LinearProgressIndicator(
                         progress = topic.completionPercentage,
                         modifier = Modifier
@@ -292,13 +321,37 @@ fun TopicCard(
                         trackColor = Color.Gray.copy(alpha = 0.2f)
                     )
                     Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        "⭐ ${topic.stars}/3",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = XpGold
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        repeat(topic.stars) {
+                            Image(
+                                painter = painterResource(R.drawable.ic_star_gold),
+                                contentDescription = "Звезда",
+                                modifier = Modifier.size(16.dp),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
+                        repeat(3 - topic.stars) {
+                            Image(
+                                painter = painterResource(R.drawable.ic_star_empty),
+                                contentDescription = "Пустая звезда",
+                                modifier = Modifier.size(16.dp),
+                                contentScale = ContentScale.Fit
+                            )
+                        }
+                    }
                 }
             }
         }
+    }
+}
+
+// Вспомогательная функция для получения иконки темы
+fun getTopicIcon(iconName: String): Int {
+    return when (iconName) {
+        "phonetics" -> R.drawable.ic_sound
+        "spelling" -> R.drawable.ic_check
+        "grammar" -> R.drawable.ic_profile
+        "syntax" -> R.drawable.ic_hint
+        else -> R.drawable.ic_profile
     }
 }
