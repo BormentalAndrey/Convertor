@@ -9,6 +9,7 @@ data class TopicEntity(
     val gradeLevel: Int,
     val title: String,
     val description: String,
+    val iconName: String = "", // ДОБАВЛЕНО: устраняет ошибку Unresolved reference в TopicRepository
     val sortOrder: Int,
     val prerequisiteTopicId: String? = null,
     val isUnlocked: Boolean = false
