@@ -18,7 +18,7 @@ sealed class Screen(val route: String) {
         fun createRoute(lessonId: String) = "lesson/$lessonId"
     }
     object Result : Screen("result/{lessonId}/{stars}/{xp}") {
-        fun createRoute(lessonId: String, stars: Int, xp: Int) = 
+        fun createRoute(lessonId: String, stars: Int, xp: Int) =
             "result/$lessonId/$stars/$xp"
     }
 }
@@ -26,32 +26,41 @@ sealed class Screen(val route: String) {
 @Composable
 fun NavGraph() {
     val navController = rememberNavController()
-    
+
     NavHost(navController = navController, startDestination = Screen.Dashboard.route) {
+
+        // Главный экран
         composable(Screen.Dashboard.route) {
             DashboardScreen(
-                navController = navController
+                onLessonClick = { lessonId ->
+                    navController.navigate(Screen.Lesson.createRoute(lessonId))
+                },
+                onProfileClick = {
+                    navController.navigate(Screen.Profile.route)
+                }
             )
         }
-        
+
+        // Экран урока
         composable(
             route = Screen.Lesson.route,
             arguments = listOf(navArgument("lessonId") { type = NavType.StringType })
         ) { backStackEntry ->
             val lessonId = backStackEntry.arguments?.getString("lessonId") ?: return@composable
-            
-            // ИСПРАВЛЕНО: Убран navController (LessonScreen его не принимает),
-            // добавлен onComplete для перехода на экран результатов.
+
             LessonScreen(
                 onBackClick = { navController.popBackStack() },
                 onComplete = {
-                    navController.navigate(Screen.Result.createRoute(lessonId, stars = 3, xp = 100)) {
+                    navController.navigate(
+                        Screen.Result.createRoute(lessonId, stars = 3, xp = 100)
+                    ) {
                         popUpTo(Screen.Dashboard.route)
                     }
                 }
             )
         }
-        
+
+        // Экран результата
         composable(
             route = Screen.Result.route,
             arguments = listOf(
@@ -63,11 +72,8 @@ fun NavGraph() {
             val lessonId = backStackEntry.arguments?.getString("lessonId") ?: ""
             val stars = backStackEntry.arguments?.getInt("stars") ?: 0
             val xp = backStackEntry.arguments?.getInt("xp") ?: 0
-            
+
             ResultScreen(
-                lessonId = lessonId,
-                stars = stars,
-                xpEarned = xp,
                 onContinue = {
                     navController.navigate(Screen.Dashboard.route) {
                         popUpTo(Screen.Dashboard.route) { inclusive = true }
@@ -78,7 +84,8 @@ fun NavGraph() {
                 }
             )
         }
-        
+
+        // Экран профиля
         composable(Screen.Profile.route) {
             ProfileScreen(
                 onBackClick = { navController.popBackStack() }
