@@ -120,4 +120,62 @@ fun ResultScreen(
                 }
             }
             
-            Spacer(modifier = Modifier.height
+            Spacer(modifier = Modifier.height(24.dp))
+            
+            // XP начислено
+            Card(
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = XpGold.copy(alpha = 0.1f))
+            ) {
+                Column(
+                    modifier = Modifier.padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Text(
+                        text = "+$xpEarned XP",
+                        fontSize = 36.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = XpGold
+                    )
+                    Text(
+                        text = "опыта получено",
+                        color = Color.Gray
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(32.dp))
+            
+            // Кнопки действий
+            Button(
+                onClick = onContinue,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = VasilisaBlue)
+            ) {
+                Text(
+                    "Продолжить →",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            
+            Spacer(modifier = Modifier.height(12.dp))
+            
+            OutlinedButton(
+                onClick = onRepeat,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(16.dp)
+            ) {
+                Text(
+                    "Повторить урок 🔄",
+                    fontSize = 18.sp
+                )
+            }
+        }
+    }
+}
