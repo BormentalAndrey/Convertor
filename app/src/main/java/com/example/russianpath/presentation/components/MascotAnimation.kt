@@ -2,21 +2,25 @@ package com.example.russianpath.presentation.components
 
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.StarOutline
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.russianpath.R
 
 @Composable
@@ -25,7 +29,6 @@ fun MascotAnimation(
     isHappy: Boolean = false,
     mascotType: MascotType = MascotType.KNOPA
 ) {
-    // Анимация пульсации для PNG
     val infiniteTransition = rememberInfiniteTransition(label = "MascotPulse")
     val scale by infiniteTransition.animateFloat(
         initialValue = 1f,
@@ -37,7 +40,6 @@ fun MascotAnimation(
         label = "ScaleAnimation"
     )
     
-    // Прыгающая анимация для радостного состояния
     val jumpOffset by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = if (isHappy) -20f else 0f,
@@ -59,6 +61,7 @@ fun MascotAnimation(
                     isHappy && mascotType == MascotType.VASILISA -> R.drawable.ic_vasilisa_happy
                     mascotType == MascotType.KNOPA -> R.drawable.ic_knopa_idle
                     mascotType == MascotType.VASILISA -> R.drawable.ic_vasilisa
+                    else -> R.drawable.ic_knopa_idle // ИСПРАВЛЕНО: Добавлен обязательный else
                 }
             ),
             contentDescription = if (mascotType == MascotType.KNOPA) "Кнопа" else "Василиса",
@@ -116,7 +119,7 @@ fun MascotAnimationStatic(
                 id = when {
                     mascotType == MascotType.KNOPA && mood == MascotMood.HAPPY -> R.drawable.ic_knopa_happy
                     mascotType == MascotType.KNOPA && mood == MascotMood.SAD -> R.drawable.ic_knopa_sad
-                    mascotType == MascotType.KNOPA && mood == MascotMood.EXCITED -> R.drawable.ic_knopa_jump
+                    mascotType == MascotType.KNOPA && mood == MascotMood.EXCITED -> R.drawable.ic_knopa_happy // Заменено для безопасности
                     mascotType == MascotType.VASILISA && mood == MascotMood.HAPPY -> R.drawable.ic_vasilisa_happy
                     mascotType == MascotType.VASILISA -> R.drawable.ic_vasilisa
                     else -> R.drawable.ic_knopa_idle
@@ -160,15 +163,16 @@ fun ConfettiAnimation(
     )
     
     if (alpha > 0f) {
-        Image(
-            painter = painterResource(R.drawable.ic_confetti),
-            contentDescription = "Конфетти",
-            modifier = modifier
-                .fillMaxSize()
-                .scale(confettiScale)
-                .alpha(alpha),
-            contentScale = ContentScale.FillBounds
-        )
+        // ИСПРАВЛЕНО: Вместо отсутствующей картинки используем текстовый эмодзи конфетти
+        Box(contentAlignment = Alignment.Center, modifier = modifier.fillMaxSize()) {
+            Text(
+                text = "🎊",
+                fontSize = 120.sp,
+                modifier = Modifier
+                    .scale(confettiScale)
+                    .alpha(alpha)
+            )
+        }
     }
 }
 
@@ -187,15 +191,14 @@ fun AnimatedStar(
         label = "StarScale"
     )
     
-    Image(
-        painter = painterResource(
-            if (isEarned) R.drawable.ic_star_gold else R.drawable.ic_star_empty
-        ),
+    // ИСПРАВЛЕНО: Используем стандартные Material иконки
+    Icon(
+        imageVector = if (isEarned) Icons.Filled.Star else Icons.Outlined.StarOutline,
         contentDescription = if (isEarned) "Звезда" else "Пустая звезда",
+        tint = if (isEarned) Color(0xFFFFD700) else Color.Gray,
         modifier = modifier
             .size(40.dp)
-            .scale(scale),
-        contentScale = ContentScale.Fit
+            .scale(scale)
     )
 }
 
@@ -218,15 +221,14 @@ fun LivesDisplay(
                 label = "HeartAlpha"
             )
             
-            Image(
-                painter = painterResource(
-                    if (isFilled) R.drawable.ic_heart else R.drawable.ic_heart_empty
-                ),
+            // ИСПРАВЛЕНО: Используем стандартные Material иконки
+            Icon(
+                imageVector = if (isFilled) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                 contentDescription = if (isFilled) "Жизнь" else "Потерянная жизнь",
+                tint = if (isFilled) Color.Red else Color.Gray,
                 modifier = Modifier
                     .size(24.dp)
-                    .alpha(alpha),
-                contentScale = ContentScale.Fit
+                    .alpha(alpha)
             )
         }
     }
