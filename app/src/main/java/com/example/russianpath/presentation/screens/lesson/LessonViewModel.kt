@@ -100,12 +100,11 @@ class LessonViewModel @Inject constructor(
     
     fun showHint() {
         viewModelScope.launch {
-            val userStats = userRepository.getUserStats()
-            userStats.collect { stats ->
-                if (stats != null && stats.gemsBalance >= 10) {
-                    userRepository.addGems(-10)
-                    _showHint.value = true
-                }
+            // ИСПРАВЛЕНО: Используем .first() вместо .collect, чтобы избежать бесконечного цикла списания гемов
+            val stats = userRepository.getUserStats().first()
+            if (stats != null && stats.gemsBalance >= 10) {
+                userRepository.addGems(-10)
+                _showHint.value = true
             }
         }
     }
@@ -139,6 +138,9 @@ class LessonViewModel @Inject constructor(
     }
     
     private fun QuestionEntity.toDomainModel(): Question {
+        // ПРИМЕЧАНИЕ: Ошибка "Unresolved reference: ruleReference" означает, 
+        // что в твоем файле QuestionEntity.kt отсутствует поле ruleReference. 
+        // Код ниже полностью рабочий, но тебе нужно добавить val ruleReference: String? в класс QuestionEntity.
         return when (questionType) {
             "SINGLE_CHOICE" -> {
                 val options: List<String> = gson.fromJson(dataJson, object : TypeToken<List<String>>(){}.type)
