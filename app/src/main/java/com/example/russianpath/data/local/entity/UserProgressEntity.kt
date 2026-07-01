@@ -11,5 +11,6 @@ data class UserProgressEntity(
     val longestStreak: Int = 0,
     val lastActiveDate: Long = 0,
     val gemsBalance: Int = 50,
-    val livesCount: Int = 5
+    val livesCount: Int = 5,
+    val totalLessonsCompleted: Int = 0 // ДОБАВЛЕНО: устраняет ошибку Unresolved reference в UserRepository
 )
