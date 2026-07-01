@@ -4,7 +4,6 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
@@ -20,7 +19,8 @@ fun VasilisaImage(
 ) {
     val scale by animateFloatAsState(
         targetValue = if (isHappy) 1.05f else 1f,
-        animationSpec = tween(300)
+        animationSpec = tween(300),
+        label = "VasilisaScale"
     )
 
     Image(
@@ -41,7 +41,7 @@ fun KnopaImage(
     modifier: Modifier = Modifier,
     mood: KnopaMood = KnopaMood.IDLE
 ) {
-    val infiniteTransition = rememberInfiniteTransition()
+    val infiniteTransition = rememberInfiniteTransition(label = "KnopaInfinite")
 
     val idleScale by infiniteTransition.animateFloat(
         initialValue = 1f,
@@ -49,7 +49,8 @@ fun KnopaImage(
         animationSpec = infiniteRepeatable(
             animation = tween(1000, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
-        )
+        ),
+        label = "KnopaIdleScale"
     )
 
     val jumpOffset by infiniteTransition.animateFloat(
@@ -58,7 +59,8 @@ fun KnopaImage(
         animationSpec = infiniteRepeatable(
             animation = tween(400, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse
-        )
+        ),
+        label = "KnopaJumpOffset"
     )
 
     val targetScale = when (mood) {
