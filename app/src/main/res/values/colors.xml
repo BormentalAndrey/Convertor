@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Фирменные цвета приложения Vasilisa -->
+    <color name="vasilisa_blue">#2196F3</color>
+    <color name="vasilisa_dark_blue">#1565C0</color>
+    <color name="knopa_orange">#FF9800</color>
+    <color name="knopa_pink">#FF69B4</color>
+    <color name="success_green">#4CAF50</color>
+    <color name="error_red">#F44336</color>
+    <color name="xp_gold">#FFD700</color>
+    <color name="gem_crystal">#9C27B0</color>
+</resources>
