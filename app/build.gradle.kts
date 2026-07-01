@@ -78,8 +78,8 @@ dependencies {
     ksp("com.google.dagger:hilt-android-compiler:2.48")
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
-    // Lottie
-    implementation("com.airbnb.android:lottie-compose:6.1.0")
+    // Coil для загрузки PNG
+    implementation("io.coil-kt:coil-compose:2.5.0")
 
     // Gson
     implementation("com.google.code.gson:gson:2.10.1")
