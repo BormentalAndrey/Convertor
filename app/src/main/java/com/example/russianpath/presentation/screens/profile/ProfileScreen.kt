@@ -38,7 +38,6 @@ fun ProfileScreen(onBackClick: () -> Unit = {}) {
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Аватар
             VasilisaImage(
                 modifier = Modifier.size(150.dp),
                 isHappy = true
@@ -47,7 +46,6 @@ fun ProfileScreen(onBackClick: () -> Unit = {}) {
             Text("Ученик 5 класса", style = MaterialTheme.typography.titleMedium)
             Text("Уровень 4", color = Color.Gray)
 
-            // Статистика
             Card(
                 shape = RoundedCornerShape(20.dp),
                 modifier = Modifier.fillMaxWidth()
