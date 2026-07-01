@@ -35,7 +35,7 @@ private fun TopicEntity.toDomainModel(): Topic {
         gradeLevel = gradeLevel,
         title = title,
         description = description,
-        iconName = iconName,
+        iconName = icon, // ИСПРАВЛЕНО: сопоставлено с полем icon в TopicEntity
         sortOrder = sortOrder,
         isUnlocked = isUnlocked
     )
