@@ -1,6 +1,5 @@
 package com.example.russianpath.presentation.screens.dashboard
 
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -15,15 +14,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavController // ИСПРАВЛЕНО: Добавлен импорт
 import com.example.russianpath.presentation.components.*
 import com.example.russianpath.presentation.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-// ИСПРАВЛЕНО: Добавлен параметр navController
-fun DashboardScreen(navController: NavController) {
-    // Временные заглушки данных для демонстрации
+fun DashboardScreen(
+    onLessonClick: (String) -> Unit = {},
+    onProfileClick: () -> Unit = {}
+) {
     val userXp = 350
     val userGems = 120
     val userLives = 5
@@ -50,7 +49,7 @@ fun DashboardScreen(navController: NavController) {
                         Spacer(modifier = Modifier.width(6.dp))
                         StatusChip(Emoji.HEART, "$userLives", ErrorRed)
                         Spacer(modifier = Modifier.width(6.dp))
-                        IconButton(onClick = { }) {
+                        IconButton(onClick = onProfileClick) {
                             EmojiText(Emoji.PROFILE, fontSize = 28)
                         }
                     }
@@ -86,7 +85,6 @@ fun DashboardScreen(navController: NavController) {
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Василиса и Кнопа рядом
                     Row(
                         verticalAlignment = Alignment.Bottom,
                         horizontalArrangement = Arrangement.Center
@@ -119,16 +117,51 @@ fun DashboardScreen(navController: NavController) {
                 }
             }
 
-            // Заголовок
             Text(
                 "Твой путь знаний",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
 
-            // Примеры тем (заглушки)
+            // Темы
+            val topicEmojis = listOf("🔤", "✍️", "📖", "🗣️", "✏️")
+            val topicTitles = listOf(
+                "Фонетика и звуки",
+                "Правописание корней",
+                "Части речи",
+                "Орфоэпия",
+                "Синтаксис"
+            )
+
             repeat(5) { index ->
-                TopicCardPlaceholder(index)
+                Card(
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                    onClick = { onLessonClick("lesson_$index") }
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        EmojiText(topicEmojis[index], fontSize = 40)
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                topicTitles[index],
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
+                            Text(
+                                "5 класс • Прогресс: ${(index + 1) * 20}%",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Gray
+                            )
+                        }
+                        EmojiText(Emoji.FORWARD, fontSize = 24)
+                    }
+                }
             }
         }
     }
@@ -147,46 +180,6 @@ fun StatusChip(emoji: String, value: String, color: Color) {
             EmojiText(emoji, fontSize = 18)
             Spacer(modifier = Modifier.width(4.dp))
             Text(value, fontWeight = FontWeight.Bold, color = color)
-        }
-    }
-}
-
-@Composable
-fun TopicCardPlaceholder(index: Int) {
-    val emojis = listOf("🔤", "✍️", "📖", "🗣️", "✏️")
-    val titles = listOf(
-        "Фонетика и звуки",
-        "Правописание корней",
-        "Части речи",
-        "Орфоэпия",
-        "Синтаксис"
-    )
-
-    Card(
-        shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            EmojiText(emojis[index % emojis.size], fontSize = 40)
-            Spacer(modifier = Modifier.width(16.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    titles[index % titles.size],
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    "5 класс • Прогресс: ${(index + 1) * 20}%",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
-                )
-            }
-            EmojiText(Emoji.FORWARD, fontSize = 24)
         }
     }
 }
