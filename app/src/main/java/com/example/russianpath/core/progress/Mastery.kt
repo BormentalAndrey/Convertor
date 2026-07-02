@@ -1,4 +1,3 @@
-// core/progress/Mastery.kt
 package com.example.russianpath.core.progress
 
 import com.example.russianpath.core.knowledge.MicroSkillId
@@ -13,25 +12,4 @@ data class Mastery(
     val totalAttempts: Int,
     val correctAttempts: Int,
     val lastReviewed: Instant
-) {
-    init {
-        require(level in 0f..1f) {
-            "level must be in 0..1, got $level"
-        }
-        require(confidence in 0f..1f) {
-            "confidence must be in 0..1, got $confidence"
-        }
-        require(totalAttempts >= 0) {
-            "totalAttempts must be >= 0, got $totalAttempts"
-        }
-        require(correctAttempts >= 0) {
-            "correctAttempts must be >= 0, got $correctAttempts"
-        }
-        require(correctAttempts <= totalAttempts) {
-            "correctAttempts ($correctAttempts) must be <= totalAttempts ($totalAttempts)"
-        }
-        require(!lastReviewed.isAfter(Instant.now())) {
-            "lastReviewed must not be in the future, got $lastReviewed"
-        }
-    }
-}
+)
