@@ -2,8 +2,14 @@ package com.example.russianpath.di
 
 import android.content.Context
 import androidx.room.Room
+import com.example.russianpath.core.repository.KnowledgeRepository
+import com.example.russianpath.core.repository.ProgressRepository
+import com.example.russianpath.core.repository.WordRepository
 import com.example.russianpath.data.local.AppDatabase
 import com.example.russianpath.data.local.dao.*
+import com.example.russianpath.data.repository.KnowledgeRepositoryImpl
+import com.example.russianpath.data.repository.ProgressRepositoryImpl
+import com.example.russianpath.data.repository.WordRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,7 +23,7 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideAppDatabase(@ApplicationContext context: Context): AppDatabase {
+    fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
         return Room.databaseBuilder(
             context,
             AppDatabase::class.java,
@@ -27,22 +33,21 @@ object DatabaseModule {
         .build()
     }
 
-    @Provides
-    fun provideGradeDao(db: AppDatabase): GradeDao = db.gradeDao()
+    // DAO
+    @Provides fun provideGradeDao(db: AppDatabase): GradeDao = db.gradeDao()
+    @Provides fun provideSectionDao(db: AppDatabase): SectionDao = db.sectionDao()
+    @Provides fun provideTopicDao(db: AppDatabase): TopicDao = db.topicDao()
+    @Provides fun provideLearningObjectiveDao(db: AppDatabase): LearningObjectiveDao = db.learningObjectiveDao()
+    @Provides fun provideMicroSkillDao(db: AppDatabase): MicroSkillDao = db.microSkillDao()
+    @Provides fun provideDictionaryDao(db: AppDatabase): DictionaryDao = db.dictionaryDao()
 
-    @Provides
-    fun provideSectionDao(db: AppDatabase): SectionDao = db.sectionDao()
+    // Repositories
+    @Provides @Singleton
+    fun provideWordRepository(impl: WordRepositoryImpl): WordRepository = impl
 
-    @Provides
-    fun provideTopicDao(db: AppDatabase): TopicDao = db.topicDao()
+    @Provides @Singleton
+    fun provideKnowledgeRepository(impl: KnowledgeRepositoryImpl): KnowledgeRepository = impl
 
-    @Provides
-    fun provideLearningObjectiveDao(db: AppDatabase): LearningObjectiveDao =
-        db.learningObjectiveDao()
-
-    @Provides
-    fun provideMicroSkillDao(db: AppDatabase): MicroSkillDao = db.microSkillDao()
-
-    @Provides
-    fun provideDictionaryDao(db: AppDatabase): DictionaryDao = db.dictionaryDao()
+    @Provides @Singleton
+    fun provideProgressRepository(impl: ProgressRepositoryImpl): ProgressRepository = impl
 }
