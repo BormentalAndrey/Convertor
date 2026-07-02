@@ -23,10 +23,11 @@ object DatabaseModule {
             AppDatabase::class.java,
             "russian_path.db"
         )
-        .fallbackToDestructiveMigration() // удалит старые данные при смене версии
+        .fallbackToDestructiveMigration() // Удалит старые данные при смене версии
         .build()
     }
 
+    // Старые DAO
     @Provides
     fun provideTopicDao(database: AppDatabase): TopicDao = database.topicDao()
 
@@ -38,4 +39,24 @@ object DatabaseModule {
 
     @Provides
     fun provideUserProgressDao(database: AppDatabase): UserProgressDao = database.userProgressDao()
+
+    // Новые DAO
+    @Provides
+    fun provideGradeDao(database: AppDatabase): GradeDao = database.gradeDao()
+
+    @Provides
+    fun provideSectionDao(database: AppDatabase): SectionDao = database.sectionDao()
+
+    @Provides
+    fun provideTopicDaoV2(database: AppDatabase): TopicDaoV2 = database.topicDaoV2()
+
+    @Provides
+    fun provideLearningObjectiveDao(database: AppDatabase): LearningObjectiveDao =
+        database.learningObjectiveDao()
+
+    @Provides
+    fun provideMicroSkillDao(database: AppDatabase): MicroSkillDao = database.microSkillDao()
+
+    @Provides
+    fun provideDictionaryDao(database: AppDatabase): DictionaryDao = database.dictionaryDao()
 }
