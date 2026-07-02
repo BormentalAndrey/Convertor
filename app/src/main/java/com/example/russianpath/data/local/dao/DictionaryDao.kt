@@ -16,10 +16,10 @@ interface DictionaryDao {
     @Query("SELECT * FROM dictionary_words WHERE id = :id")
     suspend fun getById(id: String): DictionaryWordEntity?
 
-    @Query("SELECT * FROM dictionary_words ORDER BY gradeLevel, id")
+    @Query("SELECT * FROM dictionary_words ORDER BY gradeLevel, difficulty, id")
     fun observeAll(): Flow<List<DictionaryWordEntity>>
 
-    @Query("SELECT * FROM dictionary_words ORDER BY id LIMIT :limit")
+    @Query("SELECT * FROM dictionary_words ORDER BY gradeLevel, difficulty, id LIMIT :limit")
     suspend fun getAll(limit: Int): List<DictionaryWordEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
