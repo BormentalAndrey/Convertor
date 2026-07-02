@@ -1,6 +1,7 @@
 package com.example.russianpath.data.exercise
 
 import com.example.russianpath.core.analysis.WordAnalysis
+import com.example.russianpath.core.common.Difficulty
 import com.example.russianpath.core.exercise.*
 import com.example.russianpath.core.knowledge.SkillCode
 import javax.inject.Inject
@@ -15,11 +16,9 @@ class ExerciseRequestFactoryImpl @Inject constructor() : ExerciseRequestFactory 
         analysis: WordAnalysis,
         difficulty: Difficulty
     ): ExerciseRequest {
-        val exerciseType = selectExerciseType(skillCode)
-        
         return ExerciseRequest(
             skillCode = skillCode,
-            exerciseType = exerciseType,
+            exerciseType = selectExerciseType(skillCode),
             difficulty = difficulty,
             analysis = analysis
         )
@@ -31,12 +30,14 @@ class ExerciseRequestFactoryImpl @Inject constructor() : ExerciseRequestFactory 
             SkillCode.COUNT_LETTERS,
             SkillCode.COUNT_VOWELS,
             SkillCode.COUNT_CONSONANTS -> {
-                // Можно задавать вопрос с выбором или с вводом числа
                 if (Random.nextBoolean()) ExerciseType.CHOICE
                 else ExerciseType.GAP_FILL
             }
             SkillCode.RECOGNIZE_SOFT_SIGN,
             SkillCode.RECOGNIZE_HARD_SIGN -> ExerciseType.CHOICE
+            SkillCode.FIND_FIRST_LETTER,
+            SkillCode.FIND_LAST_LETTER -> ExerciseType.CHOICE
+            SkillCode.DIVIDE_TO_SYLLABLES -> ExerciseType.GAP_FILL
             else -> ExerciseType.CHOICE
         }
     }
