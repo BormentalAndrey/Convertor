@@ -3,6 +3,7 @@ package com.example.russianpath.data.exercise
 import com.example.russianpath.core.exercise.AnswerProvider
 import com.example.russianpath.core.exercise.ChoiceAnswer
 import com.example.russianpath.core.exercise.CorrectAnswer
+import com.example.russianpath.core.exercise.DistractorGenerator
 import com.example.russianpath.core.exercise.Exercise
 import com.example.russianpath.core.exercise.ExerciseBuilder
 import com.example.russianpath.core.exercise.ExerciseFingerprint
@@ -11,6 +12,7 @@ import com.example.russianpath.core.exercise.ExerciseOption
 import com.example.russianpath.core.exercise.ExerciseRequest
 import com.example.russianpath.core.exercise.OptionId
 import com.example.russianpath.core.exercise.PresentationType
+import com.example.russianpath.core.exercise.TemplateEngine
 import com.example.russianpath.core.exercise.TextAnswer
 import com.example.russianpath.core.exercise.TextOption
 import java.util.UUID
