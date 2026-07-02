@@ -13,7 +13,7 @@ class AnswerProviderImpl @Inject constructor() : AnswerProvider {
 
     override fun getCorrectAnswer(skillCode: SkillCode, analysis: WordAnalysis): CorrectAnswer {
         val letter = analysis.letterAnalysis
-        val syllable = analysis.syllableAnalysis
+        val syllable = analysis.analyses.syllable
 
         return when (skillCode) {
             SkillCode.COUNT_SYLLABLES -> {
