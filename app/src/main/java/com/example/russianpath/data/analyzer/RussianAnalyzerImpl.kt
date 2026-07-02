@@ -1,8 +1,7 @@
 package com.example.russianpath.data.analyzer
 
-import com.example.russianpath.core.analysis.LetterAnalysis
+import com.example.russianpath.core.analysis.Analyses
 import com.example.russianpath.core.analysis.RussianAnalyzer
-import com.example.russianpath.core.analysis.SyllableAnalysis
 import com.example.russianpath.core.analysis.WordAnalysis
 import com.example.russianpath.core.dictionary.DictionaryWord
 import javax.inject.Inject
@@ -21,9 +20,7 @@ class RussianAnalyzerImpl @Inject constructor(
         return WordAnalysis(
             dictionaryWord = word,
             letterAnalysis = letterAnalysis,
-            analyses = analyses {
-                syllable = syllableAnalysis
-            }
+            analyses = Analyses(syllable = syllableAnalysis)
         )
     }
 }
