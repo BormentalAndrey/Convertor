@@ -13,4 +13,6 @@ class VowelDetector @Inject constructor() {
 
     fun isConsonant(char: Char): Boolean =
         char.uppercaseChar() !in vowels && char.uppercaseChar() !in signs
+
+    fun isSign(char: Char): Boolean = char.uppercaseChar() in signs
 }
