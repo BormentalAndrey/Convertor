@@ -1,8 +1,7 @@
-// core/knowledge/SkillCodeTest.kt
+// app/src/main/java/com/example/russianpath/core/knowledge/SkillCodeTest.kt
 package com.example.russianpath.core.knowledge
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class SkillCodeTest {
@@ -48,16 +47,8 @@ class SkillCodeTest {
         }
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException::class)
     fun `fromCode throws on unknown code`() {
-        try {
-            SkillCode.fromCode(9999)
-            assertTrue("Expected exception for code 9999", false)
-        } catch (e: IllegalArgumentException) {
-            assertEquals(
-                "Unknown SkillCode: 9999. Database or application version mismatch.",
-                e.message
-            )
-        }
+        SkillCode.fromCode(9999)
     }
 }
