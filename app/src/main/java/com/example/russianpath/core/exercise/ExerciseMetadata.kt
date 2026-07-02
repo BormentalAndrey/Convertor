@@ -1,5 +1,6 @@
 package com.example.russianpath.core.exercise
 
+import com.example.russianpath.core.common.Difficulty
 import com.example.russianpath.core.knowledge.SkillCode
 
 data class ExerciseMetadata(
