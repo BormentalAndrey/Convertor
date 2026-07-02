@@ -1,6 +1,10 @@
 package com.example.russianpath.data.local.mapper
 
-import com.example.russianpath.core.knowledge.*
+import com.example.russianpath.core.knowledge.LearningObjective
+import com.example.russianpath.core.knowledge.MicroSkill
+import com.example.russianpath.core.knowledge.MicroSkillId
+import com.example.russianpath.core.knowledge.ObjectiveId
+import com.example.russianpath.core.knowledge.SkillCode
 import com.example.russianpath.data.local.entity.LearningObjectiveEntity
 import com.example.russianpath.data.local.entity.MicroSkillEntity
 import com.google.gson.Gson
@@ -14,16 +18,20 @@ class KnowledgeMapper @Inject constructor() {
     private val gson = Gson()
 
     fun toDomain(entity: LearningObjectiveEntity): LearningObjective {
-        val prerequisites = gson.fromJson<List<String>>(
-            entity.prerequisitesJson,
-            object : TypeToken<List<String>>() {}.type
-        ).map { ObjectiveId(it) }
+        val prerequisites: List<String> = try {
+            gson.fromJson(
+                entity.prerequisitesJson,
+                object : TypeToken<List<String>>() {}.type
+            )
+        } catch (e: Exception) {
+            emptyList()
+        }
 
         return LearningObjective(
             id = ObjectiveId(entity.id),
             name = entity.name,
             description = entity.description ?: "",
-            prerequisites = prerequisites
+            prerequisites = prerequisites.map { ObjectiveId(it) }
         )
     }
 
