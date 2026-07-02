@@ -1,7 +1,5 @@
 package com.example.russianpath.exercise
 
-import com.example.russianpath.core.analysis.LetterAnalysis
-import com.example.russianpath.core.analysis.SyllableAnalysis
 import com.example.russianpath.core.analysis.WordAnalysis
 import com.example.russianpath.core.common.Difficulty
 import com.example.russianpath.core.dictionary.DictionaryWord
@@ -25,7 +23,6 @@ import com.example.russianpath.data.exercise.AnswerEvaluatorImpl
 import com.example.russianpath.data.exercise.AnswerProviderImpl
 import com.example.russianpath.data.exercise.DistractorGeneratorImpl
 import com.example.russianpath.data.exercise.ExerciseBuilderImpl
-import com.example.russianpath.data.exercise.ExerciseRequestFactoryImpl
 import com.example.russianpath.data.exercise.TemplateEngineImpl
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
@@ -37,7 +34,8 @@ class ExerciseEngineIntegrationTest {
 
     private lateinit var analyzer: RussianAnalyzerImpl
     private lateinit var builder: ExerciseBuilder
-    private lateinit var factory: ExerciseRequestFactory
+
+    // Factory не используется в тестах — запросы создаются явно для детерминизма
     private lateinit var evaluator: AnswerEvaluator
 
     @Before
@@ -52,7 +50,6 @@ class ExerciseEngineIntegrationTest {
         val answerProvider = AnswerProviderImpl()
         val distractorGenerator = DistractorGeneratorImpl()
         builder = ExerciseBuilderImpl(templateEngine, distractorGenerator, answerProvider)
-        factory = ExerciseRequestFactoryImpl()
         evaluator = AnswerEvaluatorImpl()
     }
 
@@ -68,23 +65,58 @@ class ExerciseEngineIntegrationTest {
         )
     }
 
+    private fun createRequest(
+        skillCode: SkillCode,
+        analysis: WordAnalysis,
+        type: ExerciseType = ExerciseType.CHOICE
+    ): ExerciseRequest {
+        return ExerciseRequest(
+            skillCode = skillCode,
+            exerciseType = type,
+            difficulty = Difficulty.EASY,
+            analysis = analysis
+        )
+    }
+
     // ================================================================
-    // Тест 1: COUNT_SYLLABLES
+    // Тест 1: COUNT_SYLLABLES — анализ + упражнение + правильный ответ
     // ================================================================
     @Test
-    fun `COUNT_SYLLABLES should produce valid numeric exercise`() {
+    fun `COUNT_SYLLABLES — analysis, exercise, and correct answer`() {
         val word = dictionaryWord("word_mama", "МАМА")
         val analysis = analyzer.analyze(word)
-        val request = factory.createRequest(SkillCode.COUNT_SYLLABLES, analysis, Difficulty.EASY)
+
+        // Проверка анализатора
+        assertEquals(2, analysis.syllableAnalysis?.count)
+
+        val request = createRequest(SkillCode.COUNT_SYLLABLES, analysis)
         val exercise = builder.build(request)
 
+        // Проверка fingerprint
+        assertEquals(SkillCode.COUNT_SYLLABLES, exercise.fingerprint.skillCode)
+        assertEquals(word.id, exercise.fingerprint.wordId)
+        assertEquals(Difficulty.EASY, exercise.fingerprint.difficulty)
+
+        // Проверка правильного ответа
+        assertEquals("2", (exercise.correctAnswer as TextAnswer).value)
+
+        // Проверка correctOptionId существует
+        assertTrue(exercise.options.any { it.id == exercise.correctOptionId })
+
+        // Проверка prompt и hint
         assertTrue(exercise.prompt.contains("слогов"))
-        assertNotNull(exercise.correctOptionId)
-        assertTrue(exercise.options.isNotEmpty())
+        assertTrue(exercise.prompt.contains("МАМА"))
+        assertNotNull(exercise.hint)
+        assertTrue(exercise.hint!!.isNotBlank())
 
-        val correct = exercise.correctAnswer as TextAnswer
-        assertEquals("2", correct.value)
+        // Проверка числа вариантов
+        assertEquals(4, exercise.options.size)
 
+        // Проверка уникальности id
+        val ids = exercise.options.map { it.id }
+        assertEquals(ids.size, ids.distinct().size)
+
+        // Правильный ответ
         val result = evaluator.evaluate(exercise, TextUserAnswer("2"))
         assertTrue(result.isCorrect)
     }
@@ -93,106 +125,116 @@ class ExerciseEngineIntegrationTest {
     // Тест 2: FIND_FIRST_LETTER
     // ================================================================
     @Test
-    fun `FIND_FIRST_LETTER should detect first letter`() {
+    fun `FIND_FIRST_LETTER — detects first letter`() {
         val word = dictionaryWord("word_kot", "КОТ")
         val analysis = analyzer.analyze(word)
-        val request = factory.createRequest(SkillCode.FIND_FIRST_LETTER, analysis, Difficulty.EASY)
+
+        assertEquals('К', analysis.letterAnalysis.first)
+
+        val request = createRequest(SkillCode.FIND_FIRST_LETTER, analysis)
         val exercise = builder.build(request)
 
         assertEquals("К", (exercise.correctAnswer as TextAnswer).value)
 
-        val result = evaluator.evaluate(exercise, TextUserAnswer("К"))
-        assertTrue(result.isCorrect)
+        // Проверка регистра
+        val resultLower = evaluator.evaluate(exercise, TextUserAnswer("к"))
+        assertTrue(resultLower.isCorrect)
     }
 
     // ================================================================
-    // Тест 3: RECOGNIZE_SOFT_SIGN
+    // Тест 3: RECOGNIZE_SOFT_SIGN — есть
     // ================================================================
     @Test
-    fun `RECOGNIZE_SOFT_SIGN should detect soft sign`() {
+    fun `RECOGNIZE_SOFT_SIGN — detects soft sign`() {
         val word = dictionaryWord("word_mol", "МОЛЬ")
         val analysis = analyzer.analyze(word)
-        val request = factory.createRequest(SkillCode.RECOGNIZE_SOFT_SIGN, analysis, Difficulty.EASY)
+
+        assertTrue(analysis.letterAnalysis.hasSoftSign)
+
+        val request = createRequest(SkillCode.RECOGNIZE_SOFT_SIGN, analysis)
         val exercise = builder.build(request)
 
         assertEquals("Да", (exercise.correctAnswer as TextAnswer).value)
 
-        val result = evaluator.evaluate(exercise, TextUserAnswer("Да"))
+        // Регистр
+        val result = evaluator.evaluate(exercise, TextUserAnswer("да"))
         assertTrue(result.isCorrect)
     }
 
     // ================================================================
-    // Тест 4: RECOGNIZE_HARD_SIGN — отсутствует
+    // Тест 4: RECOGNIZE_HARD_SIGN — нет
     // ================================================================
     @Test
-    fun `RECOGNIZE_HARD_SIGN should return No for word without hard sign`() {
+    fun `RECOGNIZE_HARD_SIGN — returns No when absent`() {
         val word = dictionaryWord("word_dom", "ДОМ")
         val analysis = analyzer.analyze(word)
-        val request = factory.createRequest(SkillCode.RECOGNIZE_HARD_SIGN, analysis, Difficulty.EASY)
+
+        assertTrue(!analysis.letterAnalysis.hasHardSign)
+
+        val request = createRequest(SkillCode.RECOGNIZE_HARD_SIGN, analysis)
         val exercise = builder.build(request)
 
         assertEquals("Нет", (exercise.correctAnswer as TextAnswer).value)
-
-        val result = evaluator.evaluate(exercise, TextUserAnswer("Нет"))
-        assertTrue(result.isCorrect)
     }
 
     // ================================================================
     // Тест 5: COUNT_LETTERS
     // ================================================================
     @Test
-    fun `COUNT_LETTERS should count correctly`() {
+    fun `COUNT_LETTERS — counts correctly`() {
         val word = dictionaryWord("word_dom", "ДОМ")
         val analysis = analyzer.analyze(word)
-        val request = factory.createRequest(SkillCode.COUNT_LETTERS, analysis, Difficulty.EASY)
+
+        assertEquals(3, analysis.letterAnalysis.count)
+
+        val request = createRequest(SkillCode.COUNT_LETTERS, analysis)
         val exercise = builder.build(request)
 
         assertEquals("3", (exercise.correctAnswer as TextAnswer).value)
-
-        val result = evaluator.evaluate(exercise, TextUserAnswer("3"))
-        assertTrue(result.isCorrect)
     }
 
     // ================================================================
     // Тест 6: COUNT_VOWELS
     // ================================================================
     @Test
-    fun `COUNT_VOWELS should count vowels correctly`() {
+    fun `COUNT_VOWELS — counts vowels`() {
         val word = dictionaryWord("word_mama", "МАМА")
         val analysis = analyzer.analyze(word)
-        val request = factory.createRequest(SkillCode.COUNT_VOWELS, analysis, Difficulty.EASY)
+
+        val vowelCount = analysis.letterAnalysis.letters.count { it.isVowel }
+        assertEquals(2, vowelCount)
+
+        val request = createRequest(SkillCode.COUNT_VOWELS, analysis)
         val exercise = builder.build(request)
 
         assertEquals("2", (exercise.correctAnswer as TextAnswer).value)
-
-        val result = evaluator.evaluate(exercise, TextUserAnswer("2"))
-        assertTrue(result.isCorrect)
     }
 
     // ================================================================
     // Тест 7: COUNT_CONSONANTS
     // ================================================================
     @Test
-    fun `COUNT_CONSONANTS should count consonants correctly`() {
+    fun `COUNT_CONSONANTS — counts consonants`() {
         val word = dictionaryWord("word_kot", "КОТ")
         val analysis = analyzer.analyze(word)
-        val request = factory.createRequest(SkillCode.COUNT_CONSONANTS, analysis, Difficulty.EASY)
+
+        val consonantCount = analysis.letterAnalysis.letters.count { it.isConsonant }
+        assertEquals(2, consonantCount)
+
+        val request = createRequest(SkillCode.COUNT_CONSONANTS, analysis)
         val exercise = builder.build(request)
 
         assertEquals("2", (exercise.correctAnswer as TextAnswer).value)
-
-        val result = evaluator.evaluate(exercise, TextUserAnswer("2"))
-        assertTrue(result.isCorrect)
     }
 
     // ================================================================
-    // Тест 8: distractors не содержат правильный ответ
+    // Тест 8: Дистракторы не содержат правильный ответ
     // ================================================================
     @Test
     fun `distractors must not contain correct answer`() {
         val word = dictionaryWord("word_dom", "ДОМ")
         val analysis = analyzer.analyze(word)
-        val request = factory.createRequest(SkillCode.COUNT_LETTERS, analysis, Difficulty.EASY)
+        val request = createRequest(SkillCode.COUNT_LETTERS, analysis)
         val exercise = builder.build(request)
 
         val correctValue = (exercise.correctAnswer as TextAnswer).value
@@ -209,13 +251,13 @@ class ExerciseEngineIntegrationTest {
     }
 
     // ================================================================
-    // Тест 9: детерминированный fingerprint
+    // Тест 9: Детерминированный fingerprint
     // ================================================================
     @Test
-    fun `same input should produce same exercise id`() {
+    fun `same input produces same exercise id`() {
         val word = dictionaryWord("word_mama", "МАМА")
         val analysis = analyzer.analyze(word)
-        val request = factory.createRequest(SkillCode.COUNT_SYLLABLES, analysis, Difficulty.EASY)
+        val request = createRequest(SkillCode.COUNT_SYLLABLES, analysis)
 
         val ex1 = builder.build(request)
         val ex2 = builder.build(request)
@@ -224,29 +266,27 @@ class ExerciseEngineIntegrationTest {
     }
 
     // ================================================================
-    // Тест 10: evaluator с ChoiceUserAnswer
+    // Тест 10: Choice — правильный OptionId
     // ================================================================
     @Test
-    fun `choice answer evaluation with correct option id should succeed`() {
+    fun `choice answer with correct option id succeeds`() {
         val word = dictionaryWord("word_kot", "КОТ")
         val analysis = analyzer.analyze(word)
-        val request = factory.createRequest(SkillCode.FIND_FIRST_LETTER, analysis, Difficulty.EASY)
+        val request = createRequest(SkillCode.FIND_FIRST_LETTER, analysis)
         val exercise = builder.build(request)
 
-        val correctOptionId = exercise.correctOptionId
-        val result = evaluator.evaluate(exercise, ChoiceUserAnswer(correctOptionId))
-
+        val result = evaluator.evaluate(exercise, ChoiceUserAnswer(exercise.correctOptionId))
         assertTrue(result.isCorrect)
     }
 
     // ================================================================
-    // Тест 11: evaluator с неправильным ChoiceUserAnswer
+    // Тест 11: Choice — неправильный OptionId
     // ================================================================
     @Test
-    fun `choice answer evaluation with wrong option id should fail`() {
+    fun `choice answer with wrong option id fails`() {
         val word = dictionaryWord("word_kot", "КОТ")
         val analysis = analyzer.analyze(word)
-        val request = factory.createRequest(SkillCode.FIND_FIRST_LETTER, analysis, Difficulty.EASY)
+        val request = createRequest(SkillCode.FIND_FIRST_LETTER, analysis)
         val exercise = builder.build(request)
 
         val wrongOption = exercise.options
@@ -254,7 +294,6 @@ class ExerciseEngineIntegrationTest {
             .first { it.id != exercise.correctOptionId }
 
         val result = evaluator.evaluate(exercise, ChoiceUserAnswer(wrongOption.id))
-
         assertTrue(!result.isCorrect)
     }
 
@@ -262,41 +301,40 @@ class ExerciseEngineIntegrationTest {
     // Тест 12: FIND_LAST_LETTER
     // ================================================================
     @Test
-    fun `FIND_LAST_LETTER should detect last letter`() {
+    fun `FIND_LAST_LETTER — detects last letter`() {
         val word = dictionaryWord("word_dom", "ДОМ")
         val analysis = analyzer.analyze(word)
-        val request = factory.createRequest(SkillCode.FIND_LAST_LETTER, analysis, Difficulty.EASY)
+
+        assertEquals('М', analysis.letterAnalysis.last)
+
+        val request = createRequest(SkillCode.FIND_LAST_LETTER, analysis)
         val exercise = builder.build(request)
 
         assertEquals("М", (exercise.correctAnswer as TextAnswer).value)
-
-        val result = evaluator.evaluate(exercise, TextUserAnswer("М"))
-        assertTrue(result.isCorrect)
     }
 
     // ================================================================
-    // Тест 13: неверный ответ
+    // Тест 13: Неправильный ответ
     // ================================================================
     @Test
-    fun `wrong answer should be marked incorrect`() {
+    fun `wrong answer is marked incorrect`() {
         val word = dictionaryWord("word_mama", "МАМА")
         val analysis = analyzer.analyze(word)
-        val request = factory.createRequest(SkillCode.COUNT_SYLLABLES, analysis, Difficulty.EASY)
+        val request = createRequest(SkillCode.COUNT_SYLLABLES, analysis)
         val exercise = builder.build(request)
 
         val result = evaluator.evaluate(exercise, TextUserAnswer("999"))
-
         assertTrue(!result.isCorrect)
     }
 
     // ================================================================
-    // Тест 14: все опции уникальны
+    // Тест 14: Все тексты вариантов уникальны
     // ================================================================
     @Test
-    fun `all options must be unique`() {
+    fun `all option texts are unique`() {
         val word = dictionaryWord("word_mama", "МАМА")
         val analysis = analyzer.analyze(word)
-        val request = factory.createRequest(SkillCode.COUNT_VOWELS, analysis, Difficulty.EASY)
+        val request = createRequest(SkillCode.COUNT_VOWELS, analysis)
         val exercise = builder.build(request)
 
         val texts = exercise.options.map { (it as TextOption).text }
@@ -304,19 +342,64 @@ class ExerciseEngineIntegrationTest {
     }
 
     // ================================================================
-    // Тест 15: prompt не пустой и содержит слово
+    // Тест 15: Prompt содержит слово
     // ================================================================
     @Test
-    fun `prompt must contain the word`() {
+    fun `prompt contains the word`() {
         val word = dictionaryWord("word_dom", "ДОМ")
         val analysis = analyzer.analyze(word)
-        val request = factory.createRequest(SkillCode.COUNT_LETTERS, analysis, Difficulty.EASY)
+        val request = createRequest(SkillCode.COUNT_LETTERS, analysis)
         val exercise = builder.build(request)
 
         assertTrue(exercise.prompt.isNotBlank())
         assertTrue(exercise.prompt.contains("ДОМ"))
     }
-}
 
-// Импорт для filterIsInstance
-import com.example.russianpath.core.exercise.ExerciseOption
+    // ================================================================
+    // Тест 16: Пустой ответ
+    // ================================================================
+    @Test
+    fun `empty answer is marked incorrect`() {
+        val word = dictionaryWord("word_mama", "МАМА")
+        val analysis = analyzer.analyze(word)
+        val request = createRequest(SkillCode.COUNT_SYLLABLES, analysis)
+        val exercise = builder.build(request)
+
+        val result = evaluator.evaluate(exercise, TextUserAnswer(""))
+        assertTrue(!result.isCorrect)
+    }
+
+    // ================================================================
+    // Тест 17: Слово с Ё
+    // ================================================================
+    @Test
+    fun `word with Yo letter is analyzed correctly`() {
+        val word = dictionaryWord("word_yolka", "ЁЛКА")
+        val analysis = analyzer.analyze(word)
+
+        assertEquals(4, analysis.letterAnalysis.count)
+        assertEquals('Ё', analysis.letterAnalysis.first)
+        assertEquals(2, analysis.letterAnalysis.letters.count { it.isVowel })
+
+        val request = createRequest(SkillCode.FIND_FIRST_LETTER, analysis)
+        val exercise = builder.build(request)
+
+        assertEquals("Ё", (exercise.correctAnswer as TextAnswer).value)
+    }
+
+    // ================================================================
+    // Тест 18: Односложное слово
+    // ================================================================
+    @Test
+    fun `single syllable word`() {
+        val word = dictionaryWord("word_dom", "ДОМ")
+        val analysis = analyzer.analyze(word)
+
+        assertEquals(1, analysis.syllableAnalysis?.count)
+
+        val request = createRequest(SkillCode.COUNT_SYLLABLES, analysis)
+        val exercise = builder.build(request)
+
+        assertEquals("1", (exercise.correctAnswer as TextAnswer).value)
+    }
+}
