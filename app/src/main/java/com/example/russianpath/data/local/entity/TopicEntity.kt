@@ -15,14 +15,16 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [Index("sectionId")]
+    indices = [Index("sectionId"), Index("gradeLevel")]
 )
 data class TopicEntity(
     @PrimaryKey
     val id: String,
     val sectionId: String,
-    val name: String,
-    val description: String?,
+    val gradeLevel: Int,
+    val title: String,
+    val description: String,
+    val iconName: String,
     val sortOrder: Int,
-    val difficulty: Int = 1
+    val isUnlocked: Boolean = false
 )
