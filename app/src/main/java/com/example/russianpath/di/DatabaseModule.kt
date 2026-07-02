@@ -3,6 +3,7 @@ package com.example.russianpath.di
 import android.content.Context
 import androidx.room.Room
 import com.example.russianpath.core.analysis.RussianAnalyzer
+import com.example.russianpath.core.exercise.AnswerProvider
 import com.example.russianpath.core.exercise.DistractorGenerator
 import com.example.russianpath.core.exercise.ExerciseBuilder
 import com.example.russianpath.core.exercise.ExerciseRequestFactory
@@ -17,6 +18,7 @@ import com.example.russianpath.data.analyzer.SyllableAnalyzer
 import com.example.russianpath.data.analyzer.SyllableSplitter
 import com.example.russianpath.data.analyzer.VowelDetector
 import com.example.russianpath.data.exercise.AnswerEvaluatorImpl
+import com.example.russianpath.data.exercise.AnswerProviderImpl
 import com.example.russianpath.data.exercise.DistractorGeneratorImpl
 import com.example.russianpath.data.exercise.ExerciseBuilderImpl
 import com.example.russianpath.data.exercise.ExerciseRequestFactoryImpl
@@ -69,8 +71,13 @@ object DatabaseModule {
     @Provides @Singleton fun provideRussianAnalyzer(la: LetterAnalyzer, sa: SyllableAnalyzer): RussianAnalyzer = RussianAnalyzerImpl(la, sa)
 
     @Provides @Singleton fun provideTemplateEngine(): TemplateEngine = TemplateEngineImpl()
+    @Provides @Singleton fun provideAnswerProvider(): AnswerProvider = AnswerProviderImpl()
     @Provides @Singleton fun provideDistractorGenerator(): DistractorGenerator = DistractorGeneratorImpl()
-    @Provides @Singleton fun provideExerciseBuilder(te: TemplateEngine, dg: DistractorGenerator): ExerciseBuilder = ExerciseBuilderImpl(te, dg)
+    @Provides @Singleton fun provideExerciseBuilder(
+        te: TemplateEngine,
+        dg: DistractorGenerator,
+        ap: AnswerProvider
+    ): ExerciseBuilder = ExerciseBuilderImpl(te, dg, ap)
     @Provides @Singleton fun provideExerciseRequestFactory(): ExerciseRequestFactory = ExerciseRequestFactoryImpl()
     @Provides @Singleton fun provideAnswerEvaluator(): AnswerEvaluator = AnswerEvaluatorImpl()
 
