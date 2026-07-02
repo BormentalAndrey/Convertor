@@ -13,10 +13,9 @@ class DistractorGeneratorImpl @Inject constructor() : DistractorGenerator {
         count: Int,
         skillCode: SkillCode
     ): List<ExerciseOption> {
-        val correctValue = when (correct) {
+        val value = when (correct) {
             is TextAnswer -> correct.value
             is ChoiceAnswer -> correct.value
-            else -> return emptyList()
         }
 
         return when (skillCode) {
@@ -24,17 +23,25 @@ class DistractorGeneratorImpl @Inject constructor() : DistractorGenerator {
             SkillCode.COUNT_LETTERS,
             SkillCode.COUNT_VOWELS,
             SkillCode.COUNT_CONSONANTS -> {
-                val num = correctValue.toIntOrNull() ?: return emptyList()
+                val num = value.toIntOrNull() ?: return emptyList()
                 listOf(
-                    TextOption("dist_1", (num - 1).coerceAtLeast(1).toString()),
-                    TextOption("dist_2", (num + 1).toString()),
-                    TextOption("dist_3", (num + 2).toString())
+                    TextOption(OptionId("d1"), (num - 1).coerceAtLeast(1).toString()),
+                    TextOption(OptionId("d2"), (num + 1).toString()),
+                    TextOption(OptionId("d3"), (num + 2).toString())
                 ).take(count)
             }
             SkillCode.RECOGNIZE_SOFT_SIGN,
             SkillCode.RECOGNIZE_HARD_SIGN -> {
-                val opposite = if (correctValue == "Да") "Нет" else "Да"
-                listOf(TextOption("dist_1", opposite)).take(count)
+                val opposite = if (value == "Да") "Нет" else "Да"
+                listOf(TextOption(OptionId("d1"), opposite)).take(count)
+            }
+            SkillCode.FIND_FIRST_LETTER,
+            SkillCode.FIND_LAST_LETTER -> {
+                val chars = listOf("А", "О", "У", "И", "Е")
+                    .filter { it != value }
+                    .take(count)
+                    .mapIndexed { i, c -> TextOption(OptionId("d$i"), c) }
+                chars
             }
             else -> emptyList()
         }
