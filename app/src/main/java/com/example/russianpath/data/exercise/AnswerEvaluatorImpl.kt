@@ -22,8 +22,8 @@ class AnswerEvaluatorImpl @Inject constructor() : AnswerEvaluator {
                 userText.equals(exercise.correctAnswer.value, ignoreCase = true)
             }
             is ChoiceAnswer -> {
-                val userIndex = (answer as? ChoiceUserAnswer)?.index ?: -1
-                userIndex == exercise.correctAnswer.index
+                val userOptionId = (answer as? ChoiceUserAnswer)?.optionId
+                userOptionId == exercise.correctOptionId
             }
         }
 
