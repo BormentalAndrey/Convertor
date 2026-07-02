@@ -7,6 +7,7 @@ data class Exercise(
     val presentationType: PresentationType,
     val prompt: String,
     val options: List<ExerciseOption>,
+    val correctOptionId: OptionId,
     val correctAnswer: CorrectAnswer,
     val hint: String?
 )
