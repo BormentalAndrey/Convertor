@@ -7,10 +7,10 @@ import java.io.FileOutputStream
 
 object DatabaseInitializer {
     private const val DB_NAME = "russian_path.db"
-    
+
     fun initialize(context: Context) {
         val dbFile = context.getDatabasePath(DB_NAME)
-        
+
         if (!dbFile.exists()) {
             dbFile.parentFile?.mkdirs()
             try {
@@ -19,9 +19,9 @@ object DatabaseInitializer {
                         input.copyTo(output)
                     }
                 }
-                Log.d("DB_INIT", "Database copied successfully")
+                Log.d("DB_INIT", "Database v2 copied successfully")
             } catch (e: Exception) {
-                Log.e("DB_INIT", "Error copying database", e)
+                Log.e("DB_INIT", "Error copying database, will create empty", e)
             }
         }
     }
