@@ -12,6 +12,8 @@ import com.example.russianpath.data.analyzer.*
 import com.example.russianpath.data.exercise.*
 import com.example.russianpath.data.local.AppDatabase
 import com.example.russianpath.data.local.dao.*
+import com.example.russianpath.data.local.mapper.DictionaryWordMapper
+import com.example.russianpath.data.local.mapper.KnowledgeMapper
 import com.example.russianpath.data.repository.KnowledgeRepositoryImpl
 import com.example.russianpath.data.repository.ProgressRepositoryImpl
 import com.example.russianpath.data.repository.WordRepositoryImpl
@@ -29,13 +31,9 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
-        return Room.databaseBuilder(
-            context,
-            AppDatabase::class.java,
-            "russian_path.db"
-        )
-        .fallbackToDestructiveMigration()
-        .build()
+        return Room.databaseBuilder(context, AppDatabase::class.java, "russian_path.db")
+            .fallbackToDestructiveMigration()
+            .build()
     }
 
     // DAO
@@ -45,21 +43,22 @@ object DatabaseModule {
     @Provides fun provideLearningObjectiveDao(db: AppDatabase): LearningObjectiveDao = db.learningObjectiveDao()
     @Provides fun provideMicroSkillDao(db: AppDatabase): MicroSkillDao = db.microSkillDao()
     @Provides fun provideDictionaryDao(db: AppDatabase): DictionaryDao = db.dictionaryDao()
-    @Provides fun provideLessonDao(db: AppDatabase): LessonDao = db.lessonDao()
-    @Provides fun provideQuestionDao(db: AppDatabase): QuestionDao = db.questionDao()
-    @Provides fun provideUserProgressDao(db: AppDatabase): UserProgressDao = db.userProgressDao()
+
+    // Mappers
+    @Provides @Singleton fun provideDictionaryWordMapper(): DictionaryWordMapper = DictionaryWordMapper()
+    @Provides @Singleton fun provideKnowledgeMapper(): KnowledgeMapper = KnowledgeMapper()
 
     // Analyzer
     @Provides @Singleton fun provideVowelDetector(): VowelDetector = VowelDetector()
-    @Provides @Singleton fun provideSyllableSplitter(vowelDetector: VowelDetector): SyllableSplitter = SyllableSplitter(vowelDetector)
-    @Provides @Singleton fun provideLetterAnalyzer(vowelDetector: VowelDetector): LetterAnalyzer = LetterAnalyzer(vowelDetector)
-    @Provides @Singleton fun provideSyllableAnalyzer(vowelDetector: VowelDetector, splitter: SyllableSplitter): SyllableAnalyzer = SyllableAnalyzer(vowelDetector, splitter)
-    @Provides @Singleton fun provideRussianAnalyzer(letterAnalyzer: LetterAnalyzer, syllableAnalyzer: SyllableAnalyzer): RussianAnalyzer = RussianAnalyzerImpl(letterAnalyzer, syllableAnalyzer)
+    @Provides @Singleton fun provideSyllableSplitter(vd: VowelDetector): SyllableSplitter = SyllableSplitter(vd)
+    @Provides @Singleton fun provideLetterAnalyzer(vd: VowelDetector): LetterAnalyzer = LetterAnalyzer(vd)
+    @Provides @Singleton fun provideSyllableAnalyzer(sp: SyllableSplitter): SyllableAnalyzer = SyllableAnalyzer(sp)
+    @Provides @Singleton fun provideRussianAnalyzer(la: LetterAnalyzer, sa: SyllableAnalyzer): RussianAnalyzer = RussianAnalyzerImpl(la, sa)
 
     // Exercise
     @Provides @Singleton fun provideTemplateEngine(): TemplateEngine = TemplateEngineImpl()
     @Provides @Singleton fun provideDistractorGenerator(): DistractorGenerator = DistractorGeneratorImpl()
-    @Provides @Singleton fun provideExerciseBuilder(templateEngine: TemplateEngine, distractorGenerator: DistractorGenerator): ExerciseBuilder = ExerciseBuilderImpl(templateEngine, distractorGenerator)
+    @Provides @Singleton fun provideExerciseBuilder(te: TemplateEngine, dg: DistractorGenerator): ExerciseBuilder = ExerciseBuilderImpl(te, dg)
     @Provides @Singleton fun provideExerciseRequestFactory(): ExerciseRequestFactory = ExerciseRequestFactoryImpl()
     @Provides @Singleton fun provideAnswerEvaluator(): AnswerEvaluator = AnswerEvaluatorImpl()
 
