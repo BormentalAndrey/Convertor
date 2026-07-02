@@ -16,7 +16,13 @@ class DictionaryWordMapper @Inject constructor() {
         val tags = entity.tagsJson
             .split(",")
             .filter { it.isNotBlank() }
-            .map { WordTag.valueOf(it.trim()) }
+            .mapNotNull { tag ->
+                try {
+                    WordTag.valueOf(tag.trim())
+                } catch (e: IllegalArgumentException) {
+                    null
+                }
+            }
             .toSet()
 
         return DictionaryWord(
