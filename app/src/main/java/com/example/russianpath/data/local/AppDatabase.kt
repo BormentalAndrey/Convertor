@@ -1,11 +1,13 @@
+// app/src/main/java/com/example/russianpath/data/local/AppDatabase.kt
 package com.example.russianpath.data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.example.russianpath.data.local.converter.DifficultyConverter
 import com.example.russianpath.data.local.converter.SkillCodeConverter
 import com.example.russianpath.data.local.converter.StringListConverter
-import com.example.russianpath.data.local.converter.WordTagConverter
+import com.example.russianpath.data.local.converter.WordTagListConverter
 import com.example.russianpath.data.local.dao.*
 import com.example.russianpath.data.local.entity.*
 
@@ -23,7 +25,8 @@ import com.example.russianpath.data.local.entity.*
 )
 @TypeConverters(
     SkillCodeConverter::class,
-    WordTagConverter::class,
+    DifficultyConverter::class,
+    WordTagListConverter::class,
     StringListConverter::class
 )
 abstract class AppDatabase : RoomDatabase() {
