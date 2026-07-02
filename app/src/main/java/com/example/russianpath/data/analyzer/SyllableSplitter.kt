@@ -3,12 +3,6 @@ package com.example.russianpath.data.analyzer
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/**
- * Упрощённый алгоритм деления на слоги.
- *
- * Правило: слог заканчивается на гласную.
- * Для первой вертикали покрывает базовые случаи.
- */
 @Singleton
 class SyllableSplitter @Inject constructor(
     private val vowelDetector: VowelDetector
@@ -27,7 +21,6 @@ class SyllableSplitter @Inject constructor(
         }
 
         if (currentSyllable.isNotEmpty()) {
-            // Остаток присоединяем к последнему слогу
             if (result.isNotEmpty()) {
                 result[result.lastIndex] = result.last() + currentSyllable.toString()
             } else {
