@@ -1,41 +1,44 @@
 package com.example.russianpath.data.local.mapper
 
+import com.example.russianpath.core.common.Difficulty
 import com.example.russianpath.core.dictionary.DictionaryWord
+import com.example.russianpath.core.dictionary.WordId
+import com.example.russianpath.core.dictionary.WordIdFactory
 import com.example.russianpath.core.dictionary.WordTag
 import com.example.russianpath.data.local.entity.DictionaryWordEntity
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class DictionaryWordMapper @Inject constructor() {
 
-    private val gson = Gson()
-
     fun toDomain(entity: DictionaryWordEntity): DictionaryWord {
-        val tags = gson.fromJson<List<String>>(
-            entity.tagsJson,
-            object : TypeToken<List<String>>() {}.type
-        ).map { WordTag.valueOf(it) }.toSet()
-
-        val syllables = entity.syllablesJson?.let { json ->
-            gson.fromJson<List<String>>(
-                json,
-                object : TypeToken<List<String>>() {}.type
-            )
-        }
+        val tags = entity.tagsJson
+            .split(",")
+            .filter { it.isNotBlank() }
+            .map { WordTag.valueOf(it.trim()) }
+            .toSet()
 
         return DictionaryWord(
-            id = entity.id,
+            id = WordIdFactory.fromNormalized(entity.normalized),
             word = entity.word,
             normalized = entity.normalized,
             gradeLevel = entity.gradeLevel,
-            difficulty = entity.difficulty,
-            stressPosition = entity.stressPosition,
-            syllables = syllables,
+            difficulty = Difficulty(entity.difficulty),
             tags = tags,
             schemaVersion = entity.schemaVersion
+        )
+    }
+
+    fun toEntity(domain: DictionaryWord): DictionaryWordEntity {
+        return DictionaryWordEntity(
+            id = domain.id.value,
+            word = domain.word,
+            normalized = domain.normalized,
+            gradeLevel = domain.gradeLevel,
+            difficulty = domain.difficulty.value,
+            tagsJson = domain.tags.joinToString(",") { it.name },
+            schemaVersion = domain.schemaVersion
         )
     }
 }
