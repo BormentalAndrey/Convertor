@@ -1,3 +1,4 @@
+// core/progress/Mastery.kt
 package com.example.russianpath.core.progress
 
 import com.example.russianpath.core.knowledge.MicroSkillId
@@ -28,6 +29,9 @@ data class Mastery(
         }
         require(correctAttempts <= totalAttempts) {
             "correctAttempts ($correctAttempts) must be <= totalAttempts ($totalAttempts)"
+        }
+        require(!lastReviewed.isAfter(Instant.now())) {
+            "lastReviewed must not be in the future, got $lastReviewed"
         }
     }
 }
