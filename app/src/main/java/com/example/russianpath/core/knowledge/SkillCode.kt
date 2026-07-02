@@ -1,121 +1,34 @@
 package com.example.russianpath.core.knowledge
 
-/**
- * Главный идентификатор навыка в системе.
- *
- * ## Контракт (Core Contract v1.0.0)
- *
- * ### Правила:
- * - Каждый [code] уникален и **никогда не переиспользуется**.
- * - При удалении навыка его [code] выбывает навсегда.
- * - [key] — стабильный строковый идентификатор (`skill.{code}`).
- * - В БД хранится как `Int` (поле `skill_code_id`).
- *
- * ### Диапазоны (неизменяемы после v1.0):
- * ```
- * 1000–1099  Буквы (базовые)
- * 1100–1199  Мягкий/твёрдый знак
- *
- * 2000–2099  Слоги
- * 2100–2199  Ударение
- * 2200–2299  Звуки
- *
- * 3000–3099  ЖИ-ШИ, ЧА-ЩА, ЧУ-ЩУ
- * 3100–3199  Безударные гласные
- * 3200–3299  Парные согласные
- *
- * 4000–4099  Корень
- * 4100–4199  Приставка
- * 4200–4299  Суффикс
- * 4300–4399  Окончание
- *
- * 5000–5999  Морфология (v2+)
- * 6000–6999  Синтаксис (v2+)
- * 7000–7999  Текст (v2+)
- * ```
- */
-enum class SkillCode(val code: Int) {
+enum class SkillCode(val code: Int, val key: String) {
+    // 1000–1999: Графика
+    FIND_FIRST_LETTER(1001, "find_first_letter"),
+    FIND_LAST_LETTER(1002, "find_last_letter"),
+    COUNT_LETTERS(1003, "count_letters"),
+    RECOGNIZE_SOFT_SIGN(1004, "recognize_soft_sign"),
+    RECOGNIZE_HARD_SIGN(1005, "recognize_hard_sign"),
 
-    // ================================================================
-    // 1xxx: Графика
-    // ================================================================
-    // 1000–1099: Буквы (базовые)
-    FIND_FIRST_LETTER(1001),
-    FIND_LAST_LETTER(1002),
-    COUNT_LETTERS(1003),
+    // 2000–2999: Фонетика
+    COUNT_SYLLABLES(2001, "count_syllables"),
+    DIVIDE_TO_SYLLABLES(2002, "divide_to_syllables"),
+    FIND_STRESSED_SYLLABLE(2003, "find_stressed_syllable"),
+    COUNT_VOWELS(2004, "count_vowels"),
+    COUNT_CONSONANTS(2005, "count_consonants"),
 
-    // 1100–1199: Мягкий/твёрдый знак
-    RECOGNIZE_SOFT_SIGN(1101),
-    RECOGNIZE_HARD_SIGN(1102),
+    // 3000–3999: Орфография
+    SPELLING_ZHI_SHI(3001, "spelling_zhi_shi"),
+    SPELLING_CHA_SCHA(3002, "spelling_cha_scha"),
+    SPELLING_CHU_SCHU(3003, "spelling_chu_schu"),
 
-    // ================================================================
-    // 2xxx: Фонетика
-    // ================================================================
-    // 2000–2099: Слоги
-    COUNT_SYLLABLES(2001),
-    DIVIDE_TO_SYLLABLES(2002),
-
-    // 2100–2199: Ударение
-    FIND_STRESSED_SYLLABLE(2101),
-
-    // 2200–2299: Звуки
-    COUNT_VOWELS(2201),
-    COUNT_CONSONANTS(2202),
-
-    // ================================================================
-    // 3xxx: Орфография
-    // ================================================================
-    // 3000–3099: ЖИ-ШИ, ЧА-ЩА, ЧУ-ЩУ
-    SPELLING_ZHI_SHI(3001),
-    SPELLING_CHA_SCHA(3002),
-    SPELLING_CHU_SCHU(3003),
-
-    // ================================================================
-    // 4xxx: Морфемика
-    // ================================================================
-    // 4000–4099: Корень
-    FIND_ROOT(4001),
-    // 4100–4199: Приставка
-    FIND_PREFIX(4101),
-    // 4200–4299: Суффикс
-    FIND_SUFFIX(4201),
-    // 4300–4399: Окончание
-    FIND_ENDING(4301),
-
-    // ================================================================
-    // 5xxx: Морфология (v2+)
-    // 6xxx: Синтаксис (v2+)
-    // 7xxx: Текст (v2+)
-    // ================================================================
-    ;
-
-    /**
-     * Стабильный строковый идентификатор.
-     * Формат: `skill.{code}`. Не зависит от имени enum-константы.
-     */
-    val key: String = "skill.$code"
+    // 4000–4999: Морфемика
+    FIND_ROOT(4001, "find_root"),
+    FIND_PREFIX(4002, "find_prefix"),
+    FIND_SUFFIX(4003, "find_suffix"),
+    FIND_ENDING(4004, "find_ending");
 
     companion object {
-        private val byCode: Map<Int, SkillCode> =
-            entries.associateBy { it.code }
-
-        /**
-         * Получить [SkillCode] по числовому коду.
-         *
-         * @throws IllegalArgumentException если код меньше 1000
-         *         (повреждённая БД или несовместимая версия приложения).
-         * @throws IllegalArgumentException если код не найден в enum.
-         */
         fun fromCode(code: Int): SkillCode {
-            require(code >= 1000) {
-                "SkillCode must be >= 1000, got $code. " +
-                "Database or application version mismatch."
-            }
-            return byCode[code]
-                ?: throw IllegalArgumentException(
-                    "Unknown SkillCode: $code. " +
-                    "Database or application version mismatch."
-                )
+            return entries.first { it.code == code }
         }
     }
 }
