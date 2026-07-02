@@ -1,9 +1,12 @@
 package com.example.russianpath.core.progress
 
+import com.example.russianpath.core.exercise.ExerciseId
+import com.example.russianpath.core.knowledge.SkillCode
 import java.time.Instant
 
 data class AnswerResult(
-    val exerciseId: String,
+    val exerciseId: ExerciseId,
+    val skillCode: SkillCode,
     val userAnswer: UserAnswer,
     val isCorrect: Boolean,
     val timeSpentMs: Long,
