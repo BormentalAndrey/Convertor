@@ -4,8 +4,6 @@ package com.example.russianpath.data.local.entity
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.example.russianpath.core.common.Difficulty
-import com.example.russianpath.core.dictionary.WordTag
 
 @Entity(
     tableName = "dictionary_words",
@@ -20,7 +18,7 @@ data class DictionaryWordEntity(
     val word: String,
     val normalized: String,
     val gradeLevel: Int,
-    val difficulty: Difficulty,
-    val tags: Set<WordTag> = emptySet(),
+    val difficulty: Int,
+    val tagsJson: String = "[]",
     val schemaVersion: Int = 1
 )
