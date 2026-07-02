@@ -1,8 +1,8 @@
 package com.example.russianpath.core.knowledge
 
 data class LearningObjective(
-    val id: String,
+    val id: ObjectiveId,
     val name: String,
     val description: String,
-    val prerequisites: List<String> = emptyList()
+    val prerequisites: List<ObjectiveId> = emptyList()
 )
