@@ -23,40 +23,26 @@ object DatabaseModule {
             AppDatabase::class.java,
             "russian_path.db"
         )
-        .fallbackToDestructiveMigration() // Удалит старые данные при смене версии
+        .fallbackToDestructiveMigration()
         .build()
     }
 
-    // Старые DAO
     @Provides
-    fun provideTopicDao(database: AppDatabase): TopicDao = database.topicDao()
+    fun provideGradeDao(db: AppDatabase): GradeDao = db.gradeDao()
 
     @Provides
-    fun provideLessonDao(database: AppDatabase): LessonDao = database.lessonDao()
+    fun provideSectionDao(db: AppDatabase): SectionDao = db.sectionDao()
 
     @Provides
-    fun provideQuestionDao(database: AppDatabase): QuestionDao = database.questionDao()
+    fun provideTopicDao(db: AppDatabase): TopicDao = db.topicDao()
 
     @Provides
-    fun provideUserProgressDao(database: AppDatabase): UserProgressDao = database.userProgressDao()
-
-    // Новые DAO
-    @Provides
-    fun provideGradeDao(database: AppDatabase): GradeDao = database.gradeDao()
+    fun provideLearningObjectiveDao(db: AppDatabase): LearningObjectiveDao =
+        db.learningObjectiveDao()
 
     @Provides
-    fun provideSectionDao(database: AppDatabase): SectionDao = database.sectionDao()
+    fun provideMicroSkillDao(db: AppDatabase): MicroSkillDao = db.microSkillDao()
 
     @Provides
-    fun provideTopicDaoV2(database: AppDatabase): TopicDaoV2 = database.topicDaoV2()
-
-    @Provides
-    fun provideLearningObjectiveDao(database: AppDatabase): LearningObjectiveDao =
-        database.learningObjectiveDao()
-
-    @Provides
-    fun provideMicroSkillDao(database: AppDatabase): MicroSkillDao = database.microSkillDao()
-
-    @Provides
-    fun provideDictionaryDao(database: AppDatabase): DictionaryDao = database.dictionaryDao()
+    fun provideDictionaryDao(db: AppDatabase): DictionaryDao = db.dictionaryDao()
 }
