@@ -31,8 +31,8 @@ class LetterAnalyzer @Inject constructor(
             count = letters.size,
             first = letters.first().char,
             last = letters.last().char,
-            hasSoftSign = letters.any { it.char.uppercaseChar() == 'Ь' },
-            hasHardSign = letters.any { it.char.uppercaseChar() == 'Ъ' }
+            hasSoftSign = letters.any { it.char == 'Ь' },
+            hasHardSign = letters.any { it.char == 'Ъ' }
         )
     }
 }
