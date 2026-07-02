@@ -1,13 +1,18 @@
 package com.example.russianpath.data.exercise
 
-import com.example.russianpath.core.exercise.*
+import com.example.russianpath.core.exercise.Exercise
+import com.example.russianpath.core.exercise.ExerciseBuilder
+import com.example.russianpath.core.exercise.ExerciseFingerprint
+import com.example.russianpath.core.exercise.ExerciseIdFactory
+import com.example.russianpath.core.exercise.ExerciseRequest
+import com.example.russianpath.core.exercise.PresentationType
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.random.Random
 
 @Singleton
 class ExerciseBuilderImpl @Inject constructor(
-    private val templateEngine: TemplateEngine
+    private val templateEngine: TemplateEngine,
+    private val distractorGenerator: DistractorGenerator
 ) : ExerciseBuilder {
 
     override fun build(request: ExerciseRequest): Exercise {
@@ -15,8 +20,11 @@ class ExerciseBuilderImpl @Inject constructor(
             skillCode = request.skillCode,
             wordId = request.analysis.dictionaryWord.id,
             difficulty = request.difficulty,
-            seed = Random.nextInt()
+            seed = request.analysis.dictionaryWord.id.hashCode() xor request.skillCode.code
         )
+
+        val correctAnswer = templateEngine.buildCorrectAnswer(request)
+        val options = buildOptions(correctAnswer, request)
 
         return Exercise(
             id = ExerciseIdFactory.create(fingerprint),
@@ -24,9 +32,37 @@ class ExerciseBuilderImpl @Inject constructor(
             exerciseType = request.exerciseType,
             presentationType = PresentationType.TEXT,
             prompt = templateEngine.buildPrompt(request),
-            options = templateEngine.buildOptions(request),
-            correctAnswer = templateEngine.buildCorrectAnswer(request),
+            options = options,
+            correctAnswer = correctAnswer,
             hint = templateEngine.buildHint(request)
         )
     }
+
+    private fun buildOptions(
+        correctAnswer: CorrectAnswer,
+        request: ExerciseRequest
+    ): List<ExerciseOption> {
+        val correctOption = TextOption(
+            id = OptionId("correct"),
+            text = when (correctAnswer) {
+                is TextAnswer -> correctAnswer.value
+                is ChoiceAnswer -> correctAnswer.value
+            }
+        )
+
+        val distractors = distractorGenerator.generate(
+            correct = correctAnswer,
+            count = 3,
+            skillCode = request.skillCode
+        )
+
+        return (listOf(correctOption) + distractors).shuffled()
+    }
 }
+
+import com.example.russianpath.core.exercise.ChoiceAnswer
+import com.example.russianpath.core.exercise.CorrectAnswer
+import com.example.russianpath.core.exercise.ExerciseOption
+import com.example.russianpath.core.exercise.OptionId
+import com.example.russianpath.core.exercise.TextAnswer
+import com.example.russianpath.core.exercise.TextOption
