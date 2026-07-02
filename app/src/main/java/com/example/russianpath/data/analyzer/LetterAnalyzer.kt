@@ -1,3 +1,4 @@
+// app/src/main/java/com/example/russianpath/data/analyzer/LetterAnalyzer.kt
 package com.example.russianpath.data.analyzer
 
 import com.example.russianpath.core.analysis.Letter
@@ -11,13 +12,17 @@ class LetterAnalyzer @Inject constructor(
 ) {
 
     fun analyze(word: String): LetterAnalysis {
+        require(word.isNotBlank()) {
+            "Word must not be blank"
+        }
+
         val letters = word.mapIndexed { index, char ->
             Letter(
                 char = char,
                 position = index,
                 isVowel = vowelDetector.isVowel(char),
                 isConsonant = vowelDetector.isConsonant(char),
-                isSign = char in setOf('Ь', 'Ъ')
+                isSign = vowelDetector.isSign(char)
             )
         }
 
@@ -26,8 +31,8 @@ class LetterAnalyzer @Inject constructor(
             count = letters.size,
             first = letters.first().char,
             last = letters.last().char,
-            hasSoftSign = letters.any { it.isSign && it.char == 'Ь' },
-            hasHardSign = letters.any { it.isSign && it.char == 'Ъ' }
+            hasSoftSign = letters.any { it.char.uppercaseChar() == 'Ь' },
+            hasHardSign = letters.any { it.char.uppercaseChar() == 'Ъ' }
         )
     }
 }
