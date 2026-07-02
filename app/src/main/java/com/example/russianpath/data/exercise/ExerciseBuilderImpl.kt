@@ -3,33 +3,30 @@ package com.example.russianpath.data.exercise
 import com.example.russianpath.core.exercise.*
 import javax.inject.Inject
 import javax.inject.Singleton
-import java.util.UUID
+import kotlin.random.Random
 
 @Singleton
 class ExerciseBuilderImpl @Inject constructor(
-    private val templateEngine: TemplateEngine,
-    private val distractorGenerator: DistractorGenerator
+    private val templateEngine: TemplateEngine
 ) : ExerciseBuilder {
 
     override fun build(request: ExerciseRequest): Exercise {
-        val prompt = templateEngine.buildPrompt(request)
-        val options = templateEngine.buildOptions(request)
-        val correctAnswer = templateEngine.buildCorrectAnswer(request)
-        val hint = templateEngine.buildHint(request)
+        val fingerprint = ExerciseFingerprint(
+            skillCode = request.skillCode,
+            wordId = request.analysis.dictionaryWord.id,
+            difficulty = request.difficulty,
+            seed = Random.nextInt()
+        )
 
         return Exercise(
-            id = UUID.randomUUID().toString(),
-            prompt = prompt,
-            options = options,
-            correctAnswer = correctAnswer,
-            hint = hint,
-            metadata = ExerciseMetadata(
-                skillCode = request.skillCode,
-                exerciseType = request.exerciseType,
-                presentationType = PresentationType.TEXT,
-                difficulty = request.difficulty,
-                dictionaryWordId = request.analysis.dictionaryWord.id
-            )
+            id = ExerciseIdFactory.create(fingerprint),
+            fingerprint = fingerprint,
+            exerciseType = request.exerciseType,
+            presentationType = PresentationType.TEXT,
+            prompt = templateEngine.buildPrompt(request),
+            options = templateEngine.buildOptions(request),
+            correctAnswer = templateEngine.buildCorrectAnswer(request),
+            hint = templateEngine.buildHint(request)
         )
     }
 }
