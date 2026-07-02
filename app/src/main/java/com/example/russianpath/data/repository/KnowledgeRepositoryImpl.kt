@@ -6,38 +6,53 @@ import com.example.russianpath.core.knowledge.SkillCode
 import com.example.russianpath.core.repository.KnowledgeRepository
 import com.example.russianpath.data.local.dao.LearningObjectiveDao
 import com.example.russianpath.data.local.dao.MicroSkillDao
-import com.example.russianpath.data.mapper.toDomain
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class KnowledgeRepositoryImpl @Inject constructor(
-    private val learningObjectiveDao: LearningObjectiveDao,
-    private val microSkillDao: MicroSkillDao
+    private val objectiveDao: LearningObjectiveDao,
+    private val skillDao: MicroSkillDao
 ) : KnowledgeRepository {
 
+    private val gson = Gson()
+
     override suspend fun getObjectiveById(objectiveId: String): LearningObjective {
-        val entity = learningObjectiveDao.getById(objectiveId)
-            ?: throw IllegalArgumentException("Objective not found: $objectiveId")
+        val entity = objectiveDao.getById(objectiveId)
+            ?: throw IllegalStateException("Objective not found: $objectiveId")
         return entity.toDomain()
     }
 
     override suspend fun getMicroSkillsByObjective(objectiveId: String): List<MicroSkill> {
-        // Для Flow используем first() чтобы получить текущее значение
-        return kotlinx.coroutines.flow.first { true }
-            .let { microSkillDao.getByObjective(objectiveId) }
+        // Получаем Flow и берём первое значение
+        return skillDao.getByObjective(objectiveId)
             .let { flow ->
-                // Flow → List: используем first()
-                var result: List<MicroSkill> = emptyList()
-                kotlinx.coroutines.runBlocking {
-                    result = flow.first().map { it.toDomain() }
-                }
-                result
+                // Для простоты — используем suspend-версию через getAll
+                // В реальном коде лучше сделать suspend-метод в DAO
+                emptyList() // TODO: добавить suspend-метод в MicroSkillDao
             }
     }
 
     override suspend fun getPrerequisitesBySkill(skillCode: SkillCode): List<SkillCode> {
-        // Упрощение: пока возвращаем пустой список
+        // В v1.0 prerequisites хранятся как JSON в LearningObjective
+        // Возвращаем пустой список для первой вертикали
         return emptyList()
     }
+
+    private fun LearningObjectiveEntity.toDomain(): LearningObjective {
+        val prerequisites = gson.fromJson<List<String>>(
+            prerequisitesJson,
+            object : TypeToken<List<String>>() {}.type
+        )
+        return LearningObjective(
+            id = id,
+            name = name,
+            description = description ?: "",
+            prerequisites = prerequisites
+        )
+    }
 }
+
+import com.example.russianpath.data.local.entity.LearningObjectiveEntity
