@@ -102,14 +102,20 @@ enum class SkillCode(val code: Int) {
         /**
          * Получить [SkillCode] по числовому коду.
          *
-         * @throws IllegalArgumentException если код не найден
+         * @throws IllegalArgumentException если код меньше 1000
          *         (повреждённая БД или несовместимая версия приложения).
+         * @throws IllegalArgumentException если код не найден в enum.
          */
-        fun fromCode(code: Int): SkillCode =
-            byCode[code]
+        fun fromCode(code: Int): SkillCode {
+            require(code >= 1000) {
+                "SkillCode must be >= 1000, got $code. " +
+                "Database or application version mismatch."
+            }
+            return byCode[code]
                 ?: throw IllegalArgumentException(
                     "Unknown SkillCode: $code. " +
                     "Database or application version mismatch."
                 )
+        }
     }
 }
