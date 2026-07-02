@@ -1,71 +1,38 @@
 package com.example.russianpath.data.repository
 
+import com.example.russianpath.core.knowledge.LearningObjective
+import com.example.russianpath.core.knowledge.MicroSkill
 import com.example.russianpath.core.knowledge.MicroSkillId
+import com.example.russianpath.core.knowledge.ObjectiveId
 import com.example.russianpath.core.knowledge.SkillCode
-import com.example.russianpath.core.progress.AnswerResult
-import com.example.russianpath.core.progress.Mastery
-import com.example.russianpath.core.repository.ProgressRepository
-import java.time.Instant
+import com.example.russianpath.core.repository.KnowledgeRepository
+import com.example.russianpath.data.local.dao.LearningObjectiveDao
+import com.example.russianpath.data.local.dao.MicroSkillDao
+import com.example.russianpath.data.local.mapper.KnowledgeMapper
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ProgressRepositoryImpl @Inject constructor() : ProgressRepository {
+class KnowledgeRepositoryImpl @Inject constructor(
+    private val learningObjectiveDao: LearningObjectiveDao,
+    private val microSkillDao: MicroSkillDao,
+    private val knowledgeMapper: KnowledgeMapper
+) : KnowledgeRepository {
 
-    private val masteryStore = mutableMapOf<MicroSkillId, Mastery>()
-
-    override suspend fun recordAnswer(result: AnswerResult) {
-        val current = masteryStore[result.skillCode.let {
-            MicroSkillId("ms_${it.key}")
-        }] ?: Mastery(
-            microSkillId = MicroSkillId("ms_${result.skillCode.key}"),
-            skillCode = result.skillCode,
-            level = 0f,
-            confidence = 0f,
-            totalAttempts = 0,
-            correctAttempts = 0,
-            lastReviewed = Instant.now()
-        )
-
-        val updated = current.copy(
-            totalAttempts = current.totalAttempts + 1,
-            correctAttempts = if (result.isCorrect) {
-                current.correctAttempts + 1
-            } else {
-                current.correctAttempts
-            },
-            level = calculateLevel(current, result.isCorrect),
-            confidence = calculateConfidence(current, result.isCorrect),
-            lastReviewed = Instant.now()
-        )
-
-        masteryStore[updated.microSkillId] = updated
+    override suspend fun getObjectiveById(id: ObjectiveId): LearningObjective {
+        val entity = learningObjectiveDao.getById(id.value)
+            ?: throw IllegalArgumentException("Objective not found: $id")
+        return knowledgeMapper.toDomain(entity)
     }
 
-    override suspend fun getMastery(microSkillId: MicroSkillId): Mastery {
-        return masteryStore[microSkillId] ?: Mastery(
-            microSkillId = microSkillId,
-            skillCode = SkillCode.COUNT_SYLLABLES,
-            level = 0f,
-            confidence = 0f,
-            totalAttempts = 0,
-            correctAttempts = 0,
-            lastReviewed = Instant.now()
-        )
+    override suspend fun getMicroSkillsByObjective(objectiveId: ObjectiveId): List<MicroSkill> {
+        return microSkillDao.getByObjective(objectiveId.value)
+            .first()
+            .map { knowledgeMapper.toDomain(it) }
     }
 
-    private fun calculateLevel(current: Mastery, isCorrect: Boolean): Float {
-        val ratio = current.correctAttempts.toFloat() /
-                (current.totalAttempts + 1).coerceAtLeast(1)
-        return ratio.coerceIn(0f, 1f)
-    }
-
-    private fun calculateConfidence(current: Mastery, isCorrect: Boolean): Float {
-        val confidence = if (current.totalAttempts < 3) {
-            0.5f
-        } else {
-            current.correctAttempts.toFloat() / current.totalAttempts
-        }
-        return confidence.coerceIn(0f, 1f)
+    override suspend fun getPrerequisitesBySkill(skillCode: SkillCode): List<SkillCode> {
+        return emptyList()
     }
 }
