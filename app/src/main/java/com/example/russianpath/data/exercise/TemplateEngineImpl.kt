@@ -1,7 +1,10 @@
 package com.example.russianpath.data.exercise
 
 import com.example.russianpath.core.analysis.WordAnalysis
-import com.example.russianpath.core.exercise.*
+import com.example.russianpath.core.exercise.CorrectAnswer
+import com.example.russianpath.core.exercise.ExerciseRequest
+import com.example.russianpath.core.exercise.TemplateEngine
+import com.example.russianpath.core.exercise.TextAnswer
 import com.example.russianpath.core.knowledge.SkillCode
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -31,23 +34,6 @@ class TemplateEngineImpl @Inject constructor() : TemplateEngine {
             SkillCode.FIND_SUFFIX -> "Найди суффикс в слове «$word»"
             SkillCode.FIND_ENDING -> "Найди окончание в слове «$word»"
         }
-    }
-
-    override fun buildOptions(request: ExerciseRequest): List<ExerciseOption> {
-        val correct = buildCorrectAnswer(request)
-        val distractors = generateDistractorsFor(correct, request.skillCode)
-
-        val allOptions = (listOf(correct) + distractors)
-            .mapIndexed { index, answer ->
-                val text = when (answer) {
-                    is TextAnswer -> answer.value
-                    is ChoiceAnswer -> answer.value
-                }
-                TextOption(id = OptionId("opt_$index"), text = text)
-            }
-            .shuffled()
-
-        return allOptions
     }
 
     override fun buildHint(request: ExerciseRequest): String {
@@ -114,43 +100,6 @@ class TemplateEngineImpl @Inject constructor() : TemplateEngine {
                 TextAnswer(text)
             }
             else -> TextAnswer("?")
-        }
-    }
-
-    private fun generateDistractorsFor(
-        correct: CorrectAnswer,
-        skillCode: SkillCode
-    ): List<CorrectAnswer> {
-        val value = when (correct) {
-            is TextAnswer -> correct.value
-            is ChoiceAnswer -> correct.value
-        }
-
-        return when (skillCode) {
-            SkillCode.COUNT_SYLLABLES,
-            SkillCode.COUNT_LETTERS,
-            SkillCode.COUNT_VOWELS,
-            SkillCode.COUNT_CONSONANTS -> {
-                val num = value.toIntOrNull() ?: return emptyList()
-                listOf(
-                    TextAnswer((num - 1).coerceAtLeast(1).toString()),
-                    TextAnswer((num + 1).toString()),
-                    TextAnswer((num + 2).toString())
-                )
-            }
-            SkillCode.RECOGNIZE_SOFT_SIGN,
-            SkillCode.RECOGNIZE_HARD_SIGN -> {
-                if (value == "Да") listOf(TextAnswer("Нет"))
-                else listOf(TextAnswer("Да"))
-            }
-            SkillCode.FIND_FIRST_LETTER,
-            SkillCode.FIND_LAST_LETTER -> {
-                val chars = listOf("А", "О", "У", "И", "Е")
-                    .filter { it != value }
-                    .take(3)
-                chars.map { TextAnswer(it) }
-            }
-            else -> emptyList()
         }
     }
 }
