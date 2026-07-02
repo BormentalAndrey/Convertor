@@ -4,6 +4,8 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.russianpath.data.local.converter.SkillCodeConverter
+import com.example.russianpath.data.local.converter.StringListConverter
+import com.example.russianpath.data.local.converter.WordTagConverter
 import com.example.russianpath.data.local.dao.*
 import com.example.russianpath.data.local.entity.*
 
@@ -17,9 +19,13 @@ import com.example.russianpath.data.local.entity.*
         DictionaryWordEntity::class
     ],
     version = 1,
-    exportSchema = false
+    exportSchema = true
 )
-@TypeConverters(SkillCodeConverter::class)
+@TypeConverters(
+    SkillCodeConverter::class,
+    WordTagConverter::class,
+    StringListConverter::class
+)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun gradeDao(): GradeDao
     abstract fun sectionDao(): SectionDao
