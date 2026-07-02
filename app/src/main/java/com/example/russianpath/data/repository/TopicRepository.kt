@@ -1,8 +1,8 @@
 package com.example.russianpath.data.repository
 
 import com.example.russianpath.data.local.dao.TopicDao
-import com.example.russianpath.domain.model.Topic
 import com.example.russianpath.data.local.entity.TopicEntity
+import com.example.russianpath.domain.model.Topic
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -12,18 +12,19 @@ import javax.inject.Singleton
 class TopicRepository @Inject constructor(
     private val topicDao: TopicDao
 ) {
+
     fun getTopicsByGrade(grade: Int): Flow<List<Topic>> {
         return topicDao.getTopicsByGrade(grade).map { entities ->
             entities.map { it.toDomainModel() }
         }
     }
-    
+
     fun getAllTopics(): Flow<List<Topic>> {
         return topicDao.getAllTopics().map { entities ->
             entities.map { it.toDomainModel() }
         }
     }
-    
+
     suspend fun unlockTopic(id: String) {
         topicDao.unlockTopic(id)
     }
@@ -35,7 +36,7 @@ private fun TopicEntity.toDomainModel(): Topic {
         gradeLevel = gradeLevel,
         title = title,
         description = description,
-        iconName = iconName, // ИСПРАВЛЕНО: Теперь ссылается на существующее поле iconName
+        iconName = iconName,
         sortOrder = sortOrder,
         isUnlocked = isUnlocked
     )
