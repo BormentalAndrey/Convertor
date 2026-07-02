@@ -1,10 +1,7 @@
 package com.example.russianpath.data.exercise
 
-import com.example.russianpath.core.analysis.WordAnalysis
-import com.example.russianpath.core.exercise.CorrectAnswer
 import com.example.russianpath.core.exercise.ExerciseRequest
 import com.example.russianpath.core.exercise.TemplateEngine
-import com.example.russianpath.core.exercise.TextAnswer
 import com.example.russianpath.core.knowledge.SkillCode
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -55,51 +52,6 @@ class TemplateEngineImpl @Inject constructor() : TemplateEngine {
             SkillCode.FIND_PREFIX -> "Приставка стоит перед корнем"
             SkillCode.FIND_SUFFIX -> "Суффикс стоит после корня"
             SkillCode.FIND_ENDING -> "Окончание изменяется: МАМА, МАМЫ, МАМЕ"
-        }
-    }
-
-    override fun buildCorrectAnswer(request: ExerciseRequest): CorrectAnswer {
-        val analysis = request.analysis
-        val letter = analysis.letterAnalysis
-        val syllable = analysis.syllableAnalysis
-
-        return when (request.skillCode) {
-            SkillCode.COUNT_SYLLABLES -> {
-                val count = syllable?.count ?: 0
-                TextAnswer(count.toString())
-            }
-            SkillCode.FIND_FIRST_LETTER -> {
-                TextAnswer(letter.first.uppercase())
-            }
-            SkillCode.FIND_LAST_LETTER -> {
-                TextAnswer(letter.last.uppercase())
-            }
-            SkillCode.COUNT_LETTERS -> {
-                TextAnswer(letter.count.toString())
-            }
-            SkillCode.RECOGNIZE_SOFT_SIGN -> {
-                TextAnswer(if (letter.hasSoftSign) "Да" else "Нет")
-            }
-            SkillCode.RECOGNIZE_HARD_SIGN -> {
-                TextAnswer(if (letter.hasHardSign) "Да" else "Нет")
-            }
-            SkillCode.COUNT_VOWELS -> {
-                val count = letter.letters.count { it.isVowel }
-                TextAnswer(count.toString())
-            }
-            SkillCode.COUNT_CONSONANTS -> {
-                val count = letter.letters.count { it.isConsonant }
-                TextAnswer(count.toString())
-            }
-            SkillCode.DIVIDE_TO_SYLLABLES -> {
-                val text = syllable?.syllables?.joinToString("-") { it.text } ?: "?"
-                TextAnswer(text)
-            }
-            SkillCode.FIND_STRESSED_SYLLABLE -> {
-                val text = syllable?.syllables?.find { it.isStressed }?.text ?: "?"
-                TextAnswer(text)
-            }
-            else -> TextAnswer("?")
         }
     }
 }
