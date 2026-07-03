@@ -8,7 +8,7 @@ data class LessonEntity(
     @PrimaryKey
     val id: String,
     val topicId: String,
-    val lessonType: String, // THEORY, PRACTICE, BOSS_FIGHT
+    val lessonType: String,
     val difficulty: Int,
     val theoryJson: String?,
     val sortOrder: Int,
