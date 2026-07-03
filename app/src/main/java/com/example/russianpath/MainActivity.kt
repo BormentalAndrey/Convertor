@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.lifecycleScope
-import com.example.russianpath.data.repository.DatabaseSeeder
+import com.example.russianpath.data.seed.DatabaseSeeder
 import com.example.russianpath.presentation.navigation.NavGraph
 import com.example.russianpath.presentation.theme.RussianPathTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -23,9 +23,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Заполняем базу начальными данными
         lifecycleScope.launch {
-            databaseSeeder.seed()
+            databaseSeeder.seedDatabase()
         }
 
         setContent {
