@@ -6,7 +6,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -14,6 +14,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.russianpath.presentation.components.*
 import com.example.russianpath.presentation.theme.*
 
@@ -21,12 +23,13 @@ import com.example.russianpath.presentation.theme.*
 @Composable
 fun DashboardScreen(
     onLessonClick: (String) -> Unit = {},
-    onProfileClick: () -> Unit = {}
+    onProfileClick: () -> Unit = {},
+    viewModel: DashboardViewModel = hiltViewModel()
 ) {
-    val userXp = 350
-    val userGems = 120
-    val userLives = 5
-    val userStreak = 3
+
+    val userStats by viewModel.userStats.collectAsStateWithLifecycle()
+    val topics by viewModel.topics.collectAsStateWithLifecycle()
+    val mascotMessage by viewModel.mascotMessage.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
@@ -34,23 +37,49 @@ fun DashboardScreen(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         EmojiText(Emoji.BOOK, fontSize = 28)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Русский Путь", fontWeight = FontWeight.Bold)
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            "Русский Путь",
+                            fontWeight = FontWeight.Bold
+                        )
                     }
                 },
                 actions = {
+
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.padding(end = 8.dp)
                     ) {
-                        StatusChip(Emoji.XP, "$userXp", XpGold)
-                        Spacer(modifier = Modifier.width(6.dp))
-                        StatusChip(Emoji.GEM, "$userGems", GemCrystal)
-                        Spacer(modifier = Modifier.width(6.dp))
-                        StatusChip(Emoji.HEART, "$userLives", ErrorRed)
-                        Spacer(modifier = Modifier.width(6.dp))
+
+                        StatusChip(
+                            Emoji.XP,
+                            userStats.totalXp.toString(),
+                            XpGold
+                        )
+
+                        Spacer(Modifier.width(6.dp))
+
+                        StatusChip(
+                            Emoji.GEM,
+                            userStats.gemsBalance.toString(),
+                            GemCrystal
+                        )
+
+                        Spacer(Modifier.width(6.dp))
+
+                        StatusChip(
+                            Emoji.HEART,
+                            userStats.livesCount.toString(),
+                            ErrorRed
+                        )
+
+                        Spacer(Modifier.width(6.dp))
+
                         IconButton(onClick = onProfileClick) {
-                            EmojiText(Emoji.PROFILE, fontSize = 28)
+                            EmojiText(
+                                Emoji.PROFILE,
+                                fontSize = 28
+                            )
                         }
                     }
                 },
@@ -60,56 +89,79 @@ fun DashboardScreen(
                 )
             )
         }
-    ) { paddingValues ->
+    ) { padding ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(padding)
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(VasilisaBlue.copy(alpha = 0.08f), Color.White)
+                        listOf(
+                            VasilisaBlue.copy(alpha = 0.08f),
+                            Color.White
+                        )
                     )
                 )
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Карточка с персонажами
+
             Card(
-                shape = RoundedCornerShape(24.dp),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                shape = RoundedCornerShape(24.dp)
             ) {
+
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+
                     Row(
-                        verticalAlignment = Alignment.Bottom,
-                        horizontalArrangement = Arrangement.Center
+                        verticalAlignment = Alignment.Bottom
                     ) {
+
                         VasilisaImage(
                             modifier = Modifier.size(120.dp),
-                            isHappy = userStreak > 0
+                            isHappy = userStats.currentStreak > 0
                         )
-                        Spacer(modifier = Modifier.width(8.dp))
+
+                        Spacer(Modifier.width(8.dp))
+
                         KnopaImage(
                             modifier = Modifier.size(80.dp),
-                            mood = if (userStreak > 0) KnopaMood.HAPPY else KnopaMood.IDLE
+                            mood =
+                                if (userStats.currentStreak > 0)
+                                    KnopaMood.HAPPY
+                                else
+                                    KnopaMood.IDLE
                         )
                     }
-                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Spacer(Modifier.height(12.dp))
+
                     Text(
-                        "Привет! Я Кнопа, а это Василиса. Давай учить русский язык!",
+                        mascotMessage,
                         style = MaterialTheme.typography.bodyLarge
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        EmojiText(Emoji.STREAK, fontSize = 20)
-                        Spacer(modifier = Modifier.width(4.dp))
+
+                    Spacer(Modifier.height(8.dp))
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        EmojiText(
+                            Emoji.STREAK,
+                            fontSize = 20
+                        )
+
+                        Spacer(Modifier.width(4.dp))
+
                         Text(
-                            "Серия: $userStreak дней",
+                            "Серия: ${userStats.currentStreak} дней",
                             color = KnopaOrange,
                             fontWeight = FontWeight.Bold
                         )
@@ -123,43 +175,58 @@ fun DashboardScreen(
                 fontWeight = FontWeight.Bold
             )
 
-            // Темы
-            val topicEmojis = listOf("🔤", "✍️", "📖", "🗣️", "✏️")
-            val topicTitles = listOf(
-                "Фонетика и звуки",
-                "Правописание корней",
-                "Части речи",
-                "Орфоэпия",
-                "Синтаксис"
-            )
+            if (topics.isEmpty()) {
 
-            repeat(5) { index ->
-                Card(
-                    shape = RoundedCornerShape(20.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                    onClick = { onLessonClick("lesson_$index") }
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                Text(
+                    "Темы пока отсутствуют"
+                )
+
+            } else {
+
+                topics.forEach { topic ->
+
+                    Card(
+                        onClick = {
+                            onLessonClick(topic.id)
+                        },
+                        shape = RoundedCornerShape(20.dp)
                     ) {
-                        EmojiText(topicEmojis[index], fontSize = 40)
-                        Spacer(modifier = Modifier.width(16.dp))
-                        Column(modifier = Modifier.weight(1f)) {
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+
                             Text(
-                                topicTitles[index],
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold
+                                "📘",
+                                fontSize = 36.sp
                             )
-                            Text(
-                                "5 класс • Прогресс: ${(index + 1) * 20}%",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.Gray
+
+                            Spacer(Modifier.width(16.dp))
+
+                            Column(
+                                modifier = Modifier.weight(1f)
+                            ) {
+
+                                Text(
+                                    topic.title,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+
+                                Text(
+                                    topic.description,
+                                    color = Color.Gray
+                                )
+                            }
+
+                            EmojiText(
+                                Emoji.FORWARD,
+                                fontSize = 24
                             )
                         }
-                        EmojiText(Emoji.FORWARD, fontSize = 24)
                     }
                 }
             }
@@ -168,18 +235,39 @@ fun DashboardScreen(
 }
 
 @Composable
-fun StatusChip(emoji: String, value: String, color: Color) {
+fun StatusChip(
+    emoji: String,
+    value: String,
+    color: Color
+) {
+
     Card(
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.2f))
+        colors = CardDefaults.cardColors(
+            containerColor = color.copy(alpha = 0.2f)
+        )
     ) {
+
         Row(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+            modifier = Modifier.padding(
+                horizontal = 12.dp,
+                vertical = 4.dp
+            ),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            EmojiText(emoji, fontSize = 18)
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(value, fontWeight = FontWeight.Bold, color = color)
+
+            EmojiText(
+                emoji,
+                fontSize = 18
+            )
+
+            Spacer(Modifier.width(4.dp))
+
+            Text(
+                value,
+                fontWeight = FontWeight.Bold,
+                color = color
+            )
         }
     }
 }
