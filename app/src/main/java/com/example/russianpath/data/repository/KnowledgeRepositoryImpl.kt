@@ -27,7 +27,8 @@ class KnowledgeRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getMicroSkillsByObjective(objectiveId: ObjectiveId): List<MicroSkill> {
-        return microSkillDao.getByObjective(objectiveId.value)
+        return microSkillDao
+            .observeByObjective(objectiveId.value)
             .first()
             .map { knowledgeMapper.toDomain(it) }
     }
