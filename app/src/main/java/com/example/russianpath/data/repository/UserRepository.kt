@@ -14,20 +14,21 @@ import javax.inject.Singleton
 class UserRepository @Inject constructor(
     private val userProgressDao: UserProgressDao
 ) {
+
     fun getUserStats(): Flow<UserStats?> {
         return userProgressDao.getUserProgress().map { entity ->
             entity?.toDomainModel()
         }
     }
-    
+
     suspend fun addXp(amount: Int) {
         userProgressDao.addXp(amount)
     }
-    
+
     suspend fun addGems(amount: Int) {
         userProgressDao.addGems(amount)
     }
-    
+
     suspend fun loseLife() {
         val progress = userProgressDao.getUserProgress().first()
         if (progress != null) {
@@ -35,7 +36,7 @@ class UserRepository @Inject constructor(
             userProgressDao.updateLives(newLives)
         }
     }
-    
+
     suspend fun completeLesson(
         lessonId: String,
         stars: Int,
@@ -62,7 +63,6 @@ private fun UserProgressEntity.toDomainModel(): UserStats {
         longestStreak = longestStreak,
         gemsBalance = gemsBalance,
         livesCount = livesCount,
-        // ИСПРАВЛЕНО: Заменено на totalLessonsCompleted (должно совпадать с полем в БД)
-        totalLessonsCompleted = totalLessonsCompleted 
+        totalLessonsCompleted = totalLessonsCompleted
     )
 }
