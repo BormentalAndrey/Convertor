@@ -5,881 +5,509 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 
 /**
  * Миграции базы данных приложения "Русский Путь".
- * Каждая миграция должна быть протестирована на копии production-данных.
+ *
+ * Каждая миграция должна быть протестирована на копии production-данных
+ * перед релизом. Используйте `exportSchema = true` в @Database для генерации
+ * JSON-схем, по которым можно валидировать миграции.
+ *
+ * История версий:
+ * - Version 1: Начальная схема (topics_v2, lesson_completion)
+ * - Version 2: Полная переработка схемы
+ *   - Переименование таблиц: topics_v2 → topics, lesson_completion → lesson_completions
+ *   - Добавление полей синхронизации во все таблицы
+ *   - Добавление полей для образовательной аналитики
+ *   - Создание составных индексов для ускорения запросов
  */
 object AppDatabaseMigrations {
 
     /**
      * Миграция с версии 1 на версию 2.
      *
-     * Изменения:
-     * - Переименование lesson_completion → lesson_completions
-     * - Добавление новых колонок во все таблицы
-     * - Создание недостающих индексов
+     * Выполняет:
+     * 1. Переименование устаревших таблиц
+     * 2. Добавление новых колонок (все NOT NULL с DEFAULT)
+     * 3. Создание всех индексов
+     *
+     * Использует try/catch для идемпотентности:
+     * если колонка уже существует, ALTER TABLE ADD COLUMN выбросит исключение,
+     * которое мы безопасно игнорируем.
      */
-    val MIGRATION_1_2 = object : Migration(1, 2) {
+    val MIGRATION_1_2: Migration = object : Migration(1, 2) {
         override fun migrate(database: SupportSQLiteDatabase) {
 
             // ============================================================
             // grades
             // ============================================================
-            database.execSQL("""
-                ALTER TABLE grades ADD COLUMN external_id TEXT NOT NULL DEFAULT ''
-            """)
-            database.execSQL("""
-                ALTER TABLE grades ADD COLUMN display_name TEXT NOT NULL DEFAULT ''
-            """)
-            database.execSQL("""
-                ALTER TABLE grades ADD COLUMN description TEXT NOT NULL DEFAULT ''
-            """)
-            database.execSQL("""
-                ALTER TABLE grades ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1
-            """)
-            database.execSQL("""
-                ALTER TABLE grades ADD COLUMN schema_version INTEGER NOT NULL DEFAULT 1
-            """)
-            database.execSQL("""
-                ALTER TABLE grades ADD COLUMN created_at INTEGER NOT NULL DEFAULT 0
-            """)
-            database.execSQL("""
-                ALTER TABLE grades ADD COLUMN updated_at INTEGER NOT NULL DEFAULT 0
-            """)
-            database.execSQL("""
-                ALTER TABLE grades ADD COLUMN server_updated_at INTEGER NOT NULL DEFAULT 0
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_grades_sort_order ON grades(sort_order)
-            """)
-            database.execSQL("""
-                CREATE UNIQUE INDEX IF NOT EXISTS idx_grades_external_id ON grades(external_id)
-            """)
+            migrateGrades(database)
 
             // ============================================================
             // sections
             // ============================================================
-            database.execSQL("""
-                ALTER TABLE sections ADD COLUMN external_id TEXT NOT NULL DEFAULT ''
-            """)
-            database.execSQL("""
-                ALTER TABLE sections ADD COLUMN display_name TEXT NOT NULL DEFAULT ''
-            """)
-            database.execSQL("""
-                ALTER TABLE sections ADD COLUMN description TEXT NOT NULL DEFAULT ''
-            """)
-            database.execSQL("""
-                ALTER TABLE sections ADD COLUMN icon_name TEXT NOT NULL DEFAULT ''
-            """)
-            database.execSQL("""
-                ALTER TABLE sections ADD COLUMN color_hex TEXT NOT NULL DEFAULT '#FF6200EE'
-            """)
-            database.execSQL("""
-                ALTER TABLE sections ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1
-            """)
-            database.execSQL("""
-                ALTER TABLE sections ADD COLUMN schema_version INTEGER NOT NULL DEFAULT 1
-            """)
-            database.execSQL("""
-                ALTER TABLE sections ADD COLUMN created_at INTEGER NOT NULL DEFAULT 0
-            """)
-            database.execSQL("""
-                ALTER TABLE sections ADD COLUMN updated_at INTEGER NOT NULL DEFAULT 0
-            """)
-            database.execSQL("""
-                ALTER TABLE sections ADD COLUMN server_updated_at INTEGER NOT NULL DEFAULT 0
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_sections_grade_sort ON sections(grade_id, sort_order)
-            """)
-            database.execSQL("""
-                CREATE UNIQUE INDEX IF NOT EXISTS idx_sections_external_id ON sections(external_id)
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_sections_grade_id ON sections(grade_id)
-            """)
+            migrateSections(database)
 
             // ============================================================
-            // topics (бывшая topics_v2 — обрабатываем оба случая)
+            // topics (бывшая topics_v2)
             // ============================================================
-            // Пытаемся переименовать topics_v2 → topics, если она существует
-            try {
-                database.execSQL("ALTER TABLE topics_v2 RENAME TO topics")
-            } catch (_: Exception) {
-                // Таблицы topics_v2 может не быть, если это чистая установка v2
-            }
-            // Если таблица topics уже существует (v1), добавляем колонки
-            try {
-                database.execSQL("""
-                    ALTER TABLE topics ADD COLUMN external_id TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE topics ADD COLUMN grade_id TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE topics ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE topics ADD COLUMN difficulty_level INTEGER NOT NULL DEFAULT 1
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE topics ADD COLUMN estimated_minutes INTEGER NOT NULL DEFAULT 15
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE topics ADD COLUMN prerequisite_topic_ids_json TEXT NOT NULL DEFAULT '[]'
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE topics ADD COLUMN schema_version INTEGER NOT NULL DEFAULT 1
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE topics ADD COLUMN content_hash TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE topics ADD COLUMN created_at INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE topics ADD COLUMN updated_at INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE topics ADD COLUMN server_updated_at INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_topics_section_sort ON topics(section_id, sort_order)
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_topics_grade_sort ON topics(grade_id, sort_order)
-            """)
-            database.execSQL("""
-                CREATE UNIQUE INDEX IF NOT EXISTS idx_topics_external_id ON topics(external_id)
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_topics_section_id ON topics(section_id)
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_topics_grade_id ON topics(grade_id)
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_topics_active_unlocked ON topics(is_active, is_unlocked)
-            """)
+            migrateTopics(database)
 
             // ============================================================
             // learning_objectives
             // ============================================================
-            try {
-                database.execSQL("""
-                    ALTER TABLE learning_objectives ADD COLUMN external_id TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE learning_objectives ADD COLUMN skill_code_id INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE learning_objectives ADD COLUMN prerequisite_objective_ids_json TEXT NOT NULL DEFAULT '[]'
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE learning_objectives ADD COLUMN bloom_taxonomy_level INTEGER NOT NULL DEFAULT 1
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE learning_objectives ADD COLUMN mastery_threshold_percent INTEGER NOT NULL DEFAULT 80
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE learning_objectives ADD COLUMN is_required INTEGER NOT NULL DEFAULT 1
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE learning_objectives ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE learning_objectives ADD COLUMN schema_version INTEGER NOT NULL DEFAULT 1
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE learning_objectives ADD COLUMN created_at INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE learning_objectives ADD COLUMN updated_at INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE learning_objectives ADD COLUMN server_updated_at INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_objectives_topic_sort ON learning_objectives(topic_id, sort_order)
-            """)
-            database.execSQL("""
-                CREATE UNIQUE INDEX IF NOT EXISTS idx_objectives_external_id ON learning_objectives(external_id)
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_objectives_topic_id ON learning_objectives(topic_id)
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_objectives_skill_code ON learning_objectives(skill_code_id)
-            """)
+            migrateLearningObjectives(database)
 
             // ============================================================
             // micro_skills
             // ============================================================
-            try {
-                database.execSQL("""
-                    ALTER TABLE micro_skills ADD COLUMN external_id TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE micro_skills ADD COLUMN parent_micro_skill_id TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE micro_skills ADD COLUMN difficulty_level INTEGER NOT NULL DEFAULT 1
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE micro_skills ADD COLUMN error_category TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE micro_skills ADD COLUMN typical_mistake_pattern_json TEXT NOT NULL DEFAULT '[]'
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE micro_skills ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE micro_skills ADD COLUMN schema_version INTEGER NOT NULL DEFAULT 1
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE micro_skills ADD COLUMN created_at INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE micro_skills ADD COLUMN updated_at INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE micro_skills ADD COLUMN server_updated_at INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_micro_skills_objective_sort ON micro_skills(objective_id, sort_order)
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_micro_skills_skill_code ON micro_skills(skill_code_id)
-            """)
-            database.execSQL("""
-                CREATE UNIQUE INDEX IF NOT EXISTS idx_micro_skills_external_id ON micro_skills(external_id)
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_micro_skills_objective_id ON micro_skills(objective_id)
-            """)
+            migrateMicroSkills(database)
 
             // ============================================================
             // dictionary_words
             // ============================================================
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN external_id TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN transcription TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN part_of_speech TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN gender TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN number TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN case_form TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN grade_id TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN definition_short TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN definition_full TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN example_sentence TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN etymology TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN morphemic_structure_json TEXT NOT NULL DEFAULT '{}'
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN cognates_json TEXT NOT NULL DEFAULT '[]'
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN synonyms_json TEXT NOT NULL DEFAULT '[]'
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN antonyms_json TEXT NOT NULL DEFAULT '[]'
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN paronyms_json TEXT NOT NULL DEFAULT '[]'
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN orthoepic_note TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN spelling_rule_id TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN spelling_difficulty_marker TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN frequency_rank INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN audio_path TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN image_path TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN is_irregular INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN is_exception INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN is_vocabulary_word INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN schema_version INTEGER NOT NULL DEFAULT 2
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN created_at INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN updated_at INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE dictionary_words ADD COLUMN server_updated_at INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_dictionary_part_of_speech ON dictionary_words(part_of_speech)
-            """)
-            database.execSQL("""
-                CREATE UNIQUE INDEX IF NOT EXISTS idx_dictionary_external_id ON dictionary_words(external_id)
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_dictionary_active_grade_difficulty ON dictionary_words(is_active, grade_id, difficulty)
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_dictionary_normalized_grade ON dictionary_words(normalized, grade_id)
-            """)
+            migrateDictionaryWords(database)
 
             // ============================================================
             // lessons
             // ============================================================
-            try {
-                database.execSQL("""
-                    ALTER TABLE lessons ADD COLUMN external_id TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lessons ADD COLUMN primary_objective_id TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lessons ADD COLUMN description TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lessons ADD COLUMN instruction_text TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lessons ADD COLUMN questions_count INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lessons ADD COLUMN time_limit_seconds INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lessons ADD COLUMN passing_score_percent INTEGER NOT NULL DEFAULT 70
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lessons ADD COLUMN max_stars INTEGER NOT NULL DEFAULT 3
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lessons ADD COLUMN xp_base_reward INTEGER NOT NULL DEFAULT 50
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lessons ADD COLUMN xp_perfect_bonus INTEGER NOT NULL DEFAULT 25
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lessons ADD COLUMN gems_reward INTEGER NOT NULL DEFAULT 5
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lessons ADD COLUMN is_bonus INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lessons ADD COLUMN is_diagnostic INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lessons ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lessons ADD COLUMN schema_version INTEGER NOT NULL DEFAULT 1
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lessons ADD COLUMN created_at INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lessons ADD COLUMN updated_at INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lessons ADD COLUMN server_updated_at INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_lessons_topic_sort ON lessons(topic_id, sort_order)
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_lessons_topic_type_sort ON lessons(topic_id, lesson_type, sort_order)
-            """)
-            database.execSQL("""
-                CREATE UNIQUE INDEX IF NOT EXISTS idx_lessons_external_id ON lessons(external_id)
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_lessons_topic_id ON lessons(topic_id)
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_lessons_objective_id ON lessons(primary_objective_id)
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_lessons_active ON lessons(is_active)
-            """)
+            migrateLessons(database)
 
             // ============================================================
             // questions
             // ============================================================
-            try {
-                database.execSQL("""
-                    ALTER TABLE questions ADD COLUMN external_id TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE questions ADD COLUMN primary_skill_id TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE questions ADD COLUMN prompt_audio_path TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE questions ADD COLUMN prompt_image_path TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE questions ADD COLUMN acceptable_answers_json TEXT NOT NULL DEFAULT '[]'
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE questions ADD COLUMN explanation_text TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE questions ADD COLUMN rule_reference_id TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE questions ADD COLUMN difficulty INTEGER NOT NULL DEFAULT 1
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE questions ADD COLUMN time_limit_seconds INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE questions ADD COLUMN points INTEGER NOT NULL DEFAULT 10
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE questions ADD COLUMN penalty_points INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE questions ADD COLUMN max_attempts INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE questions ADD COLUMN is_required INTEGER NOT NULL DEFAULT 1
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE questions ADD COLUMN is_active INTEGER NOT NULL DEFAULT 1
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE questions ADD COLUMN schema_version INTEGER NOT NULL DEFAULT 1
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE questions ADD COLUMN created_at INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE questions ADD COLUMN updated_at INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE questions ADD COLUMN server_updated_at INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_questions_lesson_sort ON questions(lesson_id, sort_order)
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_questions_lesson_type ON questions(lesson_id, question_type)
-            """)
-            database.execSQL("""
-                CREATE UNIQUE INDEX IF NOT EXISTS idx_questions_external_id ON questions(external_id)
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_questions_lesson_id ON questions(lesson_id)
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_questions_skill_id ON questions(primary_skill_id)
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_questions_type ON questions(question_type)
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_questions_difficulty ON questions(difficulty)
-            """)
+            migrateQuestions(database)
 
             // ============================================================
             // lesson_completion → lesson_completions
             // ============================================================
-            // Пытаемся переименовать старую таблицу
-            try {
-                database.execSQL("ALTER TABLE lesson_completion RENAME TO lesson_completions")
-            } catch (_: Exception) {
-                // Таблицы lesson_completion может не быть
-            }
-            // Если таблица lesson_completions уже существует (v2), добавляем колонки
-            try {
-                database.execSQL("""
-                    ALTER TABLE lesson_completions ADD COLUMN id TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lesson_completions ADD COLUMN topic_id TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lesson_completions ADD COLUMN score_percent INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lesson_completions ADD COLUMN correct_answers INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lesson_completions ADD COLUMN total_questions INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lesson_completions ADD COLUMN mistakes_json TEXT NOT NULL DEFAULT '[]'
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lesson_completions ADD COLUMN time_spent_seconds INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lesson_completions ADD COLUMN gems_earned INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lesson_completions ADD COLUMN attempt_number INTEGER NOT NULL DEFAULT 1
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lesson_completions ADD COLUMN is_passed INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lesson_completions ADD COLUMN device_id TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lesson_completions ADD COLUMN schema_version INTEGER NOT NULL DEFAULT 1
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE lesson_completions ADD COLUMN synced_at INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_completions_lesson_date ON lesson_completions(lesson_id, completed_at)
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_completions_date ON lesson_completions(completed_at)
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_completions_lesson_id ON lesson_completions(lesson_id)
-            """)
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_completions_topic_date ON lesson_completions(topic_id, completed_at)
-            """)
+            migrateLessonCompletions(database)
 
             // ============================================================
             // user_progress
             // ============================================================
-            try {
-                database.execSQL("""
-                    ALTER TABLE user_progress ADD COLUMN current_level INTEGER NOT NULL DEFAULT 1
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE user_progress ADD COLUMN xp_to_next_level INTEGER NOT NULL DEFAULT 100
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE user_progress ADD COLUMN streak_start_date INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE user_progress ADD COLUMN max_lives INTEGER NOT NULL DEFAULT 5
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE user_progress ADD COLUMN last_life_refill_time INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE user_progress ADD COLUMN total_time_spent_seconds INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE user_progress ADD COLUMN total_perfect_lessons INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE user_progress ADD COLUMN total_days_active INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE user_progress ADD COLUMN current_grade_id TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE user_progress ADD COLUMN current_topic_id TEXT NOT NULL DEFAULT ''
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE user_progress ADD COLUMN onboarding_completed INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE user_progress ADD COLUMN last_sync_time INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE user_progress ADD COLUMN schema_version INTEGER NOT NULL DEFAULT 1
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE user_progress ADD COLUMN created_at INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            try {
-                database.execSQL("""
-                    ALTER TABLE user_progress ADD COLUMN updated_at INTEGER NOT NULL DEFAULT 0
-                """)
-            } catch (_: Exception) { /* колонка уже существует */ }
-            database.execSQL("""
-                CREATE INDEX IF NOT EXISTS idx_user_progress_last_active ON user_progress(last_active_date)
-            """)
+            migrateUserProgress(database)
+        }
+    }
+
+    // ========================================================================
+    // Приватные методы миграции для каждой таблицы
+    // ========================================================================
+
+    private fun migrateGrades(database: SupportSQLiteDatabase) {
+        addColumnSafely(database, "grades", "external_id", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "grades", "display_name", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "grades", "description", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "grades", "is_active", "INTEGER NOT NULL DEFAULT 1")
+        addColumnSafely(database, "grades", "schema_version", "INTEGER NOT NULL DEFAULT 1")
+        addColumnSafely(database, "grades", "created_at", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "grades", "updated_at", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "grades", "server_updated_at", "INTEGER NOT NULL DEFAULT 0")
+
+        createIndexSafely(database, "idx_grades_sort_order", "grades", "sort_order")
+        createUniqueIndexSafely(database, "idx_grades_external_id", "grades", "external_id")
+    }
+
+    private fun migrateSections(database: SupportSQLiteDatabase) {
+        addColumnSafely(database, "sections", "external_id", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "sections", "display_name", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "sections", "description", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "sections", "icon_name", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "sections", "color_hex", "TEXT NOT NULL DEFAULT '#FF6200EE'")
+        addColumnSafely(database, "sections", "is_active", "INTEGER NOT NULL DEFAULT 1")
+        addColumnSafely(database, "sections", "schema_version", "INTEGER NOT NULL DEFAULT 1")
+        addColumnSafely(database, "sections", "created_at", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "sections", "updated_at", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "sections", "server_updated_at", "INTEGER NOT NULL DEFAULT 0")
+
+        createIndexSafely(database, "idx_sections_grade_sort", "sections", "grade_id, sort_order")
+        createUniqueIndexSafely(database, "idx_sections_external_id", "sections", "external_id")
+        createIndexSafely(database, "idx_sections_grade_id", "sections", "grade_id")
+    }
+
+    private fun migrateTopics(database: SupportSQLiteDatabase) {
+        // Пытаемся переименовать topics_v2 → topics
+        renameTableSafely(database, "topics_v2", "topics")
+
+        addColumnSafely(database, "topics", "external_id", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "topics", "grade_id", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "topics", "is_active", "INTEGER NOT NULL DEFAULT 1")
+        addColumnSafely(database, "topics", "difficulty_level", "INTEGER NOT NULL DEFAULT 1")
+        addColumnSafely(database, "topics", "estimated_minutes", "INTEGER NOT NULL DEFAULT 15")
+        addColumnSafely(
+            database, "topics",
+            "prerequisite_topic_ids_json", "TEXT NOT NULL DEFAULT '[]'"
+        )
+        addColumnSafely(database, "topics", "schema_version", "INTEGER NOT NULL DEFAULT 1")
+        addColumnSafely(database, "topics", "content_hash", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "topics", "created_at", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "topics", "updated_at", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "topics", "server_updated_at", "INTEGER NOT NULL DEFAULT 0")
+
+        createIndexSafely(database, "idx_topics_section_sort", "topics", "section_id, sort_order")
+        createIndexSafely(database, "idx_topics_grade_sort", "topics", "grade_id, sort_order")
+        createUniqueIndexSafely(database, "idx_topics_external_id", "topics", "external_id")
+        createIndexSafely(database, "idx_topics_section_id", "topics", "section_id")
+        createIndexSafely(database, "idx_topics_grade_id", "topics", "grade_id")
+        createIndexSafely(database, "idx_topics_active_unlocked", "topics", "is_active, is_unlocked")
+    }
+
+    private fun migrateLearningObjectives(database: SupportSQLiteDatabase) {
+        addColumnSafely(database, "learning_objectives", "external_id", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "learning_objectives", "skill_code_id", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(
+            database, "learning_objectives",
+            "prerequisite_objective_ids_json", "TEXT NOT NULL DEFAULT '[]'"
+        )
+        addColumnSafely(
+            database, "learning_objectives",
+            "bloom_taxonomy_level", "INTEGER NOT NULL DEFAULT 1"
+        )
+        addColumnSafely(
+            database, "learning_objectives",
+            "mastery_threshold_percent", "INTEGER NOT NULL DEFAULT 80"
+        )
+        addColumnSafely(database, "learning_objectives", "is_required", "INTEGER NOT NULL DEFAULT 1")
+        addColumnSafely(database, "learning_objectives", "is_active", "INTEGER NOT NULL DEFAULT 1")
+        addColumnSafely(database, "learning_objectives", "schema_version", "INTEGER NOT NULL DEFAULT 1")
+        addColumnSafely(database, "learning_objectives", "created_at", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "learning_objectives", "updated_at", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(
+            database, "learning_objectives",
+            "server_updated_at", "INTEGER NOT NULL DEFAULT 0"
+        )
+
+        createIndexSafely(
+            database, "idx_objectives_topic_sort",
+            "learning_objectives", "topic_id, sort_order"
+        )
+        createUniqueIndexSafely(
+            database, "idx_objectives_external_id",
+            "learning_objectives", "external_id"
+        )
+        createIndexSafely(
+            database, "idx_objectives_topic_id",
+            "learning_objectives", "topic_id"
+        )
+        createIndexSafely(
+            database, "idx_objectives_skill_code",
+            "learning_objectives", "skill_code_id"
+        )
+    }
+
+    private fun migrateMicroSkills(database: SupportSQLiteDatabase) {
+        addColumnSafely(database, "micro_skills", "external_id", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(
+            database, "micro_skills",
+            "parent_micro_skill_id", "TEXT NOT NULL DEFAULT ''"
+        )
+        addColumnSafely(database, "micro_skills", "difficulty_level", "INTEGER NOT NULL DEFAULT 1")
+        addColumnSafely(database, "micro_skills", "error_category", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(
+            database, "micro_skills",
+            "typical_mistake_pattern_json", "TEXT NOT NULL DEFAULT '[]'"
+        )
+        addColumnSafely(database, "micro_skills", "is_active", "INTEGER NOT NULL DEFAULT 1")
+        addColumnSafely(database, "micro_skills", "schema_version", "INTEGER NOT NULL DEFAULT 1")
+        addColumnSafely(database, "micro_skills", "created_at", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "micro_skills", "updated_at", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "micro_skills", "server_updated_at", "INTEGER NOT NULL DEFAULT 0")
+
+        createIndexSafely(
+            database, "idx_micro_skills_objective_sort",
+            "micro_skills", "objective_id, sort_order"
+        )
+        createIndexSafely(
+            database, "idx_micro_skills_skill_code",
+            "micro_skills", "skill_code_id"
+        )
+        createUniqueIndexSafely(
+            database, "idx_micro_skills_external_id",
+            "micro_skills", "external_id"
+        )
+        createIndexSafely(
+            database, "idx_micro_skills_objective_id",
+            "micro_skills", "objective_id"
+        )
+    }
+
+    private fun migrateDictionaryWords(database: SupportSQLiteDatabase) {
+        addColumnSafely(database, "dictionary_words", "external_id", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "dictionary_words", "transcription", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "dictionary_words", "part_of_speech", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "dictionary_words", "gender", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "dictionary_words", "number", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "dictionary_words", "case_form", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "dictionary_words", "grade_id", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "dictionary_words", "definition_short", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "dictionary_words", "definition_full", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "dictionary_words", "example_sentence", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "dictionary_words", "etymology", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(
+            database, "dictionary_words",
+            "morphemic_structure_json", "TEXT NOT NULL DEFAULT '{}'"
+        )
+        addColumnSafely(database, "dictionary_words", "cognates_json", "TEXT NOT NULL DEFAULT '[]'")
+        addColumnSafely(database, "dictionary_words", "synonyms_json", "TEXT NOT NULL DEFAULT '[]'")
+        addColumnSafely(database, "dictionary_words", "antonyms_json", "TEXT NOT NULL DEFAULT '[]'")
+        addColumnSafely(database, "dictionary_words", "paronyms_json", "TEXT NOT NULL DEFAULT '[]'")
+        addColumnSafely(database, "dictionary_words", "orthoepic_note", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "dictionary_words", "spelling_rule_id", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(
+            database, "dictionary_words",
+            "spelling_difficulty_marker", "TEXT NOT NULL DEFAULT ''"
+        )
+        addColumnSafely(database, "dictionary_words", "frequency_rank", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "dictionary_words", "audio_path", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "dictionary_words", "image_path", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "dictionary_words", "is_irregular", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "dictionary_words", "is_exception", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(
+            database, "dictionary_words",
+            "is_vocabulary_word", "INTEGER NOT NULL DEFAULT 0"
+        )
+        addColumnSafely(database, "dictionary_words", "is_active", "INTEGER NOT NULL DEFAULT 1")
+        addColumnSafely(database, "dictionary_words", "schema_version", "INTEGER NOT NULL DEFAULT 2")
+        addColumnSafely(database, "dictionary_words", "created_at", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "dictionary_words", "updated_at", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(
+            database, "dictionary_words",
+            "server_updated_at", "INTEGER NOT NULL DEFAULT 0"
+        )
+
+        createIndexSafely(
+            database, "idx_dictionary_part_of_speech",
+            "dictionary_words", "part_of_speech"
+        )
+        createUniqueIndexSafely(
+            database, "idx_dictionary_external_id",
+            "dictionary_words", "external_id"
+        )
+        createIndexSafely(
+            database, "idx_dictionary_active_grade_difficulty",
+            "dictionary_words", "is_active, grade_id, difficulty"
+        )
+        createIndexSafely(
+            database, "idx_dictionary_normalized_grade",
+            "dictionary_words", "normalized, grade_id"
+        )
+    }
+
+    private fun migrateLessons(database: SupportSQLiteDatabase) {
+        addColumnSafely(database, "lessons", "external_id", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "lessons", "primary_objective_id", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "lessons", "description", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "lessons", "instruction_text", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "lessons", "questions_count", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "lessons", "time_limit_seconds", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(
+            database, "lessons",
+            "passing_score_percent", "INTEGER NOT NULL DEFAULT 70"
+        )
+        addColumnSafely(database, "lessons", "max_stars", "INTEGER NOT NULL DEFAULT 3")
+        addColumnSafely(database, "lessons", "xp_base_reward", "INTEGER NOT NULL DEFAULT 50")
+        addColumnSafely(database, "lessons", "xp_perfect_bonus", "INTEGER NOT NULL DEFAULT 25")
+        addColumnSafely(database, "lessons", "gems_reward", "INTEGER NOT NULL DEFAULT 5")
+        addColumnSafely(database, "lessons", "is_bonus", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "lessons", "is_diagnostic", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "lessons", "is_active", "INTEGER NOT NULL DEFAULT 1")
+        addColumnSafely(database, "lessons", "schema_version", "INTEGER NOT NULL DEFAULT 1")
+        addColumnSafely(database, "lessons", "created_at", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "lessons", "updated_at", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "lessons", "server_updated_at", "INTEGER NOT NULL DEFAULT 0")
+
+        createIndexSafely(database, "idx_lessons_topic_sort", "lessons", "topic_id, sort_order")
+        createIndexSafely(
+            database, "idx_lessons_topic_type_sort",
+            "lessons", "topic_id, lesson_type, sort_order"
+        )
+        createUniqueIndexSafely(database, "idx_lessons_external_id", "lessons", "external_id")
+        createIndexSafely(database, "idx_lessons_topic_id", "lessons", "topic_id")
+        createIndexSafely(
+            database, "idx_lessons_objective_id",
+            "lessons", "primary_objective_id"
+        )
+        createIndexSafely(database, "idx_lessons_active", "lessons", "is_active")
+    }
+
+    private fun migrateQuestions(database: SupportSQLiteDatabase) {
+        addColumnSafely(database, "questions", "external_id", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "questions", "primary_skill_id", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "questions", "prompt_audio_path", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "questions", "prompt_image_path", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(
+            database, "questions",
+            "acceptable_answers_json", "TEXT NOT NULL DEFAULT '[]'"
+        )
+        addColumnSafely(database, "questions", "explanation_text", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "questions", "rule_reference_id", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "questions", "difficulty", "INTEGER NOT NULL DEFAULT 1")
+        addColumnSafely(database, "questions", "time_limit_seconds", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "questions", "points", "INTEGER NOT NULL DEFAULT 10")
+        addColumnSafely(database, "questions", "penalty_points", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "questions", "max_attempts", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "questions", "is_required", "INTEGER NOT NULL DEFAULT 1")
+        addColumnSafely(database, "questions", "is_active", "INTEGER NOT NULL DEFAULT 1")
+        addColumnSafely(database, "questions", "schema_version", "INTEGER NOT NULL DEFAULT 1")
+        addColumnSafely(database, "questions", "created_at", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "questions", "updated_at", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "questions", "server_updated_at", "INTEGER NOT NULL DEFAULT 0")
+
+        createIndexSafely(
+            database, "idx_questions_lesson_sort",
+            "questions", "lesson_id, sort_order"
+        )
+        createIndexSafely(
+            database, "idx_questions_lesson_type",
+            "questions", "lesson_id, question_type"
+        )
+        createUniqueIndexSafely(database, "idx_questions_external_id", "questions", "external_id")
+        createIndexSafely(database, "idx_questions_lesson_id", "questions", "lesson_id")
+        createIndexSafely(database, "idx_questions_skill_id", "questions", "primary_skill_id")
+        createIndexSafely(database, "idx_questions_type", "questions", "question_type")
+        createIndexSafely(database, "idx_questions_difficulty", "questions", "difficulty")
+    }
+
+    private fun migrateLessonCompletions(database: SupportSQLiteDatabase) {
+        // Переименовываем старую таблицу
+        renameTableSafely(database, "lesson_completion", "lesson_completions")
+
+        addColumnSafely(database, "lesson_completions", "id", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "lesson_completions", "topic_id", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "lesson_completions", "score_percent", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "lesson_completions", "correct_answers", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "lesson_completions", "total_questions", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(
+            database, "lesson_completions",
+            "mistakes_json", "TEXT NOT NULL DEFAULT '[]'"
+        )
+        addColumnSafely(
+            database, "lesson_completions",
+            "time_spent_seconds", "INTEGER NOT NULL DEFAULT 0"
+        )
+        addColumnSafely(database, "lesson_completions", "gems_earned", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "lesson_completions", "attempt_number", "INTEGER NOT NULL DEFAULT 1")
+        addColumnSafely(database, "lesson_completions", "is_passed", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "lesson_completions", "device_id", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(
+            database, "lesson_completions",
+            "schema_version", "INTEGER NOT NULL DEFAULT 1"
+        )
+        addColumnSafely(database, "lesson_completions", "synced_at", "INTEGER NOT NULL DEFAULT 0")
+
+        createIndexSafely(
+            database, "idx_completions_lesson_date",
+            "lesson_completions", "lesson_id, completed_at"
+        )
+        createIndexSafely(
+            database, "idx_completions_date",
+            "lesson_completions", "completed_at"
+        )
+        createIndexSafely(
+            database, "idx_completions_lesson_id",
+            "lesson_completions", "lesson_id"
+        )
+        createIndexSafely(
+            database, "idx_completions_topic_date",
+            "lesson_completions", "topic_id, completed_at"
+        )
+    }
+
+    private fun migrateUserProgress(database: SupportSQLiteDatabase) {
+        addColumnSafely(database, "user_progress", "current_level", "INTEGER NOT NULL DEFAULT 1")
+        addColumnSafely(database, "user_progress", "xp_to_next_level", "INTEGER NOT NULL DEFAULT 100")
+        addColumnSafely(database, "user_progress", "streak_start_date", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "user_progress", "max_lives", "INTEGER NOT NULL DEFAULT 5")
+        addColumnSafely(
+            database, "user_progress",
+            "last_life_refill_time", "INTEGER NOT NULL DEFAULT 0"
+        )
+        addColumnSafely(
+            database, "user_progress",
+            "total_time_spent_seconds", "INTEGER NOT NULL DEFAULT 0"
+        )
+        addColumnSafely(
+            database, "user_progress",
+            "total_perfect_lessons", "INTEGER NOT NULL DEFAULT 0"
+        )
+        addColumnSafely(database, "user_progress", "total_days_active", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "user_progress", "current_grade_id", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(database, "user_progress", "current_topic_id", "TEXT NOT NULL DEFAULT ''")
+        addColumnSafely(
+            database, "user_progress",
+            "onboarding_completed", "INTEGER NOT NULL DEFAULT 0"
+        )
+        addColumnSafely(database, "user_progress", "last_sync_time", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "user_progress", "schema_version", "INTEGER NOT NULL DEFAULT 1")
+        addColumnSafely(database, "user_progress", "created_at", "INTEGER NOT NULL DEFAULT 0")
+        addColumnSafely(database, "user_progress", "updated_at", "INTEGER NOT NULL DEFAULT 0")
+
+        createIndexSafely(
+            database, "idx_user_progress_last_active",
+            "user_progress", "last_active_date"
+        )
+    }
+
+    // ========================================================================
+    // Утилиты миграции
+    // ========================================================================
+
+    /**
+     * Безопасно добавляет колонку к таблице.
+     * Если колонка уже существует — исключение игнорируется.
+     */
+    private fun addColumnSafely(
+        database: SupportSQLiteDatabase,
+        table: String,
+        column: String,
+        definition: String
+    ) {
+        try {
+            database.execSQL("ALTER TABLE $table ADD COLUMN $column $definition")
+        } catch (_: Exception) {
+            // Колонка уже существует — это нормально при повторной миграции
+        }
+    }
+
+    /**
+     * Безопасно создаёт индекс.
+     * Использует IF NOT EXISTS для идемпотентности.
+     */
+    private fun createIndexSafely(
+        database: SupportSQLiteDatabase,
+        indexName: String,
+        table: String,
+        columns: String
+    ) {
+        database.execSQL(
+            "CREATE INDEX IF NOT EXISTS $indexName ON $table($columns)"
+        )
+    }
+
+    /**
+     * Безопасно создаёт уникальный индекс.
+     */
+    private fun createUniqueIndexSafely(
+        database: SupportSQLiteDatabase,
+        indexName: String,
+        table: String,
+        columns: String
+    ) {
+        database.execSQL(
+            "CREATE UNIQUE INDEX IF NOT EXISTS $indexName ON $table($columns)"
+        )
+    }
+
+    /**
+     * Безопасно переименовывает таблицу.
+     * Если таблица не существует или уже переименована — исключение игнорируется.
+     */
+    private fun renameTableSafely(
+        database: SupportSQLiteDatabase,
+        oldName: String,
+        newName: String
+    ) {
+        try {
+            database.execSQL("ALTER TABLE $oldName RENAME TO $newName")
+        } catch (_: Exception) {
+            // Таблица не существует или уже переименована
         }
     }
 }
