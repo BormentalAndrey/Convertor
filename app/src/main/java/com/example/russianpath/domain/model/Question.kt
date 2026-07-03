@@ -11,5 +11,5 @@ data class Question(
     val correctOrder: List<Int> = emptyList(),
     val hintText: String?,
     val audioPath: String?,
-    val ruleReference: String?
+    val ruleReference: String? = null
 )
