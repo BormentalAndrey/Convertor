@@ -22,38 +22,38 @@ class LessonViewModel @Inject constructor(
     private val questionDao: QuestionDao,
     private val userRepository: UserRepository
 ) : ViewModel() {
-    
+
     private val gson = Gson()
-    
+
     private val _lesson = MutableStateFlow<LessonEntity?>(null)
     val lesson: StateFlow<LessonEntity?> = _lesson.asStateFlow()
-    
+
     private val _questions = MutableStateFlow<List<Question>>(emptyList())
     val questions: StateFlow<List<Question>> = _questions.asStateFlow()
-    
+
     private val _currentQuestionIndex = MutableStateFlow(0)
     val currentQuestionIndex: StateFlow<Int> = _currentQuestionIndex.asStateFlow()
-    
+
     private val _totalQuestions = MutableStateFlow(0)
     val totalQuestions: StateFlow<Int> = _totalQuestions.asStateFlow()
-    
+
     private val _mistakesCount = MutableStateFlow(0)
     val mistakesCount: StateFlow<Int> = _mistakesCount.asStateFlow()
-    
+
     private val _isCorrect = MutableStateFlow<Boolean?>(null)
     val isCorrect: StateFlow<Boolean?> = _isCorrect.asStateFlow()
-    
+
     private val _showHint = MutableStateFlow(false)
     val showHint: StateFlow<Boolean> = _showHint.asStateFlow()
-    
+
     private val _livesRemaining = MutableStateFlow(5)
     val livesRemaining: StateFlow<Int> = _livesRemaining.asStateFlow()
-    
+
     fun loadLesson(lessonId: String) {
         viewModelScope.launch {
             val lessonData = lessonDao.getLessonById(lessonId)
             _lesson.value = lessonData
-            
+
             questionDao.getQuestionsByLesson(lessonId).collect { questionsList ->
                 val mappedQuestions = questionsList.map { it.toDomainModel() }
                 _questions.value = mappedQuestions
@@ -61,10 +61,10 @@ class LessonViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun checkAnswer(userAnswer: String) {
         val question = _questions.value.getOrNull(_currentQuestionIndex.value) ?: return
-        
+
         val isAnswerCorrect = when (question.questionType) {
             QuestionType.SINGLE_CHOICE -> {
                 userAnswer == question.correctAnswer
@@ -79,9 +79,9 @@ class LessonViewModel @Inject constructor(
                 userAnswer == question.correctAnswer
             }
         }
-        
+
         _isCorrect.value = isAnswerCorrect
-        
+
         viewModelScope.launch {
             if (!isAnswerCorrect) {
                 _mistakesCount.value += 1
@@ -89,7 +89,7 @@ class LessonViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun nextQuestion() {
         if (_currentQuestionIndex.value < _questions.value.size - 1) {
             _currentQuestionIndex.value += 1
@@ -97,10 +97,9 @@ class LessonViewModel @Inject constructor(
             _showHint.value = false
         }
     }
-    
+
     fun showHint() {
         viewModelScope.launch {
-            // ИСПРАВЛЕНО: Используем .first() вместо .collect, чтобы избежать бесконечного цикла списания гемов
             val stats = userRepository.getUserStats().first()
             if (stats != null && stats.gemsBalance >= 10) {
                 userRepository.addGems(-10)
@@ -108,23 +107,23 @@ class LessonViewModel @Inject constructor(
             }
         }
     }
-    
+
     fun completeLesson(): Int {
         val totalQuestions = _totalQuestions.value
         val mistakes = _mistakesCount.value
-        
+
         val accuracy = if (totalQuestions > 0) {
             ((totalQuestions - mistakes).toFloat() / totalQuestions)
         } else 1f
-        
+
         val stars = when {
             accuracy >= 0.9f -> 3
             accuracy >= 0.7f -> 2
             else -> 1
         }
-        
+
         val xpEarned = stars * 20 - mistakes * 2
-        
+
         viewModelScope.launch {
             userRepository.completeLesson(
                 lessonId = _lesson.value?.id ?: "",
@@ -133,17 +132,17 @@ class LessonViewModel @Inject constructor(
                 xpEarned = xpEarned
             )
         }
-        
+
         return stars
     }
-    
+
     private fun QuestionEntity.toDomainModel(): Question {
-        // ПРИМЕЧАНИЕ: Ошибка "Unresolved reference: ruleReference" означает, 
-        // что в твоем файле QuestionEntity.kt отсутствует поле ruleReference. 
-        // Код ниже полностью рабочий, но тебе нужно добавить val ruleReference: String? в класс QuestionEntity.
         return when (questionType) {
             "SINGLE_CHOICE" -> {
-                val options: List<String> = gson.fromJson(dataJson, object : TypeToken<List<String>>(){}.type)
+                val options: List<String> = gson.fromJson(
+                    dataJson,
+                    object : TypeToken<List<String>>() {}.type
+                )
                 Question(
                     id = id,
                     lessonId = lessonId,
@@ -169,10 +168,13 @@ class LessonViewModel @Inject constructor(
                 )
             }
             "DRAG_ORDER" -> {
-                val dragData: Map<String, Any> = gson.fromJson(dataJson, object : TypeToken<Map<String, Any>>(){}.type)
+                val dragData: Map<String, Any> = gson.fromJson(
+                    dataJson,
+                    object : TypeToken<Map<String, Any>>() {}.type
+                )
                 val words = (dragData["words"] as List<*>).map { it.toString() }
                 val order = (dragData["correct_order"] as List<*>).map { (it as Double).toInt() }
-                
+
                 Question(
                     id = id,
                     lessonId = lessonId,
