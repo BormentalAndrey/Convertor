@@ -27,6 +27,7 @@ object DatabaseModule {
         .build()
     }
 
+    // Новые DAO
     @Provides
     fun provideGradeDao(db: AppDatabase): GradeDao = db.gradeDao()
 
@@ -45,4 +46,14 @@ object DatabaseModule {
 
     @Provides
     fun provideDictionaryDao(db: AppDatabase): DictionaryDao = db.dictionaryDao()
+
+    // Старые DAO
+    @Provides
+    fun provideLessonDao(db: AppDatabase): LessonDao = db.lessonDao()
+
+    @Provides
+    fun provideQuestionDao(db: AppDatabase): QuestionDao = db.questionDao()
+
+    @Provides
+    fun provideUserProgressDao(db: AppDatabase): UserProgressDao = db.userProgressDao()
 }
