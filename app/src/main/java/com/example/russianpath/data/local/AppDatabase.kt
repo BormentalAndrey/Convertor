@@ -29,14 +29,26 @@ import com.example.russianpath.data.local.entity.LessonCompletionEntity
 /**
  * Основная база данных приложения "Русский Путь".
  *
- * Архитектура:
- * - Grades → Sections → Topics → LearningObjectives → MicroSkills
- * - DictionaryWords — независимая таблица словаря
- * - Lessons → Questions — контент уроков
- * - LessonCompletions — история прохождений
- * - UserProgress — агрегированный прогресс пользователя
+ * Архитектура сущностей (иерархия контента):
+ * ```
+ * GradeEntity (классы: 1-11, ОГЭ, ЕГЭ)
+ *   └─ SectionEntity (разделы: Фонетика, Морфология...)
+ *        └─ TopicEntity (темы: Правописание приставок...)
+ *             └─ LearningObjectiveEntity (цели обучения)
+ *                  └─ MicroSkillEntity (микро-навыки)
  *
- * Версия БД: 2 (миграция с version 1: добавлены новые поля, переименована lesson_completion → lesson_completions)
+ * DictionaryWordEntity — независимый словарь
+ * LessonEntity → QuestionEntity — контент уроков
+ * LessonCompletionEntity — история всех попыток
+ * UserProgressEntity — агрегированный прогресс (синглтон)
+ * ```
+ *
+ * Версия БД: 2
+ * Миграция 1→2: AppDatabaseMigrations.MIGRATION_1_2
+ *   - Добавлены поля синхронизации во все таблицы
+ *   - Добавлены поля для образовательной аналитики
+ *   - Переименована lesson_completion → lesson_completions
+ *   - Переименована topics_v2 → topics
  */
 @Database(
     entities = [
@@ -60,18 +72,38 @@ import com.example.russianpath.data.local.entity.LessonCompletionEntity
 )
 abstract class AppDatabase : RoomDatabase() {
 
+    /** DAO для классов обучения (1-11, ОГЭ, ЕГЭ). */
     abstract fun gradeDao(): GradeDao
+
+    /** DAO для разделов внутри класса. */
     abstract fun sectionDao(): SectionDao
+
+    /** DAO для тем внутри раздела. */
     abstract fun topicDao(): TopicDao
+
+    /** DAO для целей обучения внутри темы. */
     abstract fun learningObjectiveDao(): LearningObjectiveDao
+
+    /** DAO для микро-навыков. */
     abstract fun microSkillDao(): MicroSkillDao
+
+    /** DAO для словарных слов. */
     abstract fun dictionaryDao(): DictionaryDao
+
+    /** DAO для уроков. */
     abstract fun lessonDao(): LessonDao
+
+    /** DAO для вопросов упражнений. */
     abstract fun questionDao(): QuestionDao
+
+    /** DAO для прогресса пользователя. */
     abstract fun userProgressDao(): UserProgressDao
+
+    /** DAO для истории завершения уроков. */
     abstract fun lessonCompletionDao(): LessonCompletionDao
 
     companion object {
+        /** Имя файла базы данных. */
         const val DATABASE_NAME = "russian_path.db"
     }
 }
