@@ -3,6 +3,7 @@ package com.example.russianpath.di
 import android.content.Context
 import androidx.room.Room
 import com.example.russianpath.data.local.AppDatabase
+import com.example.russianpath.data.local.AppDatabaseMigrations
 import com.example.russianpath.data.local.dao.GradeDao
 import com.example.russianpath.data.local.dao.SectionDao
 import com.example.russianpath.data.local.dao.TopicDao
@@ -20,10 +21,28 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+/**
+ * Dagger Hilt модуль для предоставления зависимостей базы данных.
+ *
+ * Предоставляет:
+ * - AppDatabase (singleton)
+ * - Все DAO (singleton)
+ *
+ * Все зависимости имеют scope @Singleton, так как AppDatabase —
+ * тяжёлый объект, который должен жить всё время жизни процесса.
+ */
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
 
+    /**
+     * Создаёт и предоставляет единственный экземпляр RoomDatabase.
+     *
+     * Использует:
+     * - Имя БД из AppDatabase.DATABASE_NAME
+     * - Миграцию MIGRATION_1_2 для обновления с версии 1
+     * - Экспорт схемы для тестирования миграций (exportSchema = true в аннотации)
+     */
     @Provides
     @Singleton
     fun provideAppDatabase(
