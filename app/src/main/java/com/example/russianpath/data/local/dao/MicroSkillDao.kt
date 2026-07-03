@@ -6,6 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MicroSkillDao {
+
     @Query("SELECT * FROM micro_skills WHERE objectiveId = :objectiveId")
     fun observeByObjective(objectiveId: String): Flow<List<MicroSkillEntity>>
 
