@@ -1,3 +1,5 @@
+// app/src/main/java/com/example/russianpath/presentation/screens/profile/ProfileScreen.kt
+
 package com.example.russianpath.presentation.screens.profile
 
 import androidx.compose.foundation.layout.Arrangement
@@ -23,6 +25,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -47,17 +50,6 @@ import com.example.russianpath.presentation.theme.SuccessGreen
 import com.example.russianpath.presentation.theme.VasilisaBlue
 import com.example.russianpath.presentation.theme.XpGold
 
-/**
- * Экран профиля пользователя.
- *
- * Отображает:
- * - Аватар и уровень пользователя с званием
- * - Основные показатели (XP, самоцветы, жизни, рекорд стрика)
- * - Детальную статистику (уроки, точность, время, дни активности)
- * - Прогресс до следующего уровня
- *
- * Использует ProfileViewModel для получения данных.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
@@ -71,140 +63,68 @@ fun ProfileScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {
-                    Text(
-                        text = "Профиль",
-                        fontWeight = FontWeight.Bold
-                    )
-                },
+                title = { Text(text = "Профиль", fontWeight = FontWeight.Bold) },
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        EmojiText(Emoji.BACK, fontSize = 24)
-                    }
+                    IconButton(onClick = onBackClick) { EmojiText(Emoji.BACK, fontSize = 24) }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
             )
         }
     ) { paddingValues ->
-        if (isLoading) {
-            // Экран загрузки
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    CircularProgressIndicator(color = VasilisaBlue)
-                    Spacer(Modifier.height(16.dp))
-                    Text(
-                        text = "Загружаем профиль...",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.Gray
-                    )
+        Box(modifier = Modifier.padding(paddingValues)) {
+            if (isLoading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        CircularProgressIndicator(color = VasilisaBlue)
+                        Spacer(Modifier.height(16.dp))
+                        Text(text = "Загружаем профиль...", style = MaterialTheme.typography.bodyLarge, color = Color.Gray)
+                    }
+                }
+            } else {
+                Column(
+                    modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    ProfileHeader(userStats = userStats)
+                    StatsCard(userStats = userStats)
+                    DetailedStatsCard(userStats = userStats)
+                    LevelCard(userStats = userStats)
+                    Spacer(Modifier.height(32.dp))
                 }
             }
-        } else {
-            // Основной контент
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .verticalScroll(rememberScrollState())
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                // Шапка профиля: аватар, звание, уровень, стрик
-                ProfileHeader(userStats = userStats)
 
-                // Основные показатели: XP, самоцветы, жизни, рекорд стрика
-                StatsCard(userStats = userStats)
-
-                // Детальная статистика
-                DetailedStatsCard(userStats = userStats)
-
-                // Прогресс до следующего уровня
-                LevelCard(userStats = userStats)
-
-                // Отступ снизу для удобства прокрутки
-                Spacer(Modifier.height(32.dp))
-            }
-        }
-
-        // Отображение ошибки
-        errorMessage?.let { message ->
-            androidx.compose.material3.Snackbar(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .align(Alignment.BottomCenter)
-            ) {
-                Text(text = message)
+            errorMessage?.let { message ->
+                Snackbar(modifier = Modifier.padding(16.dp).align(Alignment.BottomCenter)) {
+                    Text(text = message)
+                }
             }
         }
     }
 }
 
-// ========================================================================
-// Шапка профиля
-// ========================================================================
-
-/**
- * Шапка профиля с аватаром, званием, уровнем и информацией о стрике.
- *
- * Аватар весёлый, если есть активный стрик (>0 дней).
- * Отображает звание (Новичок, Ученик, Знаток, Эксперт, Мастер, Грандмастер),
- * текущий уровень и информацию о стрике.
- */
 @Composable
 private fun ProfileHeader(userStats: UserStats) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Аватар (реакция на стрик)
-        VasilisaImage(
-            modifier = Modifier.size(120.dp),
-            isHappy = userStats.currentStreak > 0
-        )
-
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        VasilisaImage(modifier = Modifier.size(120.dp), isHappy = userStats.currentStreak > 0)
         Spacer(Modifier.height(12.dp))
-
-        // Звание пользователя
-        Text(
-            text = userStats.getLevelTitle(),
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
-        )
-
-        // Текущий уровень
-        Text(
-            text = "Уровень ${userStats.level}",
-            style = MaterialTheme.typography.titleMedium,
-            color = Color.Gray
-        )
-
-        // Текущий стрик (если есть)
+        Text(text = userStats.getLevelTitle(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+        Text(text = "Уровень ${userStats.level}", style = MaterialTheme.typography.titleMedium, color = Color.Gray)
         if (userStats.currentStreak > 0) {
             Spacer(Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 EmojiText(Emoji.STREAK, fontSize = 20)
                 Spacer(Modifier.width(4.dp))
                 Text(
-                    text = "Серия: ${userStats.currentStreak} " +
-                            getStreakDaysWord(userStats.currentStreak),
+                    text = "Серия: ${userStats.currentStreak} ${getStreakDaysWord(userStats.currentStreak)}",
                     color = KnopaOrange,
                     fontWeight = FontWeight.Bold
                 )
             }
         }
-
-        // Рекордный стрик за всё время
         if (userStats.longestStreak > 0) {
             Text(
-                text = "Рекорд: ${userStats.longestStreak} " +
-                        getStreakDaysWord(userStats.longestStreak),
+                text = "Рекорд: ${userStats.longestStreak} ${getStreakDaysWord(userStats.longestStreak)}",
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray
             )
@@ -212,301 +132,91 @@ private fun ProfileHeader(userStats: UserStats) {
     }
 }
 
-// ========================================================================
-// Карточка основных показателей
-// ========================================================================
-
-/**
- * Карточка с четырьмя основными показателями.
- *
- * Цветовая кодировка:
- * - XP — золотой (XpGold)
- * - Самоцветы — бирюзовый (GemCrystal)
- * - Жизни — красный (ErrorRed)
- * - Рекорд стрика — оранжевый (KnopaOrange)
- */
 @Composable
 private fun StatsCard(userStats: UserStats) {
-    Card(
-        shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    Card(shape = RoundedCornerShape(20.dp), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp), modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(20.dp)) {
-            Text(
-                text = "Основные показатели",
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleMedium
-            )
-
+            Text(text = "Основные показатели", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceEvenly
-            ) {
-                ProfileStatItem(
-                    emoji = Emoji.XP,
-                    value = userStats.totalXp.toString(),
-                    label = "XP",
-                    color = XpGold
-                )
-                ProfileStatItem(
-                    emoji = Emoji.GEM,
-                    value = userStats.gemsBalance.toString(),
-                    label = "Самоцветов",
-                    color = GemCrystal
-                )
-                ProfileStatItem(
-                    emoji = Emoji.HEART,
-                    value = "${userStats.livesCount}/${userStats.maxLives}",
-                    label = "Жизней",
-                    color = ErrorRed
-                )
-                ProfileStatItem(
-                    emoji = Emoji.STREAK,
-                    value = userStats.longestStreak.toString(),
-                    label = "Рекорд",
-                    color = KnopaOrange
-                )
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
+                ProfileStatItem(emoji = Emoji.XP, value = userStats.totalXp.toString(), label = "XP", color = XpGold)
+                ProfileStatItem(emoji = Emoji.GEM, value = userStats.gemsBalance.toString(), label = "Самоцветов", color = GemCrystal)
+                ProfileStatItem(emoji = Emoji.HEART, value = "${userStats.livesCount}/${userStats.maxLives}", label = "Жизней", color = ErrorRed)
+                ProfileStatItem(emoji = Emoji.STREAK, value = userStats.longestStreak.toString(), label = "Рекорд", color = KnopaOrange)
             }
         }
     }
 }
 
-// ========================================================================
-// Карточка детальной статистики
-// ========================================================================
-
-/**
- * Карточка с детальной статистикой пользователя.
- *
- * Показывает:
- * - Количество завершённых уроков
- * - Количество идеальных уроков (100%, все звёзды)
- * - Общее количество ошибок
- * - Точность ответов (с цветовой кодировкой: зелёный ≥90%, жёлтый ≥70%, красный <70%)
- * - Общее время обучения (в human-readable формате)
- * - Количество дней активности
- */
 @Composable
 private fun DetailedStatsCard(userStats: UserStats) {
-    Card(
-        shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    Card(shape = RoundedCornerShape(20.dp), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp), modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(20.dp)) {
-            Text(
-                text = "Детальная статистика",
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleMedium
-            )
-
+            Text(text = "Детальная статистика", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(12.dp))
-
-            DetailedStatRow(
-                label = "Завершено уроков",
-                value = userStats.totalLessonsCompleted.toString()
-            )
+            DetailedStatRow(label = "Завершено уроков", value = userStats.totalLessonsCompleted.toString())
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-            DetailedStatRow(
-                label = "Идеальных уроков",
-                value = userStats.totalPerfectLessons.toString()
-            )
+            DetailedStatRow(label = "Идеальных уроков", value = userStats.totalPerfectLessons.toString())
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-            DetailedStatRow(
-                label = "Всего ошибок",
-                value = userStats.totalMistakesCount.toString()
-            )
+            DetailedStatRow(label = "Всего ошибок", value = userStats.totalMistakesCount.toString())
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-            DetailedStatRow(
-                label = "Точность",
-                value = "${userStats.accuracy.toInt()}%",
+            DetailedStatRow(label = "Точность", value = "${userStats.accuracy.toInt()}%",
                 valueColor = when {
                     userStats.accuracy >= 90f -> SuccessGreen
                     userStats.accuracy >= 70f -> XpGold
                     else -> ErrorRed
-                }
-            )
+                })
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-            DetailedStatRow(
-                label = "Время обучения",
-                value = userStats.getFormattedTotalTime()
-            )
+            DetailedStatRow(label = "Время обучения", value = userStats.getFormattedTotalTime())
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-
-            DetailedStatRow(
-                label = "Дней активности",
-                value = userStats.totalDaysActive.toString()
-            )
+            DetailedStatRow(label = "Дней активности", value = userStats.totalDaysActive.toString())
         }
     }
 }
 
-// ========================================================================
-// Карточка прогресса уровня
-// ========================================================================
-
-/**
- * Карточка с прогресс-баром до следующего уровня.
- *
- * Показывает:
- * - Метки текущего и следующего уровней
- * - Прогресс-бар заполнения XP
- * - Текст с оставшимся XP
- * - Общее количество XP
- */
 @Composable
 private fun LevelCard(userStats: UserStats) {
-    Card(
-        shape = RoundedCornerShape(20.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = Modifier.fillMaxWidth()
-    ) {
+    Card(shape = RoundedCornerShape(20.dp), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp), modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(20.dp)) {
-            Text(
-                text = "Прогресс уровня",
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleMedium
-            )
-
+            Text(text = "Прогресс уровня", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(12.dp))
-
-            // Метки уровней
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Уровень ${userStats.level}",
-                    fontWeight = FontWeight.SemiBold
-                )
-                Text(
-                    text = "Уровень ${userStats.level + 1}",
-                    color = Color.Gray
-                )
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(text = "Уровень ${userStats.level}", fontWeight = FontWeight.SemiBold)
+                Text(text = "Уровень ${userStats.level + 1}", color = Color.Gray)
             }
-
             Spacer(Modifier.height(8.dp))
-
-            // Прогресс-бар
             LinearProgressIndicator(
                 progress = userStats.getLevelProgressPercent() / 100f,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(10.dp)
-                    .clip(RoundedCornerShape(5.dp)),
+                modifier = Modifier.fillMaxWidth().height(10.dp).clip(RoundedCornerShape(5.dp)),
                 color = XpGold,
                 trackColor = XpGold.copy(alpha = 0.2f)
             )
-
             Spacer(Modifier.height(8.dp))
-
-            // Оставшееся XP
-            Text(
-                text = "Осталось ${userStats.xpToNextLevel} XP до следующего уровня",
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray
-            )
-
-            // Общее XP
-            Text(
-                text = "Всего: ${userStats.totalXp} XP",
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray
-            )
+            Text(text = "Осталось ${userStats.xpToNextLevel} XP до следующего уровня", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+            Text(text = "Всего: ${userStats.totalXp} XP", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
         }
     }
 }
 
-// ========================================================================
-// Переиспользуемые компоненты
-// ========================================================================
-
-/**
- * Элемент статистики с эмодзи, значением, подписью и цветовым акцентом.
- *
- * @param emoji Эмодзи-символ для отображения.
- * @param value Значение показателя (строка).
- * @param label Подпись под значением.
- * @param color Цвет акцента для значения.
- */
 @Composable
-private fun ProfileStatItem(
-    emoji: String,
-    value: String,
-    label: String,
-    color: Color
-) {
+private fun ProfileStatItem(emoji: String, value: String, label: String, color: Color) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         EmojiText(emoji, fontSize = 32)
         Spacer(Modifier.height(4.dp))
-        Text(
-            text = value,
-            fontWeight = FontWeight.Bold,
-            color = color
-        )
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodySmall,
-            color = Color.Gray
-        )
+        Text(text = value, fontWeight = FontWeight.Bold, color = color)
+        Text(text = label, style = MaterialTheme.typography.bodySmall, color = Color.Gray)
     }
 }
 
-/**
- * Строка детальной статистики: label слева, value справа.
- *
- * @param label Название показателя.
- * @param value Значение показателя.
- * @param valueColor Цвет значения (опционально, по умолчанию чёрный).
- */
 @Composable
-private fun DetailedStatRow(
-    label: String,
-    value: String,
-    valueColor: Color = Color.Unspecified
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = Color.Gray
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.SemiBold,
-            color = if (valueColor != Color.Unspecified) valueColor else Color.Black
-        )
+private fun DetailedStatRow(label: String, value: String, valueColor: Color = Color.Unspecified) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+        Text(text = label, style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+        Text(text = value, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold,
+            color = if (valueColor != Color.Unspecified) valueColor else Color.Black)
     }
 }
 
-// ========================================================================
-// Утилиты
-// ========================================================================
-
-/**
- * Возвращает правильное склонение слова "день" для числительного.
- *
- * Правила русской грамматики:
- * - 1 день (кроме 11)
- * - 2, 3, 4 дня (кроме 12, 13, 14)
- * - 5–20, 25–30... дней
- * - 21 день, 22 дня, 25 дней
- *
- * @param days Количество дней.
- * @return "день", "дня" или "дней".
- */
 private fun getStreakDaysWord(days: Int): String {
     val lastDigit = days % 10
     val lastTwoDigits = days % 100
