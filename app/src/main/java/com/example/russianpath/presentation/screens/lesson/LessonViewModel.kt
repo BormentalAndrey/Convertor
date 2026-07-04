@@ -2,24 +2,16 @@ package com.example.russianpath.presentation.screens.lesson
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.russianpath.data.local.dao.LessonCompletionDao
-import com.example.russianpath.data.local.dao.LessonDao
-import com.example.russianpath.data.local.dao.QuestionDao
-import com.example.russianpath.data.local.entity.LessonEntity
-import com.example.russianpath.data.local.entity.QuestionEntity
+import com.example.russianpath.data.repository.LessonRepository
 import com.example.russianpath.data.repository.UserRepository
 import com.example.russianpath.domain.model.Lesson
-import com.example.russianpath.domain.model.LessonType
 import com.example.russianpath.domain.model.Question
-import com.example.russianpath.domain.model.QuestionType
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -28,17 +20,18 @@ import javax.inject.Inject
  * ViewModel для экрана прохождения урока.
  *
  * Управляет:
- * - Загрузкой урока и вопросов
+ * - Загрузкой урока и вопросов (через LessonRepository)
  * - Навигацией по вопросам
- * - Проверкой ответов
+ * - Проверкой ответов (полиморфная, через domain Question.checkAnswer)
  * - Подсчётом статистики попытки
- * - Сохранением результатов
+ * - Сохранением результатов (через UserRepository)
+ *
+ * Все операции ввода-вывода выполняются на IO-диспетчере.
+ * Состояния UI предоставляются через StateFlow для реактивного обновления.
  */
 @HiltViewModel
 class LessonViewModel @Inject constructor(
-    private val lessonDao: LessonDao,
-    private val questionDao: QuestionDao,
-    private val lessonCompletionDao: LessonCompletionDao,
+    private val lessonRepository: LessonRepository,
     private val userRepository: UserRepository
 ) : ViewModel() {
 
@@ -90,9 +83,16 @@ class LessonViewModel @Inject constructor(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
-    // Список ID вопросов, на которые были даны неправильные ответы (для аналитики)
+    /**
+     * Список ошибок, допущенных в текущей попытке.
+     * Каждая ошибка привязана к ID вопроса и ID навыка для аналитики.
+     */
     private val mistakesList = mutableListOf<MistakeRecord>()
 
+    /**
+     * Время начала урока в миллисекундах (System.currentTimeMillis).
+     * Используется для вычисления общего времени прохождения.
+     */
     private var lessonStartTime: Long = 0L
 
     // ========================================================================
@@ -101,44 +101,62 @@ class LessonViewModel @Inject constructor(
 
     /**
      * Загружает урок и его вопросы по ID.
+     *
+     * Использует LessonRepository.getLessonWithQuestions() для получения
+     * урока вместе с вопросами и прогрессом пользователя.
+     *
+     * @param lessonId Уникальный идентификатор урока.
      */
     fun loadLesson(lessonId: String) {
         viewModelScope.launch {
             try {
                 _isLoading.value = true
+                _errorMessage.value = null
                 lessonStartTime = System.currentTimeMillis()
 
-                val lessonEntity = withContext(Dispatchers.IO) {
-                    lessonDao.getById(lessonId)
+                // Сбрасываем состояние предыдущего урока
+                resetState()
+
+                // Загружаем урок с вопросами через репозиторий
+                val lessonWithQuestions = withContext(Dispatchers.IO) {
+                    lessonRepository.getLessonWithQuestions(lessonId)
                 }
 
-                if (lessonEntity == null) {
-                    _errorMessage.value = "Урок не найден"
+                if (lessonWithQuestions == null) {
+                    _errorMessage.value = "Урок не найден. Возможно, он был удалён или ещё не загружен."
                     _isLoading.value = false
                     return@launch
                 }
 
-                _lesson.value = lessonEntity.toDomainModel()
+                _lesson.value = lessonWithQuestions.lesson
+                _questions.value = lessonWithQuestions.questions
+                _totalQuestions.value = lessonWithQuestions.questions.size
+                _isLoading.value = false
 
-                // Загружаем вопросы
-                questionDao.observeByLessonOrdered(lessonId).collect { questionEntities ->
-                    val mappedQuestions = withContext(Dispatchers.Default) {
-                        questionEntities.map { it.toDomainModel() }
-                    }
-                    _questions.value = mappedQuestions
-                    _totalQuestions.value = mappedQuestions.size
-                    _isLoading.value = false
-                }
-
-                // Загружаем текущее количество жизней
+                // Загружаем текущее количество жизней пользователя
                 val stats = userRepository.getUserStats()
                 _livesRemaining.value = stats.livesCount
 
             } catch (e: Exception) {
-                _errorMessage.value = "Ошибка загрузки урока: ${e.message}"
+                _errorMessage.value = "Ошибка загрузки урока: ${e.message}. Пожалуйста, попробуйте снова."
                 _isLoading.value = false
             }
         }
+    }
+
+    /**
+     * Сбрасывает состояние ViewModel перед загрузкой нового урока.
+     */
+    private fun resetState() {
+        _currentQuestionIndex.value = 0
+        _mistakesCount.value = 0
+        _correctAnswersCount.value = 0
+        _isCorrect.value = null
+        _showHint.value = false
+        _isLessonCompleted.value = false
+        _earnedStars.value = 0
+        _earnedXp.value = 0
+        mistakesList.clear()
     }
 
     // ========================================================================
@@ -148,10 +166,27 @@ class LessonViewModel @Inject constructor(
     /**
      * Проверяет ответ пользователя на текущий вопрос.
      *
-     * @param userAnswer Ответ пользователя (строка или список).
+     * Использует полиморфный метод Question.checkAnswer(), который
+     * поддерживает все типы вопросов (SINGLE_CHOICE, TEXT_INPUT, DRAG_ORDER и т.д.).
+     *
+     * При неправильном ответе:
+     * - Увеличивает счётчик ошибок
+     * - Уменьшает количество жизней
+     * - Записывает ошибку в mistakesList для аналитики
+     * - Если жизни закончились — автоматически завершает урок
+     *
+     * @param userAnswer Ответ пользователя. Тип зависит от типа вопроса:
+     *   - String для SINGLE_CHOICE, TEXT_INPUT, FILL_IN_BLANK, DICTATION
+     *   - List<String> для MULTIPLE_CHOICE
+     *   - List<Int> для SEQUENCE_ORDER, WORD_DRAG
+     *   - Map<String, String> для MATCHING
      */
     fun checkAnswer(userAnswer: Any) {
-        val question = _questions.value.getOrNull(_currentQuestionIndex.value) ?: return
+        val question = _questions.value.getOrNull(_currentQuestionIndex.value)
+        if (question == null) {
+            _errorMessage.value = "Вопрос не найден. Пожалуйста, перезапустите урок."
+            return
+        }
 
         val isAnswerCorrect = question.checkAnswer(userAnswer)
 
@@ -163,7 +198,7 @@ class LessonViewModel @Inject constructor(
             _mistakesCount.value += 1
             _livesRemaining.value = maxOf(0, _livesRemaining.value - 1)
 
-            // Записываем ошибку для аналитики
+            // Записываем ошибку для аналитики с привязкой к навыку
             mistakesList.add(
                 MistakeRecord(
                     questionId = question.id,
@@ -173,7 +208,7 @@ class LessonViewModel @Inject constructor(
                 )
             )
 
-            // Если закончились жизни — завершаем урок
+            // Если закончились жизни — автоматически завершаем урок
             if (_livesRemaining.value <= 0) {
                 completeLesson()
             }
@@ -182,6 +217,8 @@ class LessonViewModel @Inject constructor(
 
     /**
      * Переход к следующему вопросу.
+     *
+     * Если это был последний вопрос — автоматически завершает урок.
      */
     fun nextQuestion() {
         if (_currentQuestionIndex.value < _questions.value.size - 1) {
@@ -189,8 +226,32 @@ class LessonViewModel @Inject constructor(
             _isCorrect.value = null
             _showHint.value = false
         } else {
-            // Это был последний вопрос — завершаем урок
             completeLesson()
+        }
+    }
+
+    /**
+     * Переход к предыдущему вопросу.
+     * Используется для режима свободной навигации.
+     */
+    fun previousQuestion() {
+        if (_currentQuestionIndex.value > 0) {
+            _currentQuestionIndex.value -= 1
+            _isCorrect.value = null
+            _showHint.value = false
+        }
+    }
+
+    /**
+     * Переход к конкретному вопросу по индексу.
+     *
+     * @param index Индекс вопроса (0-based).
+     */
+    fun goToQuestion(index: Int) {
+        if (index in _questions.value.indices) {
+            _currentQuestionIndex.value = index
+            _isCorrect.value = null
+            _showHint.value = false
         }
     }
 
@@ -200,6 +261,10 @@ class LessonViewModel @Inject constructor(
 
     /**
      * Показывает подсказку за самоцветы.
+     *
+     * Списывает HINT_COST самоцветов через UserRepository.spendGems().
+     * Если самоцветов недостаточно — показывает сообщение об ошибке.
+     * Если списание успешно — показывает подсказку.
      */
     fun showHint() {
         viewModelScope.launch {
@@ -207,17 +272,36 @@ class LessonViewModel @Inject constructor(
             if (success) {
                 _showHint.value = true
             } else {
+                val currentBalance = userRepository.getGemsBalance()
                 _errorMessage.value = "Недостаточно самоцветов для подсказки. " +
-                        "Нужно $HINT_COST, у вас ${userRepository.getGemsBalance()}"
+                        "Нужно $HINT_COST 💎, у вас $currentBalance 💎. " +
+                        "Пройдите больше уроков, чтобы заработать самоцветы!"
             }
         }
     }
 
     /**
+     * Скрывает подсказку.
+     */
+    fun hideHint() {
+        _showHint.value = false
+    }
+
+    /**
      * Возвращает текущий вопрос.
+     *
+     * @return Текущий Question или null, если вопросы ещё не загружены.
      */
     fun getCurrentQuestion(): Question? {
         return _questions.value.getOrNull(_currentQuestionIndex.value)
+    }
+
+    /**
+     * Проверяет, можно ли перейти к следующему вопросу.
+     * Пользователь должен ответить на текущий вопрос перед переходом.
+     */
+    fun canProceedToNext(): Boolean {
+        return _isCorrect.value != null
     }
 
     // ========================================================================
@@ -227,7 +311,17 @@ class LessonViewModel @Inject constructor(
     /**
      * Завершает урок и сохраняет результаты.
      *
-     * @return Количество заработанных звёзд.
+     * Вычисляет:
+     * - Процент правильных ответов
+     * - Количество звёзд (через Lesson.calculateStars)
+     * - Награду XP (через Lesson.calculateXpReward)
+     * - Время прохождения
+     * - Статус прохождения (зачёт/незачёт)
+     *
+     * Сохраняет результат через UserRepository.completeLesson().
+     * Идемпотентен: повторный вызов не дублирует сохранение.
+     *
+     * @return Количество заработанных звёзд (0–maxStars).
      */
     fun completeLesson(): Int {
         if (_isLessonCompleted.value) return _earnedStars.value
@@ -237,26 +331,32 @@ class LessonViewModel @Inject constructor(
         val correctAnswers = _correctAnswersCount.value
         val mistakes = _mistakesCount.value
 
-        if (totalQuestions == 0) return 0
+        if (totalQuestions == 0) {
+            _errorMessage.value = "Нет вопросов для завершения урока."
+            return 0
+        }
 
         // Вычисляем процент правильных ответов
-        val scorePercent = if (totalQuestions > 0) {
-            (correctAnswers * 100) / totalQuestions
+        val scorePercent = (correctAnswers * 100) / totalQuestions
+
+        // Вычисляем звёзды на основе процента и порога прохождения
+        val stars = lessonData.calculateStars(scorePercent)
+
+        // Вычисляем XP с учётом процента правильных ответов
+        val xpEarned = lessonData.calculateXpReward(scorePercent)
+
+        // Время прохождения в секундах
+        val timeSpent = ((System.currentTimeMillis() - lessonStartTime) / 1000).toInt()
+
+        // Проверяем, пройден ли урок (достигнут ли порог)
+        val isPassed = lessonData.isPassed(scorePercent)
+
+        // Награда самоцветами — только за идеальное прохождение
+        val gemsEarned = if (stars == lessonData.maxStars && scorePercent >= 100) {
+            lessonData.gemsReward
         } else {
             0
         }
-
-        // Вычисляем звёзды
-        val stars = lessonData.calculateStars(scorePercent)
-
-        // Вычисляем XP
-        val xpEarned = lessonData.calculateXpReward(scorePercent)
-
-        // Время прохождения
-        val timeSpent = ((System.currentTimeMillis() - lessonStartTime) / 1000).toInt()
-
-        // Проверяем, пройден ли урок
-        val isPassed = lessonData.isPassed(scorePercent)
 
         // Формируем JSON с ошибками для аналитики
         val mistakesJson = gson.toJson(mistakesList.map { it.toJsonMap() })
@@ -265,7 +365,7 @@ class LessonViewModel @Inject constructor(
         _earnedXp.value = xpEarned
         _isLessonCompleted.value = true
 
-        // Сохраняем результат
+        // Сохраняем результат в репозиторий
         viewModelScope.launch {
             try {
                 userRepository.completeLesson(
@@ -279,11 +379,12 @@ class LessonViewModel @Inject constructor(
                     mistakesJson = mistakesJson,
                     timeSpentSeconds = timeSpent,
                     xpEarned = xpEarned,
-                    gemsEarned = if (stars == lessonData.maxStars) lessonData.gemsReward else 0,
+                    gemsEarned = gemsEarned,
                     isPassed = isPassed
                 )
             } catch (e: Exception) {
-                _errorMessage.value = "Ошибка сохранения результатов: ${e.message}"
+                _errorMessage.value = "Ошибка сохранения результатов: ${e.message}. " +
+                        "Результат будет сохранён при следующей синхронизации."
             }
         }
 
@@ -291,286 +392,63 @@ class LessonViewModel @Inject constructor(
     }
 
     /**
-     * Возвращает результат урока для экрана ResultScreen.
+     * Возвращает результат урока для передачи в ResultScreen.
+     *
+     * @return LessonResult с полной статистикой попытки.
      */
     fun getLessonResult(): LessonResult {
+        val totalQuestions = _totalQuestions.value
+        val correctAnswers = _correctAnswersCount.value
+        val timeSpent = if (lessonStartTime > 0) {
+            ((System.currentTimeMillis() - lessonStartTime) / 1000).toInt()
+        } else {
+            0
+        }
+
         return LessonResult(
             lessonTitle = _lesson.value?.title ?: "",
             stars = _earnedStars.value,
             xpEarned = _earnedXp.value,
-            scorePercent = if (_totalQuestions.value > 0) {
-                (_correctAnswersCount.value * 100) / _totalQuestions.value
-            } else 0,
-            correctAnswers = _correctAnswersCount.value,
-            totalQuestions = _totalQuestions.value,
-            timeSpentSeconds = ((System.currentTimeMillis() - lessonStartTime) / 1000).toInt()
+            scorePercent = if (totalQuestions > 0) {
+                (correctAnswers * 100) / totalQuestions
+            } else {
+                0
+            },
+            correctAnswers = correctAnswers,
+            totalQuestions = totalQuestions,
+            timeSpentSeconds = timeSpent
         )
     }
 
     /**
-     * Сбрасывает сообщение об ошибке.
+     * Сбрасывает сообщение об ошибке после его отображения в UI.
      */
     fun clearError() {
         _errorMessage.value = null
     }
 
     // ========================================================================
-    // Маппинг Entity → Domain
-    // ========================================================================
-
-    /**
-     * Преобразует LessonEntity в доменную модель Lesson.
-     */
-    private fun LessonEntity.toDomainModel(): Lesson {
-        return Lesson(
-            id = id,
-            topicId = topicId,
-            primaryObjectiveId = primaryObjectiveId,
-            lessonType = LessonType.fromString(lessonType),
-            title = title,
-            description = description,
-            instructionText = instructionText,
-            difficulty = difficulty,
-            sortOrder = sortOrder,
-            theoryJson = theoryJson,
-            questionsCount = questionsCount,
-            timeLimitSeconds = timeLimitSeconds,
-            passingScorePercent = passingScorePercent,
-            maxStars = maxStars,
-            xpBaseReward = xpBaseReward,
-            xpPerfectBonus = xpPerfectBonus,
-            gemsReward = gemsReward,
-            isBonus = isBonus,
-            isDiagnostic = isDiagnostic
-        )
-    }
-
-    /**
-     * Преобразует QuestionEntity в доменную модель Question.
-     *
-     * Поддерживает все типы вопросов через парсинг dataJson.
-     */
-    private fun QuestionEntity.toDomainModel(): Question {
-        val type = QuestionType.fromString(questionType)
-
-        return when (type) {
-            QuestionType.SINGLE_CHOICE -> {
-                val options: List<String> = parseOptionsFromDataJson()
-                Question(
-                    id = id,
-                    lessonId = lessonId,
-                    primarySkillId = primarySkillId,
-                    questionType = type,
-                    promptText = promptText,
-                    promptAudioPath = promptAudioPath,
-                    promptImagePath = promptImagePath,
-                    options = options,
-                    correctAnswer = correctAnswerJson,
-                    acceptableAnswers = parseStringListFromJson(acceptableAnswersJson),
-                    hintText = hintText,
-                    explanationText = explanationText,
-                    audioPath = audioPath,
-                    ruleReference = ruleReference,
-                    ruleReferenceId = ruleReferenceId,
-                    difficulty = difficulty,
-                    timeLimitSeconds = timeLimitSeconds,
-                    points = points,
-                    penaltyPoints = penaltyPoints,
-                    maxAttempts = maxAttempts,
-                    isRequired = isRequired
-                )
-            }
-            QuestionType.MULTIPLE_CHOICE -> {
-                val options: List<String> = parseOptionsFromDataJson()
-                Question(
-                    id = id,
-                    lessonId = lessonId,
-                    primarySkillId = primarySkillId,
-                    questionType = type,
-                    promptText = promptText,
-                    options = options,
-                    correctAnswer = correctAnswerJson,
-                    acceptableAnswers = parseStringListFromJson(acceptableAnswersJson),
-                    hintText = hintText,
-                    explanationText = explanationText,
-                    ruleReference = ruleReference,
-                    ruleReferenceId = ruleReferenceId,
-                    difficulty = difficulty,
-                    points = points,
-                    isRequired = isRequired
-                )
-            }
-            QuestionType.TEXT_INPUT,
-            QuestionType.FILL_IN_BLANK,
-            QuestionType.DICTATION -> {
-                Question(
-                    id = id,
-                    lessonId = lessonId,
-                    primarySkillId = primarySkillId,
-                    questionType = type,
-                    promptText = promptText,
-                    promptAudioPath = promptAudioPath,
-                    correctAnswer = correctAnswerJson,
-                    acceptableAnswers = parseStringListFromJson(acceptableAnswersJson),
-                    hintText = hintText,
-                    explanationText = explanationText,
-                    audioPath = audioPath,
-                    ruleReference = ruleReference,
-                    ruleReferenceId = ruleReferenceId,
-                    difficulty = difficulty,
-                    points = points,
-                    isRequired = isRequired
-                )
-            }
-            QuestionType.WORD_DRAG,
-            QuestionType.SEQUENCE_ORDER -> {
-                val dragData = parseDragDataFromJson()
-                Question(
-                    id = id,
-                    lessonId = lessonId,
-                    primarySkillId = primarySkillId,
-                    questionType = type,
-                    promptText = promptText,
-                    draggableWords = dragData.words,
-                    correctOrder = dragData.order,
-                    correctAnswer = correctAnswerJson,
-                    hintText = hintText,
-                    explanationText = explanationText,
-                    ruleReference = ruleReference,
-                    ruleReferenceId = ruleReferenceId,
-                    difficulty = difficulty,
-                    points = points,
-                    isRequired = isRequired
-                )
-            }
-            QuestionType.MATCHING -> {
-                val pairs = parseMatchingPairsFromJson()
-                Question(
-                    id = id,
-                    lessonId = lessonId,
-                    primarySkillId = primarySkillId,
-                    questionType = type,
-                    promptText = promptText,
-                    options = pairs.leftItems,
-                    correctAnswer = correctAnswerJson,
-                    hintText = hintText,
-                    explanationText = explanationText,
-                    ruleReference = ruleReference,
-                    difficulty = difficulty,
-                    points = points,
-                    isRequired = isRequired
-                )
-            }
-            QuestionType.STRESS_SELECTION,
-            QuestionType.MORPHEMIC_ANALYSIS -> {
-                Question(
-                    id = id,
-                    lessonId = lessonId,
-                    primarySkillId = primarySkillId,
-                    questionType = type,
-                    promptText = promptText,
-                    correctAnswer = correctAnswerJson,
-                    hintText = hintText,
-                    explanationText = explanationText,
-                    ruleReference = ruleReference,
-                    difficulty = difficulty,
-                    points = points,
-                    isRequired = isRequired
-                )
-            }
-        }
-    }
-
-    /**
-     * Парсит список опций из dataJson.
-     * Ожидает формат: ["option1", "option2", ...]
-     */
-    private fun parseOptionsFromDataJson(): List<String> {
-        return try {
-            gson.fromJson(dataJson, object : TypeToken<List<String>>() {}.type)
-                ?: emptyList()
-        } catch (_: Exception) {
-            emptyList()
-        }
-    }
-
-    /**
-     * Парсит данные для drag-and-drop вопросов.
-     * Ожидает формат: {"words": [...], "correct_order": [...]}
-     */
-    private fun parseDragDataFromJson(): DragData {
-        return try {
-            val map: Map<String, Any> = gson.fromJson(
-                dataJson,
-                object : TypeToken<Map<String, Any>>() {}.type
-            )
-            val words = (map["words"] as? List<*>)?.map { it.toString() } ?: emptyList()
-            val order = (map["correct_order"] as? List<*>)
-                ?.map { (it as? Double)?.toInt() ?: 0 }
-                ?: emptyList()
-            DragData(words, order)
-        } catch (_: Exception) {
-            DragData(emptyList(), emptyList())
-        }
-    }
-
-    /**
-     * Парсит пары для вопросов на сопоставление.
-     * Ожидает формат: {"pairs": [{"left": "...", "right": "..."}, ...]}
-     */
-    private fun parseMatchingPairsFromJson(): MatchingPairs {
-        return try {
-            val map: Map<String, Any> = gson.fromJson(
-                dataJson,
-                object : TypeToken<Map<String, Any>>() {}.type
-            )
-            val pairs = map["pairs"] as? List<*> ?: emptyList<Any>()
-            val leftItems = mutableListOf<String>()
-            val rightItems = mutableListOf<String>()
-            for (pair in pairs) {
-                @Suppress("UNCHECKED_CAST")
-                val pairMap = pair as? Map<String, String> ?: continue
-                leftItems.add(pairMap["left"] ?: "")
-                rightItems.add(pairMap["right"] ?: "")
-            }
-            MatchingPairs(leftItems, rightItems)
-        } catch (_: Exception) {
-            MatchingPairs(emptyList(), emptyList())
-        }
-    }
-
-    /**
-     * Парсит JSON-строку в список строк.
-     */
-    private fun parseStringListFromJson(json: String): List<String> {
-        if (json.isBlank() || json == "[]") return emptyList()
-        return try {
-            gson.fromJson(json, object : TypeToken<List<String>>() {}.type) ?: emptyList()
-        } catch (_: Exception) {
-            emptyList()
-        }
-    }
-
-    // ========================================================================
     // Внутренние классы
     // ========================================================================
 
-    private data class DragData(
-        val words: List<String>,
-        val order: List<Int>
-    )
-
-    private data class MatchingPairs(
-        val leftItems: List<String>,
-        val rightItems: List<String>
-    )
-
+    /**
+     * Запись об ошибке для аналитики.
+     *
+     * @property questionId ID вопроса, на который дан неправильный ответ.
+     * @property skillId ID микро-навыка, к которому относится вопрос.
+     * @property userAnswer Ответ пользователя.
+     * @property correctAnswer Правильный ответ.
+     */
     private data class MistakeRecord(
         val questionId: String,
         val skillId: String,
         val userAnswer: String,
         val correctAnswer: String
     ) {
+        /**
+         * Преобразует запись в Map для сериализации в JSON.
+         * Формат: {"questionId": "...", "skillId": "...", "userAnswer": "...", "correctAnswer": "..."}
+         */
         fun toJsonMap(): Map<String, String> {
             return mapOf(
                 "questionId" to questionId,
@@ -589,6 +467,14 @@ class LessonViewModel @Inject constructor(
 
 /**
  * Результат прохождения урока для передачи в ResultScreen.
+ *
+ * @property lessonTitle Название урока.
+ * @property stars Количество заработанных звёзд (0–3).
+ * @property xpEarned Количество заработанного опыта.
+ * @property scorePercent Процент правильных ответов (0–100).
+ * @property correctAnswers Количество правильных ответов.
+ * @property totalQuestions Общее количество вопросов в уроке.
+ * @property timeSpentSeconds Время прохождения в секундах.
  */
 data class LessonResult(
     val lessonTitle: String,
