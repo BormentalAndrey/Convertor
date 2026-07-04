@@ -1,5 +1,3 @@
-// app/src/main/java/com/example/russianpath/data/repository/LessonRepository.kt
-
 package com.example.russianpath.data.repository
 
 import com.example.russianpath.data.local.dao.LessonCompletionDao
@@ -216,7 +214,7 @@ class LessonRepository @Inject constructor(
         return Lesson(
             id = id,
             topicId = topicId,
-            primaryObjectiveId = primaryObjectiveId,
+            primaryObjectiveId = primaryObjectiveId ?: "",
             lessonType = LessonType.fromString(lessonType),
             title = title,
             description = description,
