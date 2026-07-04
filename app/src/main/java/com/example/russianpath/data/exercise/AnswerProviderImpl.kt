@@ -6,7 +6,7 @@ import com.example.russianpath.core.analysis.WordAnalysis
 import com.example.russianpath.core.exercise.AnswerProvider
 import com.example.russianpath.core.exercise.CorrectAnswer
 import com.example.russianpath.core.exercise.TextAnswer
-import com.example.russianpath.data.local.converter.SkillCode
+import com.example.russianpath.core.knowledge.SkillCode
 import javax.inject.Inject
 import javax.inject.Singleton
 
