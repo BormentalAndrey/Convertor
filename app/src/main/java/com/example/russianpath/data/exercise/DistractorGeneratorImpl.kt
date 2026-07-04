@@ -1,7 +1,9 @@
+// app/src/main/java/com/example/russianpath/data/exercise/DistractorGeneratorImpl.kt
+
 package com.example.russianpath.data.exercise
 
 import com.example.russianpath.core.exercise.*
-import com.example.russianpath.core.knowledge.SkillCode
+import com.example.russianpath.data.local.converter.SkillCode
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,10 +21,10 @@ class DistractorGeneratorImpl @Inject constructor() : DistractorGenerator {
         }
 
         return when (skillCode) {
-            SkillCode.COUNT_SYLLABLES,
-            SkillCode.COUNT_LETTERS,
-            SkillCode.COUNT_VOWELS,
-            SkillCode.COUNT_CONSONANTS -> {
+            SkillCode.PHONETIC_ANALYSIS,
+            SkillCode.ORTHOGRAPHIC_ANALYSIS,
+            SkillCode.MORPHOLOGICAL_ANALYSIS,
+            SkillCode.SYNTACTIC_ANALYSIS -> {
                 val num = value.toIntOrNull() ?: return emptyList()
                 listOf(
                     TextOption(OptionId("d1"), (num - 1).coerceAtLeast(1).toString()),
@@ -30,13 +32,13 @@ class DistractorGeneratorImpl @Inject constructor() : DistractorGenerator {
                     TextOption(OptionId("d3"), (num + 2).toString())
                 ).take(count)
             }
-            SkillCode.RECOGNIZE_SOFT_SIGN,
-            SkillCode.RECOGNIZE_HARD_SIGN -> {
+            SkillCode.LEXICAL_MEANS,
+            SkillCode.SPEECH_STYLES -> {
                 val opposite = if (value == "Да") "Нет" else "Да"
                 listOf(TextOption(OptionId("d1"), opposite)).take(count)
             }
-            SkillCode.FIND_FIRST_LETTER,
-            SkillCode.FIND_LAST_LETTER -> {
+            SkillCode.IDENTIFY_LANGUAGE_UNITS,
+            SkillCode.MORPHEMIC_ANALYSIS -> {
                 val chars = listOf("А", "О", "У", "И", "Е")
                     .filter { it != value }
                     .take(count)
