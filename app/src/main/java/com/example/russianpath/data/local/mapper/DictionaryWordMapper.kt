@@ -1,3 +1,5 @@
+// app/src/main/java/com/example/russianpath/data/local/mapper/DictionaryWordMapper.kt
+
 package com.example.russianpath.data.local.mapper
 
 import com.example.russianpath.core.common.Difficulty
@@ -14,11 +16,12 @@ class DictionaryWordMapper @Inject constructor() {
 
     fun toDomain(entity: DictionaryWordEntity): DictionaryWord {
         val tags = entity.tagsJson
+            .trim('[', ']')
             .split(",")
             .filter { it.isNotBlank() }
             .mapNotNull { tag ->
                 try {
-                    WordTag.valueOf(tag.trim())
+                    WordTag.valueOf(tag.trim().trim('"'))
                 } catch (e: IllegalArgumentException) {
                     null
                 }
@@ -29,7 +32,7 @@ class DictionaryWordMapper @Inject constructor() {
             id = WordIdFactory.fromNormalized(entity.normalized),
             word = entity.word,
             normalized = entity.normalized,
-            gradeLevel = entity.gradeLevel,
+            gradeLevel = entity.gradeId.toIntOrNull() ?: 0,
             difficulty = Difficulty(entity.difficulty),
             tags = tags,
             schemaVersion = entity.schemaVersion
