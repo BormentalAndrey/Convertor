@@ -5,7 +5,7 @@ package com.example.russianpath.data.repository
 import com.example.russianpath.core.repository.KnowledgeRepository
 import com.example.russianpath.core.repository.LearningObjective
 import com.example.russianpath.core.repository.MicroSkill
-import com.example.russianpath.data.local.converter.SkillCode
+import com.example.russianpath.core.knowledge.SkillCode
 import com.example.russianpath.data.local.dao.LearningObjectiveDao
 import com.example.russianpath.data.local.dao.MicroSkillDao
 import com.example.russianpath.data.local.mapper.KnowledgeMapper
