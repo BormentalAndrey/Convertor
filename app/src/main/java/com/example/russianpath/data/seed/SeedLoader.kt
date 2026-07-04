@@ -22,7 +22,6 @@ import javax.inject.Singleton
  * - Загрузку списков сущностей
  * - Загрузку произвольных строк
  * - Проверку существования файла
- * - Потоковую загрузку больших файлов (для будущего использования)
  *
  * Gson настроен с FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES
  * для автоматического преобразования snake_case (JSON) ↔ camelCase (Kotlin).
@@ -51,8 +50,8 @@ class SeedLoader @Inject constructor(
                 emptyList()
             } else {
                 val type = object : TypeToken<List<T>>() {}.type
-                val list: List<T>? = gson.fromJson(json, type)
-                list?.filterNotNull() ?: emptyList()
+                val list: List<T> = gson.fromJson(json, type) ?: emptyList()
+                list
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -67,6 +66,7 @@ class SeedLoader @Inject constructor(
      * @param fileName Имя файла.
      * @return Result с данными или исключением.
      */
+    @Suppress("UNCHECKED_CAST")
     inline fun <reified T> loadListSafe(fileName: String): Result<List<T>> {
         return try {
             val json = readFile(fileName)
@@ -74,7 +74,8 @@ class SeedLoader @Inject constructor(
                 Result.success(emptyList())
             } else {
                 val type = object : TypeToken<List<T>>() {}.type
-                val list: List<T> = gson.fromJson(json, type)?.filterNotNull() ?: emptyList()
+                val rawList: Any? = gson.fromJson(json, type)
+                val list: List<T> = (rawList as? List<*>)?.filterIsInstance<T>() ?: emptyList()
                 Result.success(list)
             }
         } catch (e: IOException) {
