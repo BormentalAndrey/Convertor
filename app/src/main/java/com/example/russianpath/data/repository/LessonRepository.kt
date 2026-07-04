@@ -1,3 +1,5 @@
+// app/src/main/java/com/example/russianpath/data/repository/LessonRepository.kt
+
 package com.example.russianpath.data.repository
 
 import com.example.russianpath.data.local.dao.LessonCompletionDao
@@ -13,7 +15,6 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -43,38 +44,18 @@ class LessonRepository @Inject constructor(
     // Уроки (Lesson)
     // ========================================================================
 
-    /**
-     * Возвращает активные уроки по ID темы.
-     * Flow для реактивного обновления UI.
-     *
-     * @param topicId ID темы.
-     * @return Flow списка уроков.
-     */
     fun observeLessonsByTopic(topicId: String): Flow<List<Lesson>> {
         return lessonDao.observeByTopic(topicId).map { entities ->
             entities.map { it.toDomainModel() }
         }
     }
 
-    /**
-     * Возвращает урок по ID (однократно).
-     *
-     * @param lessonId ID урока.
-     * @return Lesson или null, если не найден.
-     */
     suspend fun getLessonById(lessonId: String): Lesson? {
         return withContext(Dispatchers.IO) {
             lessonDao.getById(lessonId)?.toDomainModel()
         }
     }
 
-    /**
-     * Возвращает уроки по типу внутри темы.
-     *
-     * @param topicId ID темы.
-     * @param lessonType Тип урока (practice, theory, test, diagnostic, bonus).
-     * @return Flow списка уроков.
-     */
     fun observeLessonsByTopicAndType(
         topicId: String,
         lessonType: LessonType
@@ -83,60 +64,30 @@ class LessonRepository @Inject constructor(
             .map { entities -> entities.map { it.toDomainModel() } }
     }
 
-    /**
-     * Возвращает диагностические уроки по ID темы.
-     *
-     * @param topicId ID темы.
-     * @return Flow списка диагностических уроков.
-     */
     fun observeDiagnosticLessonsByTopic(topicId: String): Flow<List<Lesson>> {
         return lessonDao.observeDiagnosticByTopic(topicId).map { entities ->
             entities.map { it.toDomainModel() }
         }
     }
 
-    /**
-     * Возвращает бонусные уроки по ID темы.
-     *
-     * @param topicId ID темы.
-     * @return Flow списка бонусных уроков.
-     */
     fun observeBonusLessonsByTopic(topicId: String): Flow<List<Lesson>> {
         return lessonDao.observeBonusByTopic(topicId).map { entities ->
             entities.map { it.toDomainModel() }
         }
     }
 
-    /**
-     * Возвращает уроки, в которых были допущены ошибки (для повторения).
-     *
-     * @param limit Максимальное количество уроков.
-     * @return Список уроков с ошибками.
-     */
     suspend fun getLessonsWithMistakes(limit: Int = 10): List<Lesson> {
         return withContext(Dispatchers.IO) {
             lessonDao.getLessonsWithMistakes(limit).map { it.toDomainModel() }
         }
     }
 
-    /**
-     * Возвращает количество уроков в теме.
-     *
-     * @param topicId ID темы.
-     * @return Количество активных уроков.
-     */
     suspend fun getLessonCountByTopic(topicId: String): Int {
         return withContext(Dispatchers.IO) {
             lessonDao.countByTopic(topicId)
         }
     }
 
-    /**
-     * Обогащает урок данными о прогрессе пользователя.
-     *
-     * @param lesson Урок для обогащения.
-     * @return Урок с заполненными полями isCompleted, bestStars, bestScorePercent, attemptCount.
-     */
     suspend fun enrichWithProgress(lesson: Lesson): Lesson {
         return withContext(Dispatchers.IO) {
             val latestCompletion = lessonCompletionDao.getLatestCompletion(lesson.id)
@@ -152,9 +103,6 @@ class LessonRepository @Inject constructor(
         }
     }
 
-    /**
-     * Обогащает список уроков данными о прогрессе.
-     */
     suspend fun enrichWithProgress(lessons: List<Lesson>): List<Lesson> {
         return withContext(Dispatchers.IO) {
             lessons.map { enrichWithProgress(it) }
@@ -165,66 +113,30 @@ class LessonRepository @Inject constructor(
     // Вопросы (Question)
     // ========================================================================
 
-    /**
-     * Возвращает вопросы урока в заданном порядке.
-     * Flow для реактивного обновления UI.
-     *
-     * @param lessonId ID урока.
-     * @return Flow списка вопросов.
-     */
     fun observeQuestionsByLesson(lessonId: String): Flow<List<Question>> {
         return questionDao.observeByLessonOrdered(lessonId).map { entities ->
             entities.map { it.toDomainModel() }
         }
     }
 
-    /**
-     * Возвращает вопросы урока в случайном порядке.
-     * Используется для режима тренировки.
-     *
-     * @param lessonId ID урока.
-     * @return Flow списка вопросов.
-     */
     fun observeQuestionsByLessonRandom(lessonId: String): Flow<List<Question>> {
         return questionDao.observeByLessonRandom(lessonId).map { entities ->
             entities.map { it.toDomainModel() }
         }
     }
 
-    /**
-     * Возвращает вопрос по ID (однократно).
-     *
-     * @param questionId ID вопроса.
-     * @return Question или null, если не найден.
-     */
     suspend fun getQuestionById(questionId: String): Question? {
         return withContext(Dispatchers.IO) {
             questionDao.getById(questionId)?.toDomainModel()
         }
     }
 
-    /**
-     * Возвращает вопросы по ID микро-навыка.
-     * Критично для генерации таргетированных упражнений.
-     *
-     * @param skillId ID микро-навыка.
-     * @return Flow списка вопросов.
-     */
     fun observeQuestionsBySkill(skillId: String): Flow<List<Question>> {
         return questionDao.observeBySkill(skillId).map { entities ->
             entities.map { it.toDomainModel() }
         }
     }
 
-    /**
-     * Возвращает вопросы по диапазону сложности.
-     * Для адаптивной генерации тестов.
-     *
-     * @param minDifficulty Минимальная сложность (1–5).
-     * @param maxDifficulty Максимальная сложность (1–5).
-     * @param limit Максимальное количество вопросов.
-     * @return Список вопросов в случайном порядке.
-     */
     suspend fun getQuestionsByDifficultyRange(
         minDifficulty: Int,
         maxDifficulty: Int,
@@ -236,12 +148,6 @@ class LessonRepository @Inject constructor(
         }
     }
 
-    /**
-     * Возвращает количество вопросов в уроке.
-     *
-     * @param lessonId ID урока.
-     * @return Количество активных вопросов.
-     */
     suspend fun getQuestionCountByLesson(lessonId: String): Int {
         return withContext(Dispatchers.IO) {
             questionDao.countByLesson(lessonId)
@@ -252,13 +158,6 @@ class LessonRepository @Inject constructor(
     // Комплексные запросы
     // ========================================================================
 
-    /**
-     * Загружает урок с вопросами и прогрессом.
-     * Один вызов вместо трёх отдельных.
-     *
-     * @param lessonId ID урока.
-     * @return Тройка (Lesson, List<Question>, прогресс) или null, если урок не найден.
-     */
     suspend fun getLessonWithQuestions(lessonId: String): LessonWithQuestions? {
         return withContext(Dispatchers.IO) {
             val lessonEntity = lessonDao.getById(lessonId) ?: return@withContext null
@@ -275,12 +174,6 @@ class LessonRepository @Inject constructor(
         }
     }
 
-    /**
-     * Загружает уроки темы с вопросами и прогрессом.
-     *
-     * @param topicId ID темы.
-     * @return Список уроков с вопросами.
-     */
     suspend fun getLessonsWithQuestionsByTopic(topicId: String): List<LessonWithQuestions> {
         return withContext(Dispatchers.IO) {
             val lessonEntities = lessonDao.getAllByTopic(topicId)
@@ -298,13 +191,6 @@ class LessonRepository @Inject constructor(
         }
     }
 
-    /**
-     * Возвращает уроки для интервального повторения.
-     * Уроки, в которых были ошибки, отсортированные по давности прохождения.
-     *
-     * @param limit Максимальное количество уроков.
-     * @return Список уроков с вопросами.
-     */
     suspend fun getLessonsForSpacedRepetition(limit: Int = 5): List<LessonWithQuestions> {
         return withContext(Dispatchers.IO) {
             val lessonsWithMistakes = lessonDao.getLessonsWithMistakes(limit)
@@ -326,9 +212,6 @@ class LessonRepository @Inject constructor(
     // Маппинг Entity → Domain
     // ========================================================================
 
-    /**
-     * Преобразует LessonEntity в доменную модель Lesson.
-     */
     private fun LessonEntity.toDomainModel(): Lesson {
         return Lesson(
             id = id,
@@ -353,15 +236,12 @@ class LessonRepository @Inject constructor(
         )
     }
 
-    /**
-     * Преобразует QuestionEntity в доменную модель Question.
-     */
     private fun QuestionEntity.toDomainModel(): Question {
         val type = QuestionType.fromString(questionType)
 
         return when (type) {
             QuestionType.SINGLE_CHOICE -> {
-                val options: List<String> = parseOptionsFromDataJson()
+                val options: List<String> = parseOptionsFromDataJson(dataJson)
                 Question(
                     id = id,
                     lessonId = lessonId,
@@ -387,7 +267,7 @@ class LessonRepository @Inject constructor(
                 )
             }
             QuestionType.MULTIPLE_CHOICE -> {
-                val options: List<String> = parseOptionsFromDataJson()
+                val options: List<String> = parseOptionsFromDataJson(dataJson)
                 Question(
                     id = id,
                     lessonId = lessonId,
@@ -430,7 +310,7 @@ class LessonRepository @Inject constructor(
             }
             QuestionType.WORD_DRAG,
             QuestionType.SEQUENCE_ORDER -> {
-                val dragData = parseDragDataFromJson()
+                val dragData = parseDragDataFromJson(dataJson)
                 Question(
                     id = id,
                     lessonId = lessonId,
@@ -450,7 +330,7 @@ class LessonRepository @Inject constructor(
                 )
             }
             QuestionType.MATCHING -> {
-                val pairs = parseMatchingPairsFromJson()
+                val pairs = parseMatchingPairsFromJson(dataJson)
                 Question(
                     id = id,
                     lessonId = lessonId,
@@ -491,18 +371,18 @@ class LessonRepository @Inject constructor(
     // Парсинг JSON
     // ========================================================================
 
-    private fun parseOptionsFromDataJson(): List<String> {
+    private fun parseOptionsFromDataJson(json: String): List<String> {
         return try {
-            gson.fromJson(dataJson, object : TypeToken<List<String>>() {}.type) ?: emptyList()
+            gson.fromJson(json, object : TypeToken<List<String>>() {}.type) ?: emptyList()
         } catch (_: Exception) {
             emptyList()
         }
     }
 
-    private fun parseDragDataFromJson(): Pair<List<String>, List<Int>> {
+    private fun parseDragDataFromJson(json: String): Pair<List<String>, List<Int>> {
         return try {
             val map: Map<String, Any> = gson.fromJson(
-                dataJson,
+                json,
                 object : TypeToken<Map<String, Any>>() {}.type
             )
             val words = (map["words"] as? List<*>)?.map { it.toString() } ?: emptyList()
@@ -515,10 +395,10 @@ class LessonRepository @Inject constructor(
         }
     }
 
-    private fun parseMatchingPairsFromJson(): Pair<List<String>, List<String>> {
+    private fun parseMatchingPairsFromJson(json: String): Pair<List<String>, List<String>> {
         return try {
             val map: Map<String, Any> = gson.fromJson(
-                dataJson,
+                json,
                 object : TypeToken<Map<String, Any>>() {}.type
             )
             val pairs = map["pairs"] as? List<*> ?: emptyList<Any>()
@@ -546,10 +426,6 @@ class LessonRepository @Inject constructor(
     }
 }
 
-/**
- * Композитная модель: урок с вопросами.
- * Используется для передачи полного набора данных на экран урока.
- */
 data class LessonWithQuestions(
     val lesson: Lesson,
     val questions: List<Question>
