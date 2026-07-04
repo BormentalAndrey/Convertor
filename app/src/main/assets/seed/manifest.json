@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 2,
+  "contentVersion": 1,
+  "generated": "2026-07-04T12:00:00Z",
+  "modules": [
+    {
+      "id": "grades",
+      "type": "data",
+      "name": "Классы обучения",
+      "archive": "grades.json",
+      "enabled": true,
+      "priority": 100
+    },
+    {
+      "id": "sections",
+      "type": "data",
+      "name": "Разделы",
+      "archive": "sections.json",
+      "enabled": true,
+      "priority": 90
+    },
+    {
+      "id": "topics",
+      "type": "data",
+      "name": "Темы",
+      "archive": "topics.json",
+      "enabled": true,
+      "priority": 80
+    },
+    {
+      "id": "objectives",
+      "type": "data",
+      "name": "Цели обучения",
+      "archive": "objectives.json",
+      "enabled": true,
+      "priority": 70
+    },
+    {
+      "id": "micro_skills",
+      "type": "data",
+      "name": "Микро-навыки",
+      "archive": "micro_skills.json",
+      "enabled": true,
+      "priority": 60
+    },
+    {
+      "id": "dictionary",
+      "type": "dictionary",
+      "name": "Словарь (5 класс)",
+      "archive": "dictionary.json",
+      "enabled": true,
+      "priority": 50
+    },
+    {
+      "id": "lessons",
+      "type": "data",
+      "name": "Уроки",
+      "archive": "lessons.json",
+      "enabled": true,
+      "priority": 40
+    },
+    {
+      "id": "questions",
+      "type": "data",
+      "name": "Вопросы",
+      "archive": "questions.json",
+      "enabled": true,
+      "priority": 30
+    }
+  ],
+  "dictionaries": [
+    {
+      "path": "dictionary.json",
+      "checksum": "",
+      "version": 1,
+      "compressed": false
+    }
+  ],
+  "ruleBooks": []
+}
