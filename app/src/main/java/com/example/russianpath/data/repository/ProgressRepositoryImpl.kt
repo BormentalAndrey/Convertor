@@ -1,10 +1,12 @@
+// app/src/main/java/com/example/russianpath/data/repository/ProgressRepositoryImpl.kt
+
 package com.example.russianpath.data.repository
 
 import com.example.russianpath.core.knowledge.MicroSkillId
-import com.example.russianpath.core.knowledge.SkillCode
 import com.example.russianpath.core.progress.AnswerResult
 import com.example.russianpath.core.progress.Mastery
 import com.example.russianpath.core.repository.ProgressRepository
+import com.example.russianpath.data.local.converter.SkillCode
 import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -15,7 +17,7 @@ class ProgressRepositoryImpl @Inject constructor() : ProgressRepository {
     private val masteryStore = mutableMapOf<MicroSkillId, Mastery>()
 
     override suspend fun recordAnswer(result: AnswerResult) {
-        val microSkillId = MicroSkillId("ms_${result.skillCode.key}")
+        val microSkillId = MicroSkillId("ms_${result.skillCode.code}")
 
         val current = masteryStore[microSkillId] ?: Mastery(
             microSkillId = microSkillId,
@@ -45,7 +47,7 @@ class ProgressRepositoryImpl @Inject constructor() : ProgressRepository {
     override suspend fun getMastery(microSkillId: MicroSkillId): Mastery {
         return masteryStore[microSkillId] ?: Mastery(
             microSkillId = microSkillId,
-            skillCode = SkillCode.COUNT_SYLLABLES,
+            skillCode = SkillCode.UNKNOWN,
             level = 0f,
             confidence = 0f,
             totalAttempts = 0,
