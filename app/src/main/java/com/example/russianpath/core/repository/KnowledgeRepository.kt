@@ -1,8 +1,8 @@
+// app/src/main/java/com/example/russianpath/core/repository/KnowledgeRepository.kt
+
 package com.example.russianpath.core.repository
 
 import com.example.russianpath.data.local.converter.SkillCode
-import com.example.russianpath.domain.model.LearningObjective
-import com.example.russianpath.domain.model.MicroSkill
 
 /**
  * Репозиторий для работы с образовательным графом знаний.
@@ -97,7 +97,7 @@ interface KnowledgeRepository {
 }
 
 // ========================================================================
-// Заглушки доменных моделей (должны быть определены в domain/model)
+// Доменные модели
 // ========================================================================
 
 /**
