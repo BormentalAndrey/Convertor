@@ -1,3 +1,5 @@
+// app/src/main/java/com/example/russianpath/data/seed/DatabaseSeeder.kt
+
 package com.example.russianpath.data.seed
 
 import android.util.Log
@@ -22,7 +24,6 @@ import com.example.russianpath.data.local.entity.SectionEntity
 import com.example.russianpath.data.local.entity.TopicEntity
 import com.example.russianpath.data.local.entity.UserProgressEntity
 import com.example.russianpath.data.seed.model.SeedManifest
-import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -217,22 +218,33 @@ class DatabaseSeeder @Inject constructor(
         }
         val list = loader.loadList<GradeEntity>(SeedConstants.GRADES)
         if (list.isNotEmpty()) {
-            gradeDao.insertAll(list)
-            Log.d(TAG, "Seeded ${list.size} grades")
+            // Фильтруем записи с пустыми обязательными полями (защита от null)
+            val validGrades = list.filter { it.id.isNotBlank() }
+            if (validGrades.isNotEmpty()) {
+                gradeDao.insertAll(validGrades)
+                Log.d(TAG, "Seeded ${validGrades.size} grades")
+            } else {
+                Log.w(TAG, "All grades have empty id field, skipping")
+            }
         } else {
             Log.w(TAG, "No grades found in seed file")
         }
     }
 
     private suspend fun seedSections() {
-        if (sectionDao.countByGrade(listOf("1", "5", "11").first()) > 0) {
+        if (sectionDao.countByGrade("5") > 0) {
             Log.d(TAG, "Sections already seeded, skipping")
             return
         }
         val list = loader.loadList<SectionEntity>(SeedConstants.SECTIONS)
         if (list.isNotEmpty()) {
-            sectionDao.insertAll(list)
-            Log.d(TAG, "Seeded ${list.size} sections")
+            val validSections = list.filter { it.id.isNotBlank() && it.gradeId.isNotBlank() }
+            if (validSections.isNotEmpty()) {
+                sectionDao.insertAll(validSections)
+                Log.d(TAG, "Seeded ${validSections.size} sections")
+            } else {
+                Log.w(TAG, "All sections have empty required fields, skipping")
+            }
         } else {
             Log.w(TAG, "No sections found in seed file")
         }
@@ -245,36 +257,43 @@ class DatabaseSeeder @Inject constructor(
         }
         val list = loader.loadList<TopicEntity>(SeedConstants.TOPICS)
         if (list.isNotEmpty()) {
-            topicDao.insertAll(list)
-            Log.d(TAG, "Seeded ${list.size} topics")
+            val validTopics = list.filter { it.id.isNotBlank() && it.sectionId.isNotBlank() }
+            if (validTopics.isNotEmpty()) {
+                topicDao.insertAll(validTopics)
+                Log.d(TAG, "Seeded ${validTopics.size} topics")
+            } else {
+                Log.w(TAG, "All topics have empty required fields, skipping")
+            }
         } else {
             Log.w(TAG, "No topics found in seed file")
         }
     }
 
     private suspend fun seedObjectives() {
-        if (objectiveDao.countByTopic(listOf("topic_5_1").first()) > 0) {
-            Log.d(TAG, "Objectives already seeded, skipping")
-            return
-        }
         val list = loader.loadList<LearningObjectiveEntity>(SeedConstants.OBJECTIVES)
         if (list.isNotEmpty()) {
-            objectiveDao.insertAll(list)
-            Log.d(TAG, "Seeded ${list.size} objectives")
+            val validObjectives = list.filter { it.id.isNotBlank() && it.topicId.isNotBlank() }
+            if (validObjectives.isNotEmpty()) {
+                objectiveDao.insertAll(validObjectives)
+                Log.d(TAG, "Seeded ${validObjectives.size} objectives")
+            } else {
+                Log.d(TAG, "No valid objectives found, skipping (optional)")
+            }
         } else {
             Log.d(TAG, "No objectives file found, skipping (optional)")
         }
     }
 
     private suspend fun seedMicroSkills() {
-        if (microSkillDao.countByObjective(listOf("obj_5_1_1").first()) > 0) {
-            Log.d(TAG, "MicroSkills already seeded, skipping")
-            return
-        }
         val list = loader.loadList<MicroSkillEntity>(SeedConstants.MICRO_SKILLS)
         if (list.isNotEmpty()) {
-            microSkillDao.insertAll(list)
-            Log.d(TAG, "Seeded ${list.size} micro_skills")
+            val validSkills = list.filter { it.id.isNotBlank() && it.objectiveId.isNotBlank() }
+            if (validSkills.isNotEmpty()) {
+                microSkillDao.insertAll(validSkills)
+                Log.d(TAG, "Seeded ${validSkills.size} micro_skills")
+            } else {
+                Log.d(TAG, "No valid micro_skills found, skipping (optional)")
+            }
         } else {
             Log.d(TAG, "No micro_skills file found, skipping (optional)")
         }
@@ -287,8 +306,13 @@ class DatabaseSeeder @Inject constructor(
         }
         val list = loader.loadList<DictionaryWordEntity>(SeedConstants.DICTIONARY)
         if (list.isNotEmpty()) {
-            dictionaryDao.insertAll(list)
-            Log.d(TAG, "Seeded ${list.size} dictionary words")
+            val validWords = list.filter { it.id.isNotBlank() && it.normalized.isNotBlank() }
+            if (validWords.isNotEmpty()) {
+                dictionaryDao.insertAll(validWords)
+                Log.d(TAG, "Seeded ${validWords.size} dictionary words")
+            } else {
+                Log.d(TAG, "No valid dictionary words found, skipping (optional)")
+            }
         } else {
             Log.d(TAG, "No dictionary file found, skipping (optional)")
         }
@@ -301,22 +325,32 @@ class DatabaseSeeder @Inject constructor(
         }
         val list = loader.loadList<LessonEntity>(SeedConstants.LESSONS)
         if (list.isNotEmpty()) {
-            lessonDao.insertAll(list)
-            Log.d(TAG, "Seeded ${list.size} lessons")
+            val validLessons = list.filter { it.id.isNotBlank() && it.topicId.isNotBlank() }
+            if (validLessons.isNotEmpty()) {
+                lessonDao.insertAll(validLessons)
+                Log.d(TAG, "Seeded ${validLessons.size} lessons")
+            } else {
+                Log.w(TAG, "All lessons have empty required fields, skipping")
+            }
         } else {
             Log.w(TAG, "No lessons found in seed file")
         }
     }
 
     private suspend fun seedQuestions() {
-        if (questionDao.countByLesson(listOf("lesson_5_1_1").first()) > 0) {
+        if (questionDao.countByLesson("lesson_5_1_1") > 0) {
             Log.d(TAG, "Questions already seeded, skipping")
             return
         }
         val list = loader.loadList<QuestionEntity>(SeedConstants.QUESTIONS)
         if (list.isNotEmpty()) {
-            questionDao.insertAll(list)
-            Log.d(TAG, "Seeded ${list.size} questions")
+            val validQuestions = list.filter { it.id.isNotBlank() && it.lessonId.isNotBlank() }
+            if (validQuestions.isNotEmpty()) {
+                questionDao.insertAll(validQuestions)
+                Log.d(TAG, "Seeded ${validQuestions.size} questions")
+            } else {
+                Log.w(TAG, "All questions have empty required fields, skipping")
+            }
         } else {
             Log.w(TAG, "No questions found in seed file")
         }
@@ -367,8 +401,13 @@ class DatabaseSeeder @Inject constructor(
         }
         val list = loader.loadList<LessonCompletionEntity>(SeedConstants.LESSON_COMPLETIONS)
         if (list.isNotEmpty()) {
-            lessonCompletionDao.saveCompletions(list)
-            Log.d(TAG, "Seeded ${list.size} lesson completions")
+            val validCompletions = list.filter { it.id.isNotBlank() && it.lessonId.isNotBlank() }
+            if (validCompletions.isNotEmpty()) {
+                lessonCompletionDao.saveCompletions(validCompletions)
+                Log.d(TAG, "Seeded ${validCompletions.size} lesson completions")
+            } else {
+                Log.d(TAG, "No valid lesson completions found, skipping (optional)")
+            }
         } else {
             Log.d(TAG, "No lesson completions file found, skipping (optional)")
         }
