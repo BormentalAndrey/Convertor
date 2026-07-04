@@ -44,7 +44,7 @@ class DictionaryWordMapper @Inject constructor() {
             id = domain.id.value,
             word = domain.word,
             normalized = domain.normalized,
-            gradeLevel = domain.gradeLevel,
+            gradeId = domain.gradeLevel.toString(),
             difficulty = domain.difficulty.value,
             tagsJson = domain.tags.joinToString(",") { it.name },
             schemaVersion = domain.schemaVersion
