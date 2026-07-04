@@ -1,3 +1,5 @@
+// app/src/main/java/com/example/russianpath/core/knowledge/SkillCode.kt
+
 package com.example.russianpath.core.knowledge
 
 /**
@@ -8,6 +10,7 @@ package com.example.russianpath.core.knowledge
  * - Привязки вопросов к проверяемым навыкам
  * - Построения графа пререквизитов
  * - Аналитики ошибок по кодам
+ * - Генерации упражнений
  */
 enum class SkillCode(val code: Int) {
 
