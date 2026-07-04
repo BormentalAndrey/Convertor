@@ -55,7 +55,7 @@ class KnowledgeMapper @Inject constructor() {
     /**
      * Пакетное преобразование списка целей обучения.
      */
-    fun toDomainList(entities: List<LearningObjectiveEntity>): List<LearningObjective> {
+    fun toDomainObjectiveList(entities: List<LearningObjectiveEntity>): List<LearningObjective> {
         return entities.map { toDomain(it) }
     }
 
@@ -87,7 +87,7 @@ class KnowledgeMapper @Inject constructor() {
     /**
      * Пакетное преобразование списка микро-навыков.
      */
-    fun toDomainList(entities: List<MicroSkillEntity>): List<MicroSkill> {
+    fun toDomainSkillList(entities: List<MicroSkillEntity>): List<MicroSkill> {
         return entities.map { toDomain(it) }
     }
 
