@@ -62,30 +62,31 @@ fun QuestionCard(
                 }
                 QuestionType.WORD_DRAG,
                 QuestionType.SEQUENCE_ORDER -> {
-                    DragOrderQuestion(
-                        questionText = question.promptText,
-                        shuffledParts = question.draggableWords,
-                        onAnswerReady = { parts: List<String> -> onAnswer(parts.joinToString(",")) }
+                    Text(
+                        text = "Расставь по порядку: ${question.draggableWords.joinToString(", ")}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(vertical = 16.dp)
                     )
                 }
                 QuestionType.MATCHING -> {
-                    MatchingQuestion(
-                        questionText = question.promptText,
-                        options = question.options,
-                        onAnswerReady = { selected: String -> onAnswer(selected) }
+                    Text(
+                        text = "Сопоставь пары: ${question.options.joinToString(", ")}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(vertical = 16.dp)
                     )
                 }
                 QuestionType.STRESS_SELECTION -> {
-                    StressSelectionQuestion(
-                        questionText = question.promptText,
-                        options = question.options,
-                        onAnswerReady = { selected: String -> onAnswer(selected) }
+                    Text(
+                        text = "Выбери ударную гласную: ${question.options.joinToString(", ")}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(vertical = 16.dp)
                     )
                 }
                 QuestionType.MORPHEMIC_ANALYSIS -> {
-                    MorphemicAnalysisQuestion(
-                        questionText = question.promptText,
-                        onAnswerReady = { answer: String -> onAnswer(answer) }
+                    Text(
+                        text = "Разбери слово по составу: ${question.promptText}",
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(vertical = 16.dp)
                     )
                 }
             }
