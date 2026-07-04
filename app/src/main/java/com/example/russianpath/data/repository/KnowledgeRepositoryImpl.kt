@@ -19,9 +19,9 @@ import javax.inject.Singleton
  * Реализация KnowledgeRepository.
  *
  * Работает с графом образовательных знаний:
- * - Цели обучения (LearningObjective)
- * - Микро-навыки (MicroSkill)
- * - Коды навыков из кодификатора (SkillCode)
+ * - Цели обучения (LearningObjective из core.repository)
+ * - Микро-навыки (MicroSkill из core.repository)
+ * - Коды навыков из кодификатора (SkillCode из core.knowledge)
  *
  * Все методы выполняются на IO-диспетчере для безопасности основного потока.
  * Маппинг Entity → Domain вынесен в KnowledgeMapper для соблюдения Single Responsibility.
