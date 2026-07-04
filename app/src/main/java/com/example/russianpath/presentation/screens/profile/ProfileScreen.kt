@@ -30,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -39,7 +40,6 @@ import com.example.russianpath.domain.model.UserStats
 import com.example.russianpath.presentation.components.Emoji
 import com.example.russianpath.presentation.components.EmojiText
 import com.example.russianpath.presentation.components.VasilisaImage
-import com.example.russianpath.presentation.screens.dashboard.DashboardViewModel
 import com.example.russianpath.presentation.theme.ErrorRed
 import com.example.russianpath.presentation.theme.GemCrystal
 import com.example.russianpath.presentation.theme.KnopaOrange
@@ -51,25 +51,31 @@ import com.example.russianpath.presentation.theme.XpGold
  * Экран профиля пользователя.
  *
  * Отображает:
- * - Аватар и уровень
- * - Детальную статистику
- * - Достижения (заглушка)
- * - Время в приложении
+ * - Аватар и уровень пользователя с званием
+ * - Основные показатели (XP, самоцветы, жизни, рекорд стрика)
+ * - Детальную статистику (уроки, точность, время, дни активности)
+ * - Прогресс до следующего уровня
+ *
+ * Использует ProfileViewModel для получения данных.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     onBackClick: () -> Unit = {},
-    viewModel: DashboardViewModel = hiltViewModel()
+    viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val userStats by viewModel.userStats.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Профиль", fontWeight = FontWeight.Bold)
+                    Text(
+                        text = "Профиль",
+                        fontWeight = FontWeight.Bold
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
@@ -83,15 +89,25 @@ fun ProfileScreen(
         }
     ) { paddingValues ->
         if (isLoading) {
+            // Экран загрузки
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = VasilisaBlue)
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    CircularProgressIndicator(color = VasilisaBlue)
+                    Spacer(Modifier.height(16.dp))
+                    Text(
+                        text = "Загружаем профиль...",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.Gray
+                    )
+                }
             }
         } else {
+            // Основной контент
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -101,59 +117,114 @@ fun ProfileScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Аватар и уровень
+                // Шапка профиля: аватар, звание, уровень, стрик
                 ProfileHeader(userStats = userStats)
 
-                // Основная статистика
+                // Основные показатели: XP, самоцветы, жизни, рекорд стрика
                 StatsCard(userStats = userStats)
 
                 // Детальная статистика
                 DetailedStatsCard(userStats = userStats)
 
-                // Прогресс уровня
+                // Прогресс до следующего уровня
                 LevelCard(userStats = userStats)
 
+                // Отступ снизу для удобства прокрутки
                 Spacer(Modifier.height(32.dp))
+            }
+        }
+
+        // Отображение ошибки
+        errorMessage?.let { message ->
+            androidx.compose.material3.Snackbar(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .align(Alignment.BottomCenter)
+            ) {
+                Text(text = message)
             }
         }
     }
 }
 
+// ========================================================================
+// Шапка профиля
+// ========================================================================
+
+/**
+ * Шапка профиля с аватаром, званием, уровнем и информацией о стрике.
+ *
+ * Аватар весёлый, если есть активный стрик (>0 дней).
+ * Отображает звание (Новичок, Ученик, Знаток, Эксперт, Мастер, Грандмастер),
+ * текущий уровень и информацию о стрике.
+ */
 @Composable
 private fun ProfileHeader(userStats: UserStats) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Аватар (реакция на стрик)
         VasilisaImage(
             modifier = Modifier.size(120.dp),
             isHappy = userStats.currentStreak > 0
         )
+
         Spacer(Modifier.height(12.dp))
+
+        // Звание пользователя
         Text(
             text = userStats.getLevelTitle(),
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold
         )
+
+        // Текущий уровень
         Text(
             text = "Уровень ${userStats.level}",
             style = MaterialTheme.typography.titleMedium,
             color = Color.Gray
         )
+
+        // Текущий стрик (если есть)
         if (userStats.currentStreak > 0) {
             Spacer(Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 EmojiText(Emoji.STREAK, fontSize = 20)
                 Spacer(Modifier.width(4.dp))
                 Text(
-                    text = "Серия: ${userStats.currentStreak} дней",
+                    text = "Серия: ${userStats.currentStreak} " +
+                            getStreakDaysWord(userStats.currentStreak),
                     color = KnopaOrange,
                     fontWeight = FontWeight.Bold
                 )
             }
         }
+
+        // Рекордный стрик за всё время
+        if (userStats.longestStreak > 0) {
+            Text(
+                text = "Рекорд: ${userStats.longestStreak} " +
+                        getStreakDaysWord(userStats.longestStreak),
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
+        }
     }
 }
 
+// ========================================================================
+// Карточка основных показателей
+// ========================================================================
+
+/**
+ * Карточка с четырьмя основными показателями.
+ *
+ * Цветовая кодировка:
+ * - XP — золотой (XpGold)
+ * - Самоцветы — бирюзовый (GemCrystal)
+ * - Жизни — красный (ErrorRed)
+ * - Рекорд стрика — оранжевый (KnopaOrange)
+ */
 @Composable
 private fun StatsCard(userStats: UserStats) {
     Card(
@@ -167,20 +238,57 @@ private fun StatsCard(userStats: UserStats) {
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleMedium
             )
+
             Spacer(Modifier.height(16.dp))
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                StatItem(Emoji.XP, userStats.totalXp.toString(), "XP", XpGold)
-                StatItem(Emoji.GEM, userStats.gemsBalance.toString(), "Самоцветов", GemCrystal)
-                StatItem(Emoji.HEART, "${userStats.livesCount}/${userStats.maxLives}", "Жизней", ErrorRed)
-                StatItem(Emoji.STREAK, userStats.longestStreak.toString(), "Рекорд", KnopaOrange)
+                ProfileStatItem(
+                    emoji = Emoji.XP,
+                    value = userStats.totalXp.toString(),
+                    label = "XP",
+                    color = XpGold
+                )
+                ProfileStatItem(
+                    emoji = Emoji.GEM,
+                    value = userStats.gemsBalance.toString(),
+                    label = "Самоцветов",
+                    color = GemCrystal
+                )
+                ProfileStatItem(
+                    emoji = Emoji.HEART,
+                    value = "${userStats.livesCount}/${userStats.maxLives}",
+                    label = "Жизней",
+                    color = ErrorRed
+                )
+                ProfileStatItem(
+                    emoji = Emoji.STREAK,
+                    value = userStats.longestStreak.toString(),
+                    label = "Рекорд",
+                    color = KnopaOrange
+                )
             }
         }
     }
 }
 
+// ========================================================================
+// Карточка детальной статистики
+// ========================================================================
+
+/**
+ * Карточка с детальной статистикой пользователя.
+ *
+ * Показывает:
+ * - Количество завершённых уроков
+ * - Количество идеальных уроков (100%, все звёзды)
+ * - Общее количество ошибок
+ * - Точность ответов (с цветовой кодировкой: зелёный ≥90%, жёлтый ≥70%, красный <70%)
+ * - Общее время обучения (в human-readable формате)
+ * - Количество дней активности
+ */
 @Composable
 private fun DetailedStatsCard(userStats: UserStats) {
     Card(
@@ -194,32 +302,65 @@ private fun DetailedStatsCard(userStats: UserStats) {
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleMedium
             )
+
             Spacer(Modifier.height(12.dp))
 
-            DetailedStatRow("Завершено уроков", userStats.totalLessonsCompleted.toString())
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-            DetailedStatRow("Идеальных уроков", userStats.totalPerfectLessons.toString())
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
-            DetailedStatRow("Всего ошибок", userStats.totalMistakesCount.toString())
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
             DetailedStatRow(
-                "Точность",
-                "${userStats.accuracy.toInt()}%"
+                label = "Завершено уроков",
+                value = userStats.totalLessonsCompleted.toString()
             )
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
             DetailedStatRow(
-                "Время обучения",
-                userStats.getFormattedTotalTime()
+                label = "Идеальных уроков",
+                value = userStats.totalPerfectLessons.toString()
             )
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
             DetailedStatRow(
-                "Дней активности",
-                userStats.totalDaysActive.toString()
+                label = "Всего ошибок",
+                value = userStats.totalMistakesCount.toString()
+            )
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+            DetailedStatRow(
+                label = "Точность",
+                value = "${userStats.accuracy.toInt()}%",
+                valueColor = when {
+                    userStats.accuracy >= 90f -> SuccessGreen
+                    userStats.accuracy >= 70f -> XpGold
+                    else -> ErrorRed
+                }
+            )
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+            DetailedStatRow(
+                label = "Время обучения",
+                value = userStats.getFormattedTotalTime()
+            )
+            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+
+            DetailedStatRow(
+                label = "Дней активности",
+                value = userStats.totalDaysActive.toString()
             )
         }
     }
 }
 
+// ========================================================================
+// Карточка прогресса уровня
+// ========================================================================
+
+/**
+ * Карточка с прогресс-баром до следующего уровня.
+ *
+ * Показывает:
+ * - Метки текущего и следующего уровней
+ * - Прогресс-бар заполнения XP
+ * - Текст с оставшимся XP
+ * - Общее количество XP
+ */
 @Composable
 private fun LevelCard(userStats: UserStats) {
     Card(
@@ -233,8 +374,10 @@ private fun LevelCard(userStats: UserStats) {
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleMedium
             )
+
             Spacer(Modifier.height(12.dp))
 
+            // Метки уровней
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -251,19 +394,29 @@ private fun LevelCard(userStats: UserStats) {
 
             Spacer(Modifier.height(8.dp))
 
+            // Прогресс-бар
             LinearProgressIndicator(
                 progress = userStats.getLevelProgressPercent() / 100f,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(10.dp),
+                    .height(10.dp)
+                    .clip(RoundedCornerShape(5.dp)),
                 color = XpGold,
                 trackColor = XpGold.copy(alpha = 0.2f)
             )
 
             Spacer(Modifier.height(8.dp))
 
+            // Оставшееся XP
             Text(
                 text = "Осталось ${userStats.xpToNextLevel} XP до следующего уровня",
+                style = MaterialTheme.typography.bodySmall,
+                color = Color.Gray
+            )
+
+            // Общее XP
+            Text(
+                text = "Всего: ${userStats.totalXp} XP",
                 style = MaterialTheme.typography.bodySmall,
                 color = Color.Gray
             )
@@ -271,8 +424,20 @@ private fun LevelCard(userStats: UserStats) {
     }
 }
 
+// ========================================================================
+// Переиспользуемые компоненты
+// ========================================================================
+
+/**
+ * Элемент статистики с эмодзи, значением, подписью и цветовым акцентом.
+ *
+ * @param emoji Эмодзи-символ для отображения.
+ * @param value Значение показателя (строка).
+ * @param label Подпись под значением.
+ * @param color Цвет акцента для значения.
+ */
 @Composable
-private fun StatItem(
+private fun ProfileStatItem(
     emoji: String,
     value: String,
     label: String,
@@ -294,11 +459,23 @@ private fun StatItem(
     }
 }
 
+/**
+ * Строка детальной статистики: label слева, value справа.
+ *
+ * @param label Название показателя.
+ * @param value Значение показателя.
+ * @param valueColor Цвет значения (опционально, по умолчанию чёрный).
+ */
 @Composable
-private fun DetailedStatRow(label: String, value: String) {
+private fun DetailedStatRow(
+    label: String,
+    value: String,
+    valueColor: Color = Color.Unspecified
+) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = label,
@@ -308,7 +485,35 @@ private fun DetailedStatRow(label: String, value: String) {
         Text(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.SemiBold
+            fontWeight = FontWeight.SemiBold,
+            color = if (valueColor != Color.Unspecified) valueColor else Color.Black
         )
+    }
+}
+
+// ========================================================================
+// Утилиты
+// ========================================================================
+
+/**
+ * Возвращает правильное склонение слова "день" для числительного.
+ *
+ * Правила русской грамматики:
+ * - 1 день (кроме 11)
+ * - 2, 3, 4 дня (кроме 12, 13, 14)
+ * - 5–20, 25–30... дней
+ * - 21 день, 22 дня, 25 дней
+ *
+ * @param days Количество дней.
+ * @return "день", "дня" или "дней".
+ */
+private fun getStreakDaysWord(days: Int): String {
+    val lastDigit = days % 10
+    val lastTwoDigits = days % 100
+    return when {
+        lastTwoDigits in 11..14 -> "дней"
+        lastDigit == 1 -> "день"
+        lastDigit in 2..4 -> "дня"
+        else -> "дней"
     }
 }
