@@ -6,16 +6,17 @@ import android.content.Context
 import androidx.room.Room
 import com.example.russianpath.data.local.AppDatabase
 import com.example.russianpath.data.local.AppDatabaseMigrations
+import com.example.russianpath.data.local.dao.DictionaryDao
 import com.example.russianpath.data.local.dao.GradeDao
+import com.example.russianpath.data.local.dao.LearningObjectiveDao
+import com.example.russianpath.data.local.dao.LessonCompletionDao
+import com.example.russianpath.data.local.dao.LessonDao
+import com.example.russianpath.data.local.dao.MicroSkillDao
+import com.example.russianpath.data.local.dao.QuestionDao
+import com.example.russianpath.data.local.dao.RuleDao
 import com.example.russianpath.data.local.dao.SectionDao
 import com.example.russianpath.data.local.dao.TopicDao
-import com.example.russianpath.data.local.dao.LearningObjectiveDao
-import com.example.russianpath.data.local.dao.MicroSkillDao
-import com.example.russianpath.data.local.dao.DictionaryDao
-import com.example.russianpath.data.local.dao.LessonDao
-import com.example.russianpath.data.local.dao.QuestionDao
 import com.example.russianpath.data.local.dao.UserProgressDao
-import com.example.russianpath.data.local.dao.LessonCompletionDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,39 +24,10 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
-/**
- * Dagger Hilt модуль для предоставления зависимостей базы данных.
- *
- * Предоставляет:
- * - AppDatabase (singleton)
- * - Все DAO (singleton)
- *
- * Все зависимости имеют scope @Singleton, так как AppDatabase —
- * тяжёлый объект, который должен жить всё время жизни процесса.
- *
- * Политика миграций:
- * - MIGRATION_1_2: корректная миграция с версии 1 на версию 2
- * - fallbackToDestructiveMigration(): если миграция невозможна (например,
- *   структура БД на устройстве не соответствует ни одной известной версии),
- *   БД будет пересоздана. Данные пользователя будут потеряны.
- *
- *   ВАЖНО ДЛЯ PRODUCTION:
- *   Заменить fallbackToDestructiveMigration() на корректные миграции
- *   для всех возможных версий БД перед релизом.
- */
 @Module
 @InstallIn(SingletonComponent::class)
 object DatabaseModule {
 
-    /**
-     * Создаёт и предоставляет единственный экземпляр RoomDatabase.
-     *
-     * Использует:
-     * - Имя БД из AppDatabase.DATABASE_NAME
-     * - Миграцию MIGRATION_1_2 для обновления с версии 1
-     * - fallbackToDestructiveMigration для обработки несовместимых версий
-     * - Экспорт схемы для тестирования миграций (exportSchema = true в аннотации)
-     */
     @Provides
     @Singleton
     fun provideAppDatabase(
@@ -91,6 +63,10 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideMicroSkillDao(db: AppDatabase): MicroSkillDao = db.microSkillDao()
+
+    @Provides
+    @Singleton
+    fun provideRuleDao(db: AppDatabase): RuleDao = db.ruleDao()
 
     @Provides
     @Singleton
