@@ -2,6 +2,7 @@
 
 package com.example.russianpath.presentation.screens.lesson
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,6 +20,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -40,27 +42,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.russianpath.domain.model.Lesson
 import com.example.russianpath.presentation.components.Emoji
 import com.example.russianpath.presentation.components.EmojiText
-import com.example.russianpath.presentation.theme.ErrorRed
 import com.example.russianpath.presentation.theme.GemCrystal
 import com.example.russianpath.presentation.theme.SuccessGreen
 import com.example.russianpath.presentation.theme.VasilisaBlue
 import com.example.russianpath.presentation.theme.XpGold
 
-/**
- * Экран со списком уроков внутри темы.
- *
- * Отображает:
- * - Название темы в заголовке
- * - Список уроков с прогрессом
- * - Кнопку «Назад»
- *
- * При клике на урок открывает LessonScreen.
- */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopicLessonScreen(
@@ -93,18 +85,14 @@ fun TopicLessonScreen(
                         EmojiText(Emoji.BACK, fontSize = 24)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color.White
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
             )
         }
     ) { paddingValues ->
         when {
             isLoading -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier = Modifier.fillMaxSize().padding(paddingValues),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -120,23 +108,15 @@ fun TopicLessonScreen(
             }
             errorMessage != null -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier = Modifier.fillMaxSize().padding(paddingValues),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(text = "⚠️", fontSize = 48.sp)
                         Spacer(Modifier.height(16.dp))
-                        Text(
-                            text = errorMessage ?: "",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = Color.Gray
-                        )
+                        Text(text = errorMessage ?: "", style = MaterialTheme.typography.bodyLarge, color = Color.Gray)
                         Spacer(Modifier.height(24.dp))
-                        androidx.compose.material3.Button(
-                            onClick = { viewModel.loadLessons(topicId) }
-                        ) {
+                        Button(onClick = { viewModel.loadLessons(topicId) }) {
                             Text("Повторить загрузку")
                         }
                     }
@@ -144,44 +124,26 @@ fun TopicLessonScreen(
             }
             lessons.isEmpty() -> {
                 Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier = Modifier.fillMaxSize().padding(paddingValues),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(text = "📭", fontSize = 48.sp)
                         Spacer(Modifier.height(16.dp))
-                        Text(
-                            text = "Уроки пока отсутствуют",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = Color.Gray
-                        )
+                        Text(text = "Уроки пока отсутствуют", style = MaterialTheme.typography.bodyLarge, color = Color.Gray)
                         Spacer(Modifier.height(8.dp))
-                        Text(
-                            text = "ID темы: $topicId",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color.Gray
-                        )
+                        Text(text = "ID темы: $topicId", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
                     }
                 }
             }
             else -> {
                 LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
+                    modifier = Modifier.fillMaxSize().padding(paddingValues),
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    items(
-                        items = lessons,
-                        key = { it.id }
-                    ) { lesson ->
-                        LessonCard(
-                            lesson = lesson,
-                            onClick = { onLessonClick(lesson.id) }
-                        )
+                    items(items = lessons, key = { it.id }) { lesson ->
+                        LessonCard(lesson = lesson, onClick = { onLessonClick(lesson.id) })
                     }
                 }
             }
@@ -189,39 +151,22 @@ fun TopicLessonScreen(
     }
 }
 
-/**
- * Карточка урока в списке темы.
- */
 @Composable
-private fun LessonCard(
-    lesson: Lesson,
-    onClick: () -> Unit
-) {
+private fun LessonCard(lesson: Lesson, onClick: () -> Unit) {
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (lesson.isCompleted)
-                SuccessGreen.copy(alpha = 0.05f)
-            else
-                Color.White
+            containerColor = if (lesson.isCompleted) SuccessGreen.copy(alpha = 0.05f) else Color.White
         )
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Иконка типа урока
             Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(CircleShape)
-                    .background(VasilisaBlue.copy(alpha = 0.1f)),
+                modifier = Modifier.size(44.dp).clip(CircleShape).background(VasilisaBlue.copy(alpha = 0.1f)),
                 contentAlignment = Alignment.Center
             ) {
                 EmojiText(
@@ -238,7 +183,6 @@ private fun LessonCard(
 
             Spacer(Modifier.width(16.dp))
 
-            // Информация об уроке
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = lesson.title,
@@ -247,7 +191,6 @@ private fun LessonCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-
                 if (lesson.description.isNotBlank()) {
                     Spacer(Modifier.height(2.dp))
                     Text(
@@ -258,10 +201,7 @@ private fun LessonCard(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-
                 Spacer(Modifier.height(6.dp))
-
-                // Мета-информация
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -289,22 +229,13 @@ private fun LessonCard(
             }
 
             Spacer(Modifier.width(8.dp))
-
-            // Индикатор завершённости
-            if (lesson.isCompleted) {
-                EmojiText(Emoji.CHECK, fontSize = 24)
-            } else {
-                EmojiText(Emoji.FORWARD, fontSize = 24)
-            }
+            EmojiText(if (lesson.isCompleted) Emoji.CHECK else Emoji.FORWARD, fontSize = 24)
         }
 
-        // Прогресс-бар
         if (lesson.bestScorePercent > 0) {
             LinearProgressIndicator(
                 progress = lesson.bestScorePercent / 100f,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(3.dp),
+                modifier = Modifier.fillMaxWidth().height(3.dp),
                 color = if (lesson.isCompleted) SuccessGreen else VasilisaBlue,
                 trackColor = Color.Gray.copy(alpha = 0.1f)
             )
