@@ -1,3 +1,5 @@
+// app/src/main/java/com/example/russianpath/data/repository/WordRepositoryImpl.kt
+
 package com.example.russianpath.data.repository
 
 import com.example.russianpath.core.dictionary.DictionaryWord
@@ -23,7 +25,7 @@ class WordRepositoryImpl @Inject constructor(
 
         return entities
             .filter { entity ->
-                criteria.gradeLevel?.let { entity.gradeLevel == it } ?: true
+                criteria.gradeLevel?.let { entity.gradeId == it.toString() } ?: true
             }
             .filter { entity ->
                 criteria.maxDifficulty?.let { entity.difficulty <= it.value } ?: true
