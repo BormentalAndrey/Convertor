@@ -13,6 +13,13 @@ import androidx.room.PrimaryKey
  *
  * Содержит полное описание правила с примерами и исключениями.
  * Связана с TopicEntity (тема) и GradeEntity (класс).
+ *
+ * Связи:
+ * - topic_id → TopicEntity.id (CASCADE при удалении темы)
+ * - grade_id → GradeEntity.id (CASCADE при удалении класса)
+ *
+ * Для production: все JSON-файлы должны использовать одинаковые ID.
+ * Правила привязываются к темам, темы — к разделам, разделы — к классам.
  */
 @Entity(
     tableName = "rules",
