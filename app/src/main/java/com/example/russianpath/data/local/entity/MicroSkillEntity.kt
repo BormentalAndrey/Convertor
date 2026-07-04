@@ -1,3 +1,5 @@
+// app/src/main/java/com/example/russianpath/data/local/entity/MicroSkillEntity.kt
+
 package com.example.russianpath.data.local.entity
 
 import androidx.room.ColumnInfo
@@ -6,11 +8,6 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
-/**
- * Микро-навыки — атомарные единицы знания.
- * Пример: "Определение приставки", "Выделение корня", "Проверка ударением".
- * Связаны с LearningObjectiveEntity.
- */
 @Entity(
     tableName = "micro_skills",
     foreignKeys = [
@@ -23,23 +20,10 @@ import androidx.room.PrimaryKey
         )
     ],
     indices = [
-        Index(
-            value = ["objective_id", "sort_order"],
-            name = "idx_micro_skills_objective_sort"
-        ),
-        Index(
-            value = ["skill_code_id"],
-            name = "idx_micro_skills_skill_code"
-        ),
-        Index(
-            value = ["external_id"],
-            name = "idx_micro_skills_external_id",
-            unique = true
-        ),
-        Index(
-            value = ["objective_id"],
-            name = "idx_micro_skills_objective_id"
-        )
+        Index(value = ["objective_id", "sort_order"], name = "idx_micro_skills_objective_sort"),
+        Index(value = ["skill_code_id"], name = "idx_micro_skills_skill_code"),
+        Index(value = ["external_id"], name = "idx_micro_skills_external_id", unique = true),
+        Index(value = ["objective_id"], name = "idx_micro_skills_objective_id")
     ]
 )
 data class MicroSkillEntity(
@@ -50,23 +34,23 @@ data class MicroSkillEntity(
     @ColumnInfo(name = "external_id", defaultValue = "")
     val externalId: String = "",
 
-    @ColumnInfo(name = "objective_id")
-    val objectiveId: String,
+    @ColumnInfo(name = "objective_id", defaultValue = "")
+    val objectiveId: String = "",
 
-    @ColumnInfo(name = "skill_code_id")
-    val skillCodeId: Int,
+    @ColumnInfo(name = "skill_code_id", defaultValue = "0")
+    val skillCodeId: Int = 0,
 
     @ColumnInfo(name = "parent_micro_skill_id", defaultValue = "")
     val parentMicroSkillId: String = "",
 
     @ColumnInfo(name = "name", defaultValue = "")
-    val name: String,
+    val name: String = "",
 
     @ColumnInfo(name = "description", defaultValue = "")
     val description: String = "",
 
     @ColumnInfo(name = "sort_order", defaultValue = "0")
-    val sortOrder: Int,
+    val sortOrder: Int = 0,
 
     @ColumnInfo(name = "difficulty_level", defaultValue = "1")
     val difficultyLevel: Int = 1,
