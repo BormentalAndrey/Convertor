@@ -73,6 +73,7 @@ fun LessonScreen(
     val livesRemaining by viewModel.livesRemaining.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val isLessonCompleted by viewModel.isLessonCompleted.collectAsStateWithLifecycle()
+    val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
 
     LaunchedEffect(lessonId) { viewModel.loadLesson(lessonId) }
     LaunchedEffect(isLessonCompleted) {
@@ -113,44 +114,71 @@ fun LessonScreen(
             )
         }
     ) { paddingValues ->
-        if (isLoading) {
-            Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(color = VasilisaBlue)
+        when {
+            isLoading -> {
+                Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = VasilisaBlue)
+                }
             }
-        } else {
-            val question = viewModel.getCurrentQuestion()
-            if (question != null) {
-                Column(
-                    modifier = Modifier.fillMaxSize().padding(paddingValues).padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceBetween
-                ) {
-                    QuestionCard(question = question, showHint = showHint, onAnswer = { viewModel.checkAnswer(it) }, isAnswered = isCorrect != null)
+            errorMessage != null -> {
+                Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(text = "⚠️", fontSize = 48.sp)
+                        Spacer(Modifier.height(16.dp))
+                        Text(text = errorMessage ?: "", style = MaterialTheme.typography.bodyLarge, color = Color.Gray)
+                        Spacer(Modifier.height(24.dp))
+                        Button(onClick = { viewModel.loadLesson(lessonId) }) {
+                            Text("Повторить загрузку")
+                        }
+                    }
+                }
+            }
+            questions.isEmpty() -> {
+                Box(modifier = Modifier.fillMaxSize().padding(paddingValues), contentAlignment = Alignment.Center) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(text = "📭", fontSize = 48.sp)
+                        Spacer(Modifier.height(16.dp))
+                        Text(text = "Список вопросов пуст", style = MaterialTheme.typography.bodyLarge, color = Color.Gray)
+                        Spacer(Modifier.height(8.dp))
+                        Text(text = "ID урока: $lessonId", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                        Spacer(Modifier.height(24.dp))
+                        Button(onClick = { viewModel.loadLesson(lessonId) }) {
+                            Text("Загрузить снова")
+                        }
+                    }
+                }
+            }
+            else -> {
+                val question = viewModel.getCurrentQuestion()
+                if (question != null) {
+                    Column(
+                        modifier = Modifier.fillMaxSize().padding(paddingValues).padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        QuestionCard(question = question, showHint = showHint, onAnswer = { viewModel.checkAnswer(it) }, isAnswered = isCorrect != null)
 
-                    AnimatedVisibility(visible = isCorrect != null, enter = fadeIn() + slideInVertically(), exit = fadeOut() + slideOutVertically()) {
-                        FeedbackCard(
-                            isCorrect = isCorrect ?: false,
-                            explanation = if (isCorrect == true) question.explanationText.ifBlank { "Отлично! Ты справился!" }
-                            else question.hintText.ifBlank { "Неправильно. Правильный ответ: ${question.correctAnswer}" }
+                        AnimatedVisibility(visible = isCorrect != null, enter = fadeIn() + slideInVertically(), exit = fadeOut() + slideOutVertically()) {
+                            FeedbackCard(
+                                isCorrect = isCorrect ?: false,
+                                explanation = if (isCorrect == true) question.explanationText.ifBlank { "Отлично! Ты справился!" }
+                                else question.hintText.ifBlank { "Неправильно. Правильный ответ: ${question.correctAnswer}" }
+                            )
+                        }
+
+                        ActionButtons(
+                            isAnswered = isCorrect != null,
+                            isLastQuestion = currentQuestionIndex >= totalQuestions - 1,
+                            onNext = { viewModel.nextQuestion() },
+                            onHint = { viewModel.showHint() },
+                            hintAvailable = !showHint && isCorrect == null
                         )
                     }
-
-                    ActionButtons(
-                        isAnswered = isCorrect != null,
-                        isLastQuestion = currentQuestionIndex >= totalQuestions - 1,
-                        onNext = { viewModel.nextQuestion() },
-                        onHint = { viewModel.showHint() },
-                        hintAvailable = !showHint && isCorrect == null
-                    )
                 }
             }
         }
     }
 }
-
-// ========================================================================
-// Question Card
-// ========================================================================
 
 @Composable
 private fun QuestionCard(question: Question, showHint: Boolean, onAnswer: (Any) -> Unit, isAnswered: Boolean) {
@@ -182,10 +210,6 @@ private fun QuestionCard(question: Question, showHint: Boolean, onAnswer: (Any) 
         }
     }
 }
-
-// ========================================================================
-// Answer Options
-// ========================================================================
 
 @Composable
 private fun SingleChoiceOptions(options: List<String>, onSelect: (String) -> Unit, enabled: Boolean) {
@@ -263,10 +287,6 @@ private fun MorphemicAnalysisInput(onSubmit: (String) -> Unit, enabled: Boolean)
     Text(text = "Разбери слово по составу (приставка, корень, суффикс, окончание)", style = MaterialTheme.typography.bodyLarge)
 }
 
-// ========================================================================
-// Feedback Card
-// ========================================================================
-
 @Composable
 private fun FeedbackCard(isCorrect: Boolean, explanation: String) {
     Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = if (isCorrect) SuccessGreen.copy(alpha = 0.1f) else ErrorRed.copy(alpha = 0.1f))) {
@@ -281,10 +301,6 @@ private fun FeedbackCard(isCorrect: Boolean, explanation: String) {
         }
     }
 }
-
-// ========================================================================
-// Action Buttons
-// ========================================================================
 
 @Composable
 private fun ActionButtons(isAnswered: Boolean, isLastQuestion: Boolean, onNext: () -> Unit, onHint: () -> Unit, hintAvailable: Boolean) {
