@@ -1,7 +1,9 @@
+// app/src/main/java/com/example/russianpath/data/local/mapper/KnowledgeMapper.kt
+
 package com.example.russianpath.data.local.mapper
 
-import com.example.russianpath.core.knowledge.LearningObjective
-import com.example.russianpath.core.knowledge.MicroSkill
+import com.example.russianpath.core.repository.LearningObjective
+import com.example.russianpath.core.repository.MicroSkill
 import com.example.russianpath.data.local.entity.LearningObjectiveEntity
 import com.example.russianpath.data.local.entity.MicroSkillEntity
 import com.google.gson.Gson
@@ -13,8 +15,8 @@ import javax.inject.Singleton
  * Маппер для преобразования Entity → Domain моделей знаний.
  *
  * Отвечает за:
- * - LearningObjectiveEntity → LearningObjective
- * - MicroSkillEntity → MicroSkill
+ * - LearningObjectiveEntity → LearningObjective (core.repository)
+ * - MicroSkillEntity → MicroSkill (core.repository)
  * - Парсинг JSON-полей в коллекции
  *
  * Вынесен в отдельный класс для соблюдения Single Responsibility:
@@ -33,7 +35,7 @@ class KnowledgeMapper @Inject constructor() {
      * Преобразует LearningObjectiveEntity в доменную модель LearningObjective.
      *
      * @param entity Сущность из БД.
-     * @return Доменная модель.
+     * @return Доменная модель из core.repository.
      */
     fun toDomain(entity: LearningObjectiveEntity): LearningObjective {
         return LearningObjective(
@@ -65,7 +67,7 @@ class KnowledgeMapper @Inject constructor() {
      * Преобразует MicroSkillEntity в доменную модель MicroSkill.
      *
      * @param entity Сущность из БД.
-     * @return Доменная модель.
+     * @return Доменная модель из core.repository.
      */
     fun toDomain(entity: MicroSkillEntity): MicroSkill {
         return MicroSkill(
