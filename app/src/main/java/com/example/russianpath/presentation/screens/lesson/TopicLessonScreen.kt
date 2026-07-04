@@ -59,6 +59,7 @@ fun TopicLessonScreen(
     topicId: String,
     onBackClick: () -> Unit = {},
     onLessonClick: (String) -> Unit = {},
+    onRulesClick: (String) -> Unit = {},
     viewModel: TopicLessonViewModel = hiltViewModel()
 ) {
     val lessons by viewModel.lessons.collectAsStateWithLifecycle()
@@ -85,6 +86,11 @@ fun TopicLessonScreen(
                         EmojiText(Emoji.BACK, fontSize = 24)
                     }
                 },
+                actions = {
+                    IconButton(onClick = { onRulesClick(topicId) }) {
+                        Text("📖", fontSize = 24.sp)
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
             )
         }
@@ -98,11 +104,7 @@ fun TopicLessonScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         CircularProgressIndicator(color = VasilisaBlue)
                         Spacer(Modifier.height(16.dp))
-                        Text(
-                            text = "Загружаем уроки...",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = Color.Gray
-                        )
+                        Text("Загружаем уроки...", style = MaterialTheme.typography.bodyLarge, color = Color.Gray)
                     }
                 }
             }
@@ -130,9 +132,9 @@ fun TopicLessonScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(text = "📭", fontSize = 48.sp)
                         Spacer(Modifier.height(16.dp))
-                        Text(text = "Уроки пока отсутствуют", style = MaterialTheme.typography.bodyLarge, color = Color.Gray)
+                        Text("Уроки пока отсутствуют", style = MaterialTheme.typography.bodyLarge, color = Color.Gray)
                         Spacer(Modifier.height(8.dp))
-                        Text(text = "ID темы: $topicId", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
+                        Text("ID темы: $topicId", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
                     }
                 }
             }
