@@ -4,6 +4,7 @@ package com.example.russianpath.data.seed
 
 import android.content.Context
 import com.example.russianpath.data.seed.model.ContentFile
+import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonSyntaxException
@@ -21,6 +22,7 @@ class SeedLoader @Inject constructor(
     @PublishedApi
     internal val gson: Gson = GsonBuilder()
         .setLenient()
+        .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
         .create()
 
     inline fun <reified T> loadList(fileName: String): List<T> {
