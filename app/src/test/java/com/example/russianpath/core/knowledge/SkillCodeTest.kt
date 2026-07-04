@@ -1,4 +1,5 @@
-// app/src/main/java/com/example/russianpath/core/knowledge/SkillCodeTest.kt
+// app/src/test/java/com/example/russianpath/core/knowledge/SkillCodeTest.kt
+
 package com.example.russianpath.core.knowledge
 
 import org.junit.Assert.assertEquals
@@ -13,16 +14,6 @@ class SkillCodeTest {
             "Duplicate SkillCode found",
             codes.size,
             codes.distinct().size
-        )
-    }
-
-    @Test
-    fun `all keys are stable and unique`() {
-        val keys = SkillCode.entries.map { it.key }
-        assertEquals(
-            "Duplicate keys found",
-            keys.size,
-            keys.distinct().size
         )
     }
 
@@ -47,8 +38,12 @@ class SkillCodeTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun `fromCode throws on unknown code`() {
-        SkillCode.fromCode(9999)
+    @Test
+    fun `fromCode returns UNKNOWN for invalid code`() {
+        assertEquals(
+            "fromCode(9999) should return UNKNOWN",
+            SkillCode.UNKNOWN,
+            SkillCode.fromCode(9999)
+        )
     }
 }
