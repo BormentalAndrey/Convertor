@@ -31,9 +31,7 @@ fun QuestionCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
+            modifier = Modifier.fillMaxWidth().padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -67,35 +65,27 @@ fun QuestionCard(
                     DragOrderQuestion(
                         questionText = question.promptText,
                         shuffledParts = question.draggableWords,
-                        onAnswerReady = { parts ->
-                            onAnswer(parts.joinToString(","))
-                        }
+                        onAnswerReady = { parts: List<String> -> onAnswer(parts.joinToString(",")) }
                     )
                 }
                 QuestionType.MATCHING -> {
                     MatchingQuestion(
                         questionText = question.promptText,
                         options = question.options,
-                        onAnswerReady = { selected ->
-                            onAnswer(selected)
-                        }
+                        onAnswerReady = { selected: String -> onAnswer(selected) }
                     )
                 }
                 QuestionType.STRESS_SELECTION -> {
                     StressSelectionQuestion(
                         questionText = question.promptText,
                         options = question.options,
-                        onAnswerReady = { selected ->
-                            onAnswer(selected)
-                        }
+                        onAnswerReady = { selected: String -> onAnswer(selected) }
                     )
                 }
                 QuestionType.MORPHEMIC_ANALYSIS -> {
                     MorphemicAnalysisQuestion(
                         questionText = question.promptText,
-                        onAnswerReady = { answer ->
-                            onAnswer(answer)
-                        }
+                        onAnswerReady = { answer: String -> onAnswer(answer) }
                     )
                 }
             }
