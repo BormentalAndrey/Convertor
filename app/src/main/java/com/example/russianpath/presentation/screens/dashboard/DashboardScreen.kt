@@ -64,7 +64,7 @@ import com.example.russianpath.presentation.theme.XpGold
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
-    onLessonClick: (String) -> Unit = {},
+    onTopicClick: (String) -> Unit = {},
     onProfileClick: () -> Unit = {},
     viewModel: DashboardViewModel = hiltViewModel()
 ) {
@@ -128,7 +128,7 @@ fun DashboardScreen(
                                 topic = topic,
                                 onClick = {
                                     if (viewModel.onTopicClick(topic)) {
-                                        onLessonClick(topic.id)
+                                        onTopicClick(topic.id)
                                     }
                                 }
                             )
