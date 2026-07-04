@@ -6,7 +6,7 @@ import com.example.russianpath.core.knowledge.MicroSkillId
 import com.example.russianpath.core.progress.AnswerResult
 import com.example.russianpath.core.progress.Mastery
 import com.example.russianpath.core.repository.ProgressRepository
-import com.example.russianpath.data.local.converter.SkillCode
+import com.example.russianpath.core.knowledge.SkillCode
 import java.time.Instant
 import javax.inject.Inject
 import javax.inject.Singleton
