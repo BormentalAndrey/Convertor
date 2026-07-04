@@ -2,6 +2,7 @@
 
 package com.example.russianpath.presentation.screens.lesson
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -151,7 +152,10 @@ private fun RuleCard(rule: Rule) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
-                    modifier = Modifier.size(40.dp).clip(CircleShape).background(XpGold.copy(alpha = 0.15f)),
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(XpGold.copy(alpha = 0.15f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Text("📖", fontSize = 20.sp)
