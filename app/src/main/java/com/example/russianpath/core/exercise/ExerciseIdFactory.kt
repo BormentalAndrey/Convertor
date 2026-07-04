@@ -2,23 +2,6 @@
 
 package com.example.russianpath.core.exercise
 
-/**
- * Фабрика идентификаторов упражнений.
- *
- * ## Формат (часть контракта v1.0.0)
- * ```
- * exercise:{skillCode.code}_{wordId.value}_d{difficulty.value}_s{seed}
- * ```
- *
- * ## Стабильность
- * Формат является частью публичного контракта.
- * Изменение формата требует мажорной версии контракта и миграции данных.
- *
- * ## Пример
- * ```
- * exercise:2001_word_мама_d5_s17
- * ```
- */
 object ExerciseIdFactory {
 
     private const val PREFIX = "exercise"
