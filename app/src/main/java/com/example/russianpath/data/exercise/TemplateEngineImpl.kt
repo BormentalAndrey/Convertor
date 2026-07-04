@@ -4,7 +4,7 @@ package com.example.russianpath.data.exercise
 
 import com.example.russianpath.core.exercise.ExerciseRequest
 import com.example.russianpath.core.exercise.TemplateEngine
-import com.example.russianpath.data.local.converter.SkillCode
+import com.example.russianpath.core.knowledge.SkillCode
 import javax.inject.Inject
 import javax.inject.Singleton
 
