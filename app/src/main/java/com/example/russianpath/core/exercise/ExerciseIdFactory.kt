@@ -1,3 +1,5 @@
+// app/src/main/java/com/example/russianpath/core/exercise/ExerciseIdFactory.kt
+
 package com.example.russianpath.core.exercise
 
 /**
@@ -5,7 +7,7 @@ package com.example.russianpath.core.exercise
  *
  * ## Формат (часть контракта v1.0.0)
  * ```
- * exercise:{skillCode.key}_{wordId.value}_d{difficulty.value}_s{seed}
+ * exercise:{skillCode.code}_{wordId.value}_d{difficulty.value}_s{seed}
  * ```
  *
  * ## Стабильность
@@ -14,7 +16,7 @@ package com.example.russianpath.core.exercise
  *
  * ## Пример
  * ```
- * exercise:skill.2001_word_мама_d5_s17
+ * exercise:2001_word_мама_d5_s17
  * ```
  */
 object ExerciseIdFactory {
@@ -22,6 +24,6 @@ object ExerciseIdFactory {
     private const val PREFIX = "exercise"
 
     fun create(fingerprint: ExerciseFingerprint): ExerciseId = ExerciseId(
-        "$PREFIX:${fingerprint.skillCode.key}_${fingerprint.wordId.value}_d${fingerprint.difficulty.value}_s${fingerprint.seed}"
+        "$PREFIX:${fingerprint.skillCode.code}_${fingerprint.wordId.value}_d${fingerprint.difficulty.value}_s${fingerprint.seed}"
     )
 }
