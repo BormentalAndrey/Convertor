@@ -1,25 +1,17 @@
+// app/src/main/java/com/example/russianpath/data/local/entity/GradeEntity.kt
+
 package com.example.russianpath.data.local.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-/**
- * Классы обучения: 1–11 класс, ОГЭ, ЕГЭ.
- * Рассчитан на долгосрочное использование без изменения структуры.
- */
 @Entity(
     tableName = "grades",
     indices = [
-        androidx.room.Index(
-            value = ["sort_order"],
-            name = "idx_grades_sort_order"
-        ),
-        androidx.room.Index(
-            value = ["external_id"],
-            name = "idx_grades_external_id",
-            unique = true
-        )
+        Index(value = ["sort_order"], name = "idx_grades_sort_order"),
+        Index(value = ["external_id"], name = "idx_grades_external_id", unique = true)
     ]
 )
 data class GradeEntity(
@@ -31,16 +23,16 @@ data class GradeEntity(
     val externalId: String = "",
 
     @ColumnInfo(name = "name", defaultValue = "")
-    val name: String,
-
-    @ColumnInfo(name = "sort_order", defaultValue = "0")
-    val sortOrder: Int,
+    val name: String = "",
 
     @ColumnInfo(name = "display_name", defaultValue = "")
     val displayName: String = "",
 
     @ColumnInfo(name = "description", defaultValue = "")
     val description: String = "",
+
+    @ColumnInfo(name = "sort_order", defaultValue = "0")
+    val sortOrder: Int = 0,
 
     @ColumnInfo(name = "is_active", defaultValue = "1")
     val isActive: Boolean = true,
