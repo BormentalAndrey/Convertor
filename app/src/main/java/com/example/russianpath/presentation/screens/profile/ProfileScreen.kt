@@ -19,8 +19,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -155,20 +155,20 @@ private fun DetailedStatsCard(userStats: UserStats) {
             Text(text = "Детальная статистика", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
             Spacer(Modifier.height(12.dp))
             DetailedStatRow(label = "Завершено уроков", value = userStats.totalLessonsCompleted.toString())
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            Divider(modifier = Modifier.padding(vertical = 8.dp))
             DetailedStatRow(label = "Идеальных уроков", value = userStats.totalPerfectLessons.toString())
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            Divider(modifier = Modifier.padding(vertical = 8.dp))
             DetailedStatRow(label = "Всего ошибок", value = userStats.totalMistakesCount.toString())
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            Divider(modifier = Modifier.padding(vertical = 8.dp))
             DetailedStatRow(label = "Точность", value = "${userStats.accuracy.toInt()}%",
                 valueColor = when {
                     userStats.accuracy >= 90f -> SuccessGreen
                     userStats.accuracy >= 70f -> XpGold
                     else -> ErrorRed
                 })
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            Divider(modifier = Modifier.padding(vertical = 8.dp))
             DetailedStatRow(label = "Время обучения", value = userStats.getFormattedTotalTime())
-            HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+            Divider(modifier = Modifier.padding(vertical = 8.dp))
             DetailedStatRow(label = "Дней активности", value = userStats.totalDaysActive.toString())
         }
     }
