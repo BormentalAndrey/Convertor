@@ -1,6 +1,8 @@
+// app/src/main/java/com/example/russianpath/core/exercise/ExerciseFingerprint.kt
+
 package com.example.russianpath.core.exercise
 
-import com.example.russianpath.core.common.Difficulty  // ← исправлен
+import com.example.russianpath.core.common.Difficulty
 import com.example.russianpath.core.dictionary.WordId
 import com.example.russianpath.core.knowledge.SkillCode
 
