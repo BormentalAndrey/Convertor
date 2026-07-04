@@ -1,10 +1,12 @@
+// app/src/main/java/com/example/russianpath/data/exercise/AnswerProviderImpl.kt
+
 package com.example.russianpath.data.exercise
 
 import com.example.russianpath.core.analysis.WordAnalysis
 import com.example.russianpath.core.exercise.AnswerProvider
 import com.example.russianpath.core.exercise.CorrectAnswer
 import com.example.russianpath.core.exercise.TextAnswer
-import com.example.russianpath.core.knowledge.SkillCode
+import com.example.russianpath.data.local.converter.SkillCode
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,34 +18,34 @@ class AnswerProviderImpl @Inject constructor() : AnswerProvider {
         val syllable = analysis.analyses.syllable
 
         return when (skillCode) {
-            SkillCode.COUNT_SYLLABLES -> {
+            SkillCode.PHONETIC_ANALYSIS -> {
                 TextAnswer((syllable?.count ?: 0).toString())
             }
-            SkillCode.FIND_FIRST_LETTER -> {
+            SkillCode.IDENTIFY_LANGUAGE_UNITS -> {
                 TextAnswer(letter.first.uppercase())
             }
-            SkillCode.FIND_LAST_LETTER -> {
+            SkillCode.MORPHEMIC_ANALYSIS -> {
                 TextAnswer(letter.last.uppercase())
             }
-            SkillCode.COUNT_LETTERS -> {
+            SkillCode.ORTHOGRAPHIC_ANALYSIS -> {
                 TextAnswer(letter.count.toString())
             }
-            SkillCode.RECOGNIZE_SOFT_SIGN -> {
+            SkillCode.LEXICAL_MEANS -> {
                 TextAnswer(if (letter.hasSoftSign) "Да" else "Нет")
             }
-            SkillCode.RECOGNIZE_HARD_SIGN -> {
+            SkillCode.SPEECH_STYLES -> {
                 TextAnswer(if (letter.hasHardSign) "Да" else "Нет")
             }
-            SkillCode.COUNT_VOWELS -> {
+            SkillCode.MORPHOLOGICAL_ANALYSIS -> {
                 TextAnswer(letter.letters.count { it.isVowel }.toString())
             }
-            SkillCode.COUNT_CONSONANTS -> {
+            SkillCode.SYNTACTIC_ANALYSIS -> {
                 TextAnswer(letter.letters.count { it.isConsonant }.toString())
             }
-            SkillCode.DIVIDE_TO_SYLLABLES -> {
+            SkillCode.PUNCTUATION_ANALYSIS -> {
                 TextAnswer(syllable?.syllables?.joinToString("-") { it.text } ?: "?")
             }
-            SkillCode.FIND_STRESSED_SYLLABLE -> {
+            SkillCode.ORTHOGRAPHY_NORMS -> {
                 TextAnswer(syllable?.syllables?.find { it.isStressed }?.text ?: "?")
             }
             else -> TextAnswer("?")
