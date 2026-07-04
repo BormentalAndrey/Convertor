@@ -1,3 +1,5 @@
+// app/src/main/java/com/example/russianpath/di/DatabaseModule.kt
+
 package com.example.russianpath.di
 
 import android.content.Context
@@ -30,6 +32,16 @@ import javax.inject.Singleton
  *
  * Все зависимости имеют scope @Singleton, так как AppDatabase —
  * тяжёлый объект, который должен жить всё время жизни процесса.
+ *
+ * Политика миграций:
+ * - MIGRATION_1_2: корректная миграция с версии 1 на версию 2
+ * - fallbackToDestructiveMigration(): если миграция невозможна (например,
+ *   структура БД на устройстве не соответствует ни одной известной версии),
+ *   БД будет пересоздана. Данные пользователя будут потеряны.
+ *
+ *   ВАЖНО ДЛЯ PRODUCTION:
+ *   Заменить fallbackToDestructiveMigration() на корректные миграции
+ *   для всех возможных версий БД перед релизом.
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -41,6 +53,7 @@ object DatabaseModule {
      * Использует:
      * - Имя БД из AppDatabase.DATABASE_NAME
      * - Миграцию MIGRATION_1_2 для обновления с версии 1
+     * - fallbackToDestructiveMigration для обработки несовместимых версий
      * - Экспорт схемы для тестирования миграций (exportSchema = true в аннотации)
      */
     @Provides
@@ -54,6 +67,7 @@ object DatabaseModule {
             AppDatabase.DATABASE_NAME
         )
             .addMigrations(AppDatabaseMigrations.MIGRATION_1_2)
+            .fallbackToDestructiveMigration()
             .build()
     }
 
