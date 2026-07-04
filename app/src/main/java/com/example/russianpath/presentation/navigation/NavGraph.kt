@@ -18,10 +18,19 @@ import java.net.URLDecoder
 import java.net.URLEncoder
 
 /**
- * Маршруты навигации приложения.
+ * Маршруты навигации приложения «Русский Путь».
  *
  * Каждый маршрут — sealed class с параметризованным путём.
- * Для сложных объектов используется JSON-сериализация в строку.
+ * Для передачи сложных объектов (LessonResult) между экранами
+ * используется JSON-сериализация с URL-encoding для безопасной
+ * передачи кириллицы и специальных символов.
+ *
+ * Граф навигации:
+ * ```
+ * Dashboard ──→ Lesson ──→ Result ──→ Dashboard
+ *     │                                    ↑
+ *     └──→ Profile ────────────────────────┘
+ * ```
  */
 sealed class Screen(val route: String) {
 
@@ -31,26 +40,29 @@ sealed class Screen(val route: String) {
     /** Экран профиля пользователя. */
     object Profile : Screen("profile")
 
-    /** Экран урока. Параметр: lessonId. */
+    /** Экран урока. Параметр: lessonId (String). */
     object Lesson : Screen("lesson/{lessonId}") {
+        /** Создаёт маршрут с указанным ID урока. */
         fun createRoute(lessonId: String) = "lesson/$lessonId"
     }
 
     /**
      * Экран результата после прохождения урока.
-     * Параметры: lessonId, stars, xpEarned, scorePercent,
-     * correctAnswers, totalQuestions, timeSpentSeconds, lessonTitle.
      *
-     * Для избежания проблем с кодированием специальных символов
-     * (запятые, пробелы, кириллица) используется URL-encoding.
+     * Параметр: resultJson — URL-encoded JSON с объектом LessonResult.
+     *
+     * Использование JSON вместо множества navArgument решает проблемы:
+     * - Ограничение длины URL (7 параметров × длинные значения)
+     * - Кириллица в lessonTitle (небезопасна в URL без кодирования)
+     * - Расширяемость (добавление полей в LessonResult не ломает навигацию)
      */
-    object Result : Screen(
-        "result/{resultJson}"
-    ) {
+    object Result : Screen("result/{resultJson}") {
+
         /**
-         * Создаёт маршрут с упакованным LessonResult в JSON.
-         * Для больших объектов безопаснее передавать через JSON,
-         * чем через множество navArgument.
+         * Создаёт маршрут с упакованным LessonResult.
+         *
+         * @param result Результат прохождения урока.
+         * @return Строка маршрута вида "result/{url-encoded-json}".
          */
         fun createRoute(result: LessonResult): String {
             val json = Gson().toJson(result)
@@ -60,20 +72,35 @@ sealed class Screen(val route: String) {
 
         /**
          * Извлекает LessonResult из аргументов навигации.
+         *
+         * Поддерживает два формата:
+         * 1. Новый: resultJson = URL-encoded JSON
+         * 2. Старый (legacy): lessonId, stars, xp как отдельные аргументы
+         *
+         * @param arguments Bundle с аргументами навигации.
+         * @return LessonResult или null, если не удалось распарсить.
          */
         fun parseResult(arguments: Bundle?): LessonResult? {
-            val encoded = arguments?.getString("resultJson") ?: return null
-            return try {
-                val json = URLDecoder.decode(encoded, "UTF-8")
-                Gson().fromJson(json, LessonResult::class.java)
-            } catch (e: Exception) {
-                // Fallback: пытаемся прочитать старые аргументы (обратная совместимость)
-                parseLegacyArgs(arguments)
+            // Пробуем новый формат (JSON)
+            val encoded = arguments?.getString("resultJson")
+            if (!encoded.isNullOrBlank()) {
+                return try {
+                    val json = URLDecoder.decode(encoded, "UTF-8")
+                    Gson().fromJson(json, LessonResult::class.java)
+                } catch (e: Exception) {
+                    // JSON повреждён — пробуем legacy
+                    parseLegacyArgs(arguments)
+                }
             }
+            // Пробуем старый формат
+            return parseLegacyArgs(arguments)
         }
 
         /**
          * Парсинг старых аргументов для обратной совместимости.
+         *
+         * Используется, если пользователь обновил приложение,
+         * находясь на экране результата (редкий, но возможный сценарий).
          */
         private fun parseLegacyArgs(arguments: Bundle?): LessonResult? {
             val lessonId = arguments?.getString("lessonId") ?: return null
@@ -96,10 +123,19 @@ sealed class Screen(val route: String) {
  * Главный граф навигации приложения.
  *
  * Управляет переходами между экранами:
- * - Dashboard → Lesson → Result → Dashboard
- * - Dashboard → Profile → Dashboard
+ * - Dashboard → Lesson (по нажатию на тему)
+ * - Lesson → Result (при завершении урока)
+ * - Result → Dashboard (по кнопке «Продолжить»)
+ * - Dashboard → Profile (по кнопке профиля)
+ * - Profile → Dashboard (по кнопке «Назад»)
  *
- * @param onAppOpened Колбэк, вызываемый при старте приложения (для обновления стрика).
+ * Back stack управляется так:
+ * - При переходе Lesson → Result урок убирается из стека (popUpTo Dashboard)
+ * - При переходе Result → Dashboard стек очищается полностью
+ * - Кнопка «Повторить» на Result возвращает на Dashboard (урок нужно выбрать заново)
+ *
+ * @param onAppOpened Колбэк, вызываемый при первом создании NavGraph.
+ *                     Используется для обновления стрика пользователя.
  */
 @Composable
 fun NavGraph(
@@ -107,7 +143,8 @@ fun NavGraph(
 ) {
     val navController = rememberNavController()
 
-    // Сигнализируем об открытии приложения
+    // Сигнализируем об открытии приложения при первом composable
+    // remember с Unit гарантирует однократный вызов
     remember {
         onAppOpened()
         true
@@ -151,8 +188,9 @@ fun NavGraph(
                     navController.navigate(
                         Screen.Result.createRoute(result)
                     ) {
-                        // Убираем Lesson из back stack, чтобы кнопка "Назад"
-                        // с экрана результата возвращала на Dashboard
+                        // Убираем Lesson из back stack.
+                        // Кнопка «Назад» с экрана результата будет возвращать на Dashboard,
+                        // а не на пройденный урок.
                         popUpTo(Screen.Dashboard.route)
                     }
                 }
@@ -174,13 +212,15 @@ fun NavGraph(
                 ResultScreen(
                     result = result,
                     onContinue = {
+                        // Переход на Dashboard с очисткой всего стека
                         navController.navigate(Screen.Dashboard.route) {
                             popUpTo(Screen.Dashboard.route) { inclusive = true }
                         }
                     },
                     onRepeat = {
-                        // Возвращаемся к уроку (он уже убран из стека,
-                        // но lessonId есть в result)
+                        // Возвращаемся на Dashboard.
+                        // Урок уже убран из стека при переходе Lesson → Result,
+                        // поэтому пользователю нужно снова выбрать урок.
                         navController.popBackStack(
                             route = Screen.Dashboard.route,
                             inclusive = false
@@ -188,7 +228,7 @@ fun NavGraph(
                     }
                 )
             } else {
-                // Если результат не распарсился — возвращаемся на Dashboard
+                // Если результат не распарсился — аварийный возврат на Dashboard
                 navController.navigate(Screen.Dashboard.route) {
                     popUpTo(0) { inclusive = true }
                 }
