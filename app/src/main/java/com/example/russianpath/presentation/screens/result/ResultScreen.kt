@@ -1,3 +1,5 @@
+// app/src/main/java/com/example/russianpath/presentation/screens/result/ResultScreen.kt
+
 package com.example.russianpath.presentation.screens.result
 
 import androidx.compose.animation.core.animateFloatAsState
@@ -36,7 +38,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.russianpath.presentation.components.Emoji
 import com.example.russianpath.presentation.components.EmojiText
 import com.example.russianpath.presentation.components.KnopaImage
@@ -58,8 +59,6 @@ import kotlinx.coroutines.delay
  * - Детальную статистику попытки (правильно/всего, время, точность)
  * - Кнопки «Продолжить» (возврат к списку тем) и «Повторить» (перезапуск урока)
  *
- * Результат сохраняется в ResultViewModel для переживания пересоздания конфигурации.
- *
  * @param result Результат урока, переданный через NavGraph (JSON → LessonResult).
  * @param onContinue Колбэк для кнопки «Продолжить».
  * @param onRepeat Колбэк для кнопки «Повторить».
@@ -68,19 +67,11 @@ import kotlinx.coroutines.delay
 fun ResultScreen(
     result: LessonResult,
     onContinue: () -> Unit = {},
-    onRepeat: () -> Unit = {},
-    viewModel: ResultViewModel = hiltViewModel()
+    onRepeat: () -> Unit = {}
 ) {
-    // Сохраняем результат в ViewModel при первом composable
-    // Это защищает от потери данных при пересоздании конфигурации (поворот экрана)
-    LaunchedEffect(result) {
-        viewModel.setResult(result)
-    }
-
     // Анимация последовательного появления звёзд (по одной каждые 400 мс)
     var displayedStars by remember { mutableIntStateOf(0) }
     LaunchedEffect(result.stars) {
-        // Сбрасываем перед анимацией
         displayedStars = 0
         for (i in 1..result.stars) {
             displayedStars = i
@@ -95,10 +86,7 @@ fun ResultScreen(
         label = "xpScale"
     )
 
-    // Цвет фона зависит от результата:
-    // - 3 звезды → золотой оттенок
-    // - 2 звезды → синий оттенок
-    // - 1 звезда или меньше → красноватый оттенок
+    // Цвет фона зависит от результата
     val backgroundColor = when {
         result.stars >= 3 -> XpGold.copy(alpha = 0.15f)
         result.stars >= 2 -> VasilisaBlue.copy(alpha = 0.1f)
@@ -142,9 +130,7 @@ fun ResultScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            // ================================================================
             // Маскот Кнопа
-            // ================================================================
             KnopaImage(
                 modifier = Modifier.size(100.dp),
                 mood = mascotMood
@@ -152,9 +138,7 @@ fun ResultScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            // ================================================================
             // Заголовок результата
-            // ================================================================
             Text(
                 text = titleText,
                 fontSize = 32.sp,
@@ -174,11 +158,8 @@ fun ResultScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            // ================================================================
             // Звёзды с анимацией появления
-            // ================================================================
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                // Уже появившиеся звёзды (золотые, с анимацией масштаба)
                 repeat(displayedStars) {
                     EmojiText(
                         Emoji.STAR_GOLD,
@@ -192,7 +173,6 @@ fun ResultScreen(
                         )
                     )
                 }
-                // Ещё не появившиеся звёзды (пустые)
                 repeat(result.stars - displayedStars) {
                     EmojiText(Emoji.STAR_EMPTY, fontSize = 44)
                 }
@@ -200,9 +180,7 @@ fun ResultScreen(
 
             Spacer(Modifier.height(24.dp))
 
-            // ================================================================
             // Карточка с заработанным XP
-            // ================================================================
             Card(
                 shape = RoundedCornerShape(20.dp),
                 colors = CardDefaults.cardColors(
@@ -233,9 +211,7 @@ fun ResultScreen(
 
             Spacer(Modifier.height(16.dp))
 
-            // ================================================================
             // Детальная статистика попытки
-            // ================================================================
             Card(
                 shape = RoundedCornerShape(16.dp),
                 modifier = Modifier.fillMaxWidth()
@@ -266,9 +242,7 @@ fun ResultScreen(
 
             Spacer(Modifier.height(32.dp))
 
-            // ================================================================
-            // Кнопка «Продолжить» (возврат к списку тем)
-            // ================================================================
+            // Кнопка «Продолжить»
             Button(
                 onClick = onContinue,
                 modifier = Modifier
@@ -288,9 +262,7 @@ fun ResultScreen(
 
             Spacer(Modifier.height(12.dp))
 
-            // ================================================================
-            // Кнопка «Повторить» (перезапуск урока)
-            // ================================================================
+            // Кнопка «Повторить»
             OutlinedButton(
                 onClick = onRepeat,
                 modifier = Modifier
@@ -305,26 +277,12 @@ fun ResultScreen(
             }
         }
     }
-
-    // Очищаем результат при уходе с экрана
-    LaunchedEffect(Unit) {
-        // DisposableEffect не нужен, так как LaunchedEffect с Unit
-        // выполняется только один раз при входе в композицию.
-        // Очистка произойдёт при следующей навигации на этот экран.
-    }
 }
 
 // ========================================================================
 // Переиспользуемые компоненты
 // ========================================================================
 
-/**
- * Элемент детальной статистики на экране результата.
- *
- * @param emoji Эмодзи-символ для отображения.
- * @param value Значение показателя (строка).
- * @param label Подпись под значением.
- */
 @Composable
 private fun ResultDetailItem(
     emoji: String,
@@ -351,17 +309,6 @@ private fun ResultDetailItem(
 // Утилиты
 // ========================================================================
 
-/**
- * Форматирует время в секундах в строку "M:SS" или "MM:SS".
- *
- * Примеры:
- * - 65 → "1:05"
- * - 125 → "2:05"
- * - 3600 → "60:00"
- *
- * @param totalSeconds Общее количество секунд.
- * @return Отформатированная строка времени.
- */
 private fun formatTime(totalSeconds: Int): String {
     val minutes = totalSeconds / 60
     val seconds = totalSeconds % 60
