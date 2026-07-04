@@ -1,9 +1,19 @@
+// app/src/main/java/com/example/russianpath/presentation/components/MascotImage.kt
+
 package com.example.russianpath.presentation.components
 
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
@@ -67,11 +77,13 @@ fun KnopaImage(
         KnopaMood.HAPPY -> 1.08f
         KnopaMood.EXCITED -> 1.15f
         KnopaMood.SAD -> 0.9f
+        KnopaMood.SURPRISED -> 1.1f
         KnopaMood.IDLE -> idleScale
     }
 
     val rotationAngle = when (mood) {
         KnopaMood.SAD -> -8f
+        KnopaMood.SURPRISED -> 5f
         else -> 0f
     }
 
@@ -80,6 +92,7 @@ fun KnopaImage(
         KnopaMood.HAPPY -> R.drawable.ic_knopa_happy
         KnopaMood.SAD -> R.drawable.ic_knopa_sad
         KnopaMood.EXCITED -> R.drawable.ic_knopa_excited
+        KnopaMood.SURPRISED -> R.drawable.ic_knopa_jump
     }
 
     Image(
@@ -92,11 +105,4 @@ fun KnopaImage(
             .rotate(rotationAngle),
         contentScale = ContentScale.Fit
     )
-}
-
-enum class KnopaMood {
-    IDLE,
-    HAPPY,
-    SAD,
-    EXCITED
 }
