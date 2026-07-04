@@ -61,16 +61,30 @@ android {
 
 dependencies {
 
-    // Core
+    // ========================================================================
+    // Core Android
+    // ========================================================================
+
     implementation("androidx.core:core-ktx:1.12.0")
+
+    // ========================================================================
+    // Lifecycle
+    // ========================================================================
 
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.6.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
 
+    // ========================================================================
+    // Activity
+    // ========================================================================
+
     implementation("androidx.activity:activity-compose:1.8.1")
 
+    // ========================================================================
     // Compose BOM
+    // ========================================================================
+
     implementation(platform("androidx.compose:compose-bom:2023.10.01"))
 
     implementation("androidx.compose.ui:ui")
@@ -80,32 +94,70 @@ dependencies {
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended")
 
+    // ========================================================================
+    // Navigation
+    // ========================================================================
+
     implementation("androidx.navigation:navigation-compose:2.7.5")
 
-    // Room
+    // ========================================================================
+    // Room Database
+    // ========================================================================
+
     implementation("androidx.room:room-runtime:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
     ksp("androidx.room:room-compiler:2.6.1")
 
-    // Hilt
+    // Room Testing (для тестирования миграций)
+    androidTestImplementation("androidx.room:room-testing:2.6.1")
+
+    // ========================================================================
+    // Hilt Dependency Injection
+    // ========================================================================
+
     implementation("com.google.dagger:hilt-android:2.48")
     kapt("com.google.dagger:hilt-android-compiler:2.48")
 
     implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
-    // Coil
+    // ========================================================================
+    // Image Loading
+    // ========================================================================
+
     implementation("io.coil-kt:coil-compose:2.5.0")
 
-    // Gson
+    // ========================================================================
+    // JSON Serialization
+    // ========================================================================
+
     implementation("com.google.code.gson:gson:2.10.1")
 
-    // Tests
+    // ========================================================================
+    // Unit Tests
+    // ========================================================================
+
     testImplementation("junit:junit:4.13.2")
 
+    // Coroutines Test (для runTest в unit-тестах)
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.1")
+
+    // Truth — fluent assertions (для unit-тестов и androidTest)
+    testImplementation("com.google.truth:truth:1.4.2")
+    androidTestImplementation("com.google.truth:truth:1.4.2")
+
+    // ========================================================================
+    // Android Instrumentation Tests
+    // ========================================================================
+
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
+    androidTestImplementation("androidx.test:runner:1.5.2")
 
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.10.01"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
+
+    // ========================================================================
+    // Debug
+    // ========================================================================
 
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
