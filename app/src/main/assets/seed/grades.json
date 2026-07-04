@@ -1,0 +1,28 @@
+[
+  {
+    "id": "5",
+    "external_id": "grade_5",
+    "name": "5 класс",
+    "display_name": "5 класс",
+    "description": "Повторение изученного в начальной школе. Фонетика. Орфография. Морфемика. Лексика.",
+    "sort_order": 5,
+    "is_active": true,
+    "schema_version": 1,
+    "created_at": 0,
+    "updated_at": 0,
+    "server_updated_at": 0
+  },
+  {
+    "id": "6",
+    "external_id": "grade_6",
+    "name": "6 класс",
+    "display_name": "6 класс",
+    "description": "Морфология. Имя существительное. Имя прилагательное. Глагол.",
+    "sort_order": 6,
+    "is_active": false,
+    "schema_version": 1,
+    "created_at": 0,
+    "updated_at": 0,
+    "server_updated_at": 0
+  }
+]
