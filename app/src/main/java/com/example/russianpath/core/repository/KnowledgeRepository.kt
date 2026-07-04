@@ -2,7 +2,7 @@
 
 package com.example.russianpath.core.repository
 
-import com.example.russianpath.data.local.converter.SkillCode
+import com.example.russianpath.core.knowledge.SkillCode
 
 /**
  * Репозиторий для работы с образовательным графом знаний.
