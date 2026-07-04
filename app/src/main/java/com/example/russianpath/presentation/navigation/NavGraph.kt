@@ -13,6 +13,7 @@ import androidx.navigation.navArgument
 import com.example.russianpath.presentation.screens.dashboard.DashboardScreen
 import com.example.russianpath.presentation.screens.lesson.LessonResult
 import com.example.russianpath.presentation.screens.lesson.LessonScreen
+import com.example.russianpath.presentation.screens.lesson.RuleListScreen
 import com.example.russianpath.presentation.screens.lesson.TopicLessonScreen
 import com.example.russianpath.presentation.screens.profile.ProfileScreen
 import com.example.russianpath.presentation.screens.result.ResultScreen
@@ -23,11 +24,14 @@ import java.net.URLEncoder
 sealed class Screen(val route: String) {
 
     object Dashboard : Screen("dashboard")
-
     object Profile : Screen("profile")
 
     object Topic : Screen("topic/{topicId}") {
         fun createRoute(topicId: String) = "topic/$topicId"
+    }
+
+    object Rules : Screen("rules/{topicId}") {
+        fun createRoute(topicId: String) = "rules/$topicId"
     }
 
     object Lesson : Screen("lesson/{lessonId}") {
@@ -87,7 +91,6 @@ fun NavGraph(
         navController = navController,
         startDestination = Screen.Dashboard.route
     ) {
-        // Главный экран — Dashboard
         composable(Screen.Dashboard.route) {
             DashboardScreen(
                 onTopicClick = { topicId ->
@@ -99,59 +102,55 @@ fun NavGraph(
             )
         }
 
-        // Экран списка уроков темы — Topic
         composable(
             route = Screen.Topic.route,
-            arguments = listOf(
-                navArgument("topicId") { type = NavType.StringType }
-            )
+            arguments = listOf(navArgument("topicId") { type = NavType.StringType })
         ) { backStackEntry ->
             val topicId = backStackEntry.arguments?.getString("topicId") ?: return@composable
-
             TopicLessonScreen(
                 topicId = topicId,
-                onBackClick = {
-                    navController.popBackStack()
-                },
+                onBackClick = { navController.popBackStack() },
                 onLessonClick = { lessonId ->
                     navController.navigate(Screen.Lesson.createRoute(lessonId))
+                },
+                onRulesClick = { rulesTopicId ->
+                    navController.navigate(Screen.Rules.createRoute(rulesTopicId))
                 }
             )
         }
 
-        // Экран урока — Lesson
+        composable(
+            route = Screen.Rules.route,
+            arguments = listOf(navArgument("topicId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val topicId = backStackEntry.arguments?.getString("topicId") ?: return@composable
+            RuleListScreen(
+                topicId = topicId,
+                onBackClick = { navController.popBackStack() }
+            )
+        }
+
         composable(
             route = Screen.Lesson.route,
-            arguments = listOf(
-                navArgument("lessonId") { type = NavType.StringType }
-            )
+            arguments = listOf(navArgument("lessonId") { type = NavType.StringType })
         ) { backStackEntry ->
             val lessonId = backStackEntry.arguments?.getString("lessonId") ?: return@composable
-
             LessonScreen(
                 lessonId = lessonId,
-                onBackClick = {
-                    navController.popBackStack()
-                },
+                onBackClick = { navController.popBackStack() },
                 onComplete = { result ->
-                    navController.navigate(
-                        Screen.Result.createRoute(result)
-                    ) {
+                    navController.navigate(Screen.Result.createRoute(result)) {
                         popUpTo(Screen.Dashboard.route)
                     }
                 }
             )
         }
 
-        // Экран результата — Result
         composable(
             route = Screen.Result.route,
-            arguments = listOf(
-                navArgument("resultJson") { type = NavType.StringType }
-            )
+            arguments = listOf(navArgument("resultJson") { type = NavType.StringType })
         ) { backStackEntry ->
             val result = Screen.Result.parseResult(backStackEntry.arguments)
-
             if (result != null) {
                 ResultScreen(
                     result = result,
@@ -161,10 +160,7 @@ fun NavGraph(
                         }
                     },
                     onRepeat = {
-                        navController.popBackStack(
-                            route = Screen.Dashboard.route,
-                            inclusive = false
-                        )
+                        navController.popBackStack(route = Screen.Dashboard.route, inclusive = false)
                     }
                 )
             } else {
@@ -174,13 +170,8 @@ fun NavGraph(
             }
         }
 
-        // Экран профиля — Profile
         composable(Screen.Profile.route) {
-            ProfileScreen(
-                onBackClick = {
-                    navController.popBackStack()
-                }
-            )
+            ProfileScreen(onBackClick = { navController.popBackStack() })
         }
     }
 }
