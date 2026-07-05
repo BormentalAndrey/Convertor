@@ -106,11 +106,7 @@ fun LessonScreen(
                     Row(modifier = Modifier.padding(end = 12.dp), verticalAlignment = Alignment.CenterVertically) {
                         repeat(livesRemaining) { EmojiText(Emoji.HEART, fontSize = 18) }
                         Spacer(Modifier.width(8.dp))
-                        Text(
-                            text = "$livesRemaining",
-                            fontWeight = FontWeight.Bold,
-                            color = if (livesRemaining <= 2) ErrorRed else Color.DarkGray
-                        )
+                        Text(text = "$livesRemaining", fontWeight = FontWeight.Bold, color = if (livesRemaining <= 2) ErrorRed else Color.DarkGray)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
@@ -130,9 +126,7 @@ fun LessonScreen(
                         Spacer(Modifier.height(16.dp))
                         Text(text = errorMessage ?: "", style = MaterialTheme.typography.bodyLarge, color = Color.Gray)
                         Spacer(Modifier.height(24.dp))
-                        Button(onClick = { viewModel.loadLesson(lessonId) }) {
-                            Text("Повторить загрузку")
-                        }
+                        Button(onClick = { viewModel.loadLesson(lessonId) }) { Text("Повторить загрузку") }
                     }
                 }
             }
@@ -145,75 +139,60 @@ fun LessonScreen(
                         Spacer(Modifier.height(8.dp))
                         Text(text = "ID урока: $lessonId", style = MaterialTheme.typography.bodySmall, color = Color.Gray)
                         Spacer(Modifier.height(24.dp))
-                        Button(onClick = { viewModel.loadLesson(lessonId) }) {
-                            Text("Загрузить снова")
-                        }
+                        Button(onClick = { viewModel.loadLesson(lessonId) }) { Text("Загрузить снова") }
                     }
                 }
             }
             else -> {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .verticalScroll(rememberScrollState())
-                        .padding(24.dp),
+                    modifier = Modifier.fillMaxSize().padding(paddingValues).verticalScroll(rememberScrollState()).padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // Текст упражнения для чтения
+                    // Текст упражнения для чтения (exercise_text_json)
+                    val exerciseText = lesson?.getExerciseText() ?: ""
+                    if (exerciseText.isNotBlank()) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = VasilisaBlue.copy(alpha = 0.05f))
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(text = "📖 Прочитайте текст", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = VasilisaBlue)
+                                Spacer(Modifier.height(8.dp))
+                                Text(text = exerciseText, style = MaterialTheme.typography.bodyMedium)
+                            }
+                        }
+                    }
+
+                    // Инструкция к заданию (instruction_text)
                     val instructionText = lesson?.instructionText ?: ""
                     if (instructionText.isNotBlank()) {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = VasilisaBlue.copy(alpha = 0.05f)
-                            )
+                            colors = CardDefaults.cardColors(containerColor = SuccessGreen.copy(alpha = 0.05f))
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text(
-                                    text = "📖 Задание",
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = VasilisaBlue
-                                )
+                                Text(text = "📝 Задание", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = SuccessGreen)
                                 Spacer(Modifier.height(8.dp))
-                                Text(
-                                    text = instructionText,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
+                                Text(text = instructionText, style = MaterialTheme.typography.bodyMedium)
                             }
                         }
                     }
 
-                    // Теория урока (если есть)
-                    val theoryJson = lesson?.theoryJson ?: "{}"
-                    if (theoryJson != "{}" && theoryJson.isNotBlank()) {
-                        val theoryText = try {
-                            com.google.gson.Gson().fromJson(theoryJson, Map::class.java)?.get("text") as? String ?: ""
-                        } catch (_: Exception) { "" }
-                        if (theoryText.isNotBlank()) {
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(16.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = XpGold.copy(alpha = 0.1f)
-                                )
-                            ) {
-                                Column(modifier = Modifier.padding(16.dp)) {
-                                    Text(
-                                        text = "📚 Теория",
-                                        style = MaterialTheme.typography.labelMedium,
-                                        fontWeight = FontWeight.Bold,
-                                        color = XpGold
-                                    )
-                                    Spacer(Modifier.height(8.dp))
-                                    Text(
-                                        text = theoryText,
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                }
+                    // Теория (theory_json)
+                    val theoryText = lesson?.getTheoryText() ?: ""
+                    if (theoryText.isNotBlank()) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = XpGold.copy(alpha = 0.1f))
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(text = "📚 Теория", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = XpGold)
+                                Spacer(Modifier.height(8.dp))
+                                Text(text = theoryText, style = MaterialTheme.typography.bodyMedium)
                             }
                         }
                     }
@@ -221,34 +200,17 @@ fun LessonScreen(
                     // Вопрос
                     val question = viewModel.getCurrentQuestion()
                     if (question != null) {
-                        QuestionCard(
-                            question = question,
-                            showHint = showHint,
-                            onAnswer = { viewModel.checkAnswer(it) },
-                            isAnswered = isCorrect != null
-                        )
+                        QuestionCard(question = question, showHint = showHint, onAnswer = { viewModel.checkAnswer(it) }, isAnswered = isCorrect != null)
 
-                        AnimatedVisibility(
-                            visible = isCorrect != null,
-                            enter = fadeIn() + slideInVertically(),
-                            exit = fadeOut() + slideOutVertically()
-                        ) {
+                        AnimatedVisibility(visible = isCorrect != null, enter = fadeIn() + slideInVertically(), exit = fadeOut() + slideOutVertically()) {
                             FeedbackCard(
                                 isCorrect = isCorrect ?: false,
-                                explanation = if (isCorrect == true)
-                                    question.explanationText.ifBlank { "Отлично! Ты справился!" }
-                                else
-                                    question.hintText.ifBlank { "Неправильно. Правильный ответ: ${question.correctAnswer}" }
+                                explanation = if (isCorrect == true) question.explanationText.ifBlank { "Отлично! Ты справился!" }
+                                else question.hintText.ifBlank { "Неправильно. Правильный ответ: ${question.correctAnswer}" }
                             )
                         }
 
-                        ActionButtons(
-                            isAnswered = isCorrect != null,
-                            isLastQuestion = currentQuestionIndex >= totalQuestions - 1,
-                            onNext = { viewModel.nextQuestion() },
-                            onHint = { viewModel.showHint() },
-                            hintAvailable = !showHint && isCorrect == null
-                        )
+                        ActionButtons(isAnswered = isCorrect != null, isLastQuestion = currentQuestionIndex >= totalQuestions - 1, onNext = { viewModel.nextQuestion() }, onHint = { viewModel.showHint() }, hintAvailable = !showHint && isCorrect == null)
                     }
                 }
             }
@@ -258,20 +220,10 @@ fun LessonScreen(
 
 @Composable
 private fun QuestionCard(question: Question, showHint: Boolean, onAnswer: (Any) -> Unit, isAnswered: Boolean) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        shape = RoundedCornerShape(20.dp)
-    ) {
+    Card(modifier = Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(defaultElevation = 4.dp), shape = RoundedCornerShape(20.dp)) {
         Column(modifier = Modifier.padding(24.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = question.promptText,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
-            )
+            Text(text = question.promptText, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, textAlign = TextAlign.Center)
             Spacer(Modifier.height(24.dp))
-
             when (question.questionType) {
                 QuestionType.SINGLE_CHOICE -> SingleChoiceOptions(options = question.options, onSelect = { onAnswer(it) }, enabled = !isAnswered)
                 QuestionType.MULTIPLE_CHOICE -> MultipleChoiceOptions(options = question.options, onSelectionChanged = { onAnswer(it) }, enabled = !isAnswered)
@@ -281,18 +233,10 @@ private fun QuestionCard(question: Question, showHint: Boolean, onAnswer: (Any) 
                 QuestionType.STRESS_SELECTION -> StressSelectionOptions(word = question.promptText, onSelect = { onAnswer(it) }, enabled = !isAnswered)
                 QuestionType.MORPHEMIC_ANALYSIS -> MorphemicAnalysisInput(onSubmit = { onAnswer(it) }, enabled = !isAnswered)
             }
-
             if (showHint) {
                 Spacer(Modifier.height(16.dp))
-                Card(
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(containerColor = VasilisaBlue.copy(alpha = 0.1f))
-                ) {
-                    Text(
-                        text = "💡 Подсказка: ${question.hintText.ifBlank { question.explanationText }}",
-                        modifier = Modifier.padding(12.dp),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = VasilisaBlue.copy(alpha = 0.1f))) {
+                    Text(text = "💡 Подсказка: ${question.hintText.ifBlank { question.explanationText }}", modifier = Modifier.padding(12.dp), style = MaterialTheme.typography.bodyMedium)
                 }
             }
         }
@@ -303,16 +247,8 @@ private fun QuestionCard(question: Question, showHint: Boolean, onAnswer: (Any) 
 private fun SingleChoiceOptions(options: List<String>, onSelect: (String) -> Unit, enabled: Boolean) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         options.forEach { option ->
-            Button(
-                onClick = { onSelect(option) },
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                enabled = enabled,
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.onSurface
-                )
-            ) {
+            Button(onClick = { onSelect(option) }, modifier = Modifier.fillMaxWidth().height(56.dp), enabled = enabled, shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface, contentColor = MaterialTheme.colorScheme.onSurface)) {
                 Text(text = option, fontSize = 18.sp)
             }
         }
@@ -325,18 +261,9 @@ private fun MultipleChoiceOptions(options: List<String>, onSelectionChanged: (Li
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         options.forEach { option ->
             val isSelected = option in selected
-            OutlinedButton(
-                onClick = {
-                    selected = if (isSelected) selected - option else selected + option
-                    onSelectionChanged(selected.toList())
-                },
-                modifier = Modifier.fillMaxWidth().height(56.dp),
-                enabled = enabled,
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = if (isSelected) VasilisaBlue.copy(alpha = 0.1f) else Color.Transparent
-                )
-            ) {
+            OutlinedButton(onClick = { selected = if (isSelected) selected - option else selected + option; onSelectionChanged(selected.toList()) },
+                modifier = Modifier.fillMaxWidth().height(56.dp), enabled = enabled, shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.outlinedButtonColors(containerColor = if (isSelected) VasilisaBlue.copy(alpha = 0.1f) else Color.Transparent)) {
                 Text(text = option, fontSize = 18.sp)
             }
         }
@@ -347,21 +274,9 @@ private fun MultipleChoiceOptions(options: List<String>, onSelectionChanged: (Li
 private fun TextInputField(onSubmit: (String) -> Unit, enabled: Boolean) {
     var text by remember { mutableStateOf("") }
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        OutlinedTextField(
-            value = text,
-            onValueChange = { text = it },
-            enabled = enabled,
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Введи ответ...") },
-            singleLine = true
-        )
+        OutlinedTextField(value = text, onValueChange = { text = it }, enabled = enabled, modifier = Modifier.fillMaxWidth(), placeholder = { Text("Введи ответ...") }, singleLine = true)
         Spacer(Modifier.height(12.dp))
-        Button(
-            onClick = { onSubmit(text) },
-            enabled = enabled && text.isNotBlank(),
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
-        ) { Text("Проверить") }
+        Button(onClick = { onSubmit(text) }, enabled = enabled && text.isNotBlank(), modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(12.dp)) { Text("Проверить") }
     }
 }
 
@@ -406,20 +321,11 @@ private fun MorphemicAnalysisInput(onSubmit: (String) -> Unit, enabled: Boolean)
 
 @Composable
 private fun FeedbackCard(isCorrect: Boolean, explanation: String) {
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isCorrect) SuccessGreen.copy(alpha = 0.1f) else ErrorRed.copy(alpha = 0.1f)
-        )
-    ) {
+    Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = if (isCorrect) SuccessGreen.copy(alpha = 0.1f) else ErrorRed.copy(alpha = 0.1f))) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             EmojiText(emoji = if (isCorrect) Emoji.CHECK else Emoji.CROSS, fontSize = 28)
             Spacer(Modifier.width(12.dp))
-            Text(
-                text = if (isCorrect) "Правильно!" else "Неправильно",
-                fontWeight = FontWeight.Bold,
-                color = if (isCorrect) SuccessGreen else ErrorRed
-            )
+            Text(text = if (isCorrect) "Правильно!" else "Неправильно", fontWeight = FontWeight.Bold, color = if (isCorrect) SuccessGreen else ErrorRed)
             if (explanation.isNotBlank()) {
                 Spacer(Modifier.width(8.dp))
                 Text(text = explanation, style = MaterialTheme.typography.bodySmall, color = Color.DarkGray, maxLines = 3)
@@ -430,28 +336,13 @@ private fun FeedbackCard(isCorrect: Boolean, explanation: String) {
 
 @Composable
 private fun ActionButtons(isAnswered: Boolean, isLastQuestion: Boolean, onNext: () -> Unit, onHint: () -> Unit, hintAvailable: Boolean) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
+    Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
         if (hintAvailable) {
-            OutlinedButton(onClick = onHint, modifier = Modifier.fillMaxWidth()) {
-                Text("💡 Подсказка (10 💎)")
-            }
+            OutlinedButton(onClick = onHint, modifier = Modifier.fillMaxWidth()) { Text("💡 Подсказка (10 💎)") }
         }
-        Button(
-            onClick = onNext,
-            modifier = Modifier.fillMaxWidth().height(56.dp),
-            enabled = isAnswered,
-            shape = RoundedCornerShape(16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = VasilisaBlue)
-        ) {
-            Text(
-                text = if (isLastQuestion) "Завершить ${Emoji.CHECK}" else "Далее ${Emoji.FORWARD}",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold
-            )
+        Button(onClick = onNext, modifier = Modifier.fillMaxWidth().height(56.dp), enabled = isAnswered, shape = RoundedCornerShape(16.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = VasilisaBlue)) {
+            Text(text = if (isLastQuestion) "Завершить ${Emoji.CHECK}" else "Далее ${Emoji.FORWARD}", fontSize = 18.sp, fontWeight = FontWeight.Bold)
         }
     }
 }
