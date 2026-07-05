@@ -61,6 +61,9 @@ data class LessonEntity(
     @ColumnInfo(name = "instruction_text", defaultValue = "")
     val instructionText: String = "",
 
+    @ColumnInfo(name = "exercise_text_json", defaultValue = "{}")
+    val exerciseTextJson: String = "{}",
+
     @ColumnInfo(name = "difficulty", defaultValue = "1")
     val difficulty: Int = 1,
 
