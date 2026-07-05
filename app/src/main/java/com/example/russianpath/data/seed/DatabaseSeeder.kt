@@ -215,7 +215,9 @@ class DatabaseSeeder @Inject constructor(
         if (lessonDao.countByTopic("topic_5_1") > 0) { Log.d(TAG, "Lessons already seeded, skipping"); return }
         val list = loader.loadList<LessonEntity>(SeedConstants.LESSONS)
         val preparedList = list.map { lesson ->
-            if (lesson.primaryObjectiveId.isNullOrBlank()) lesson.copy(primaryObjectiveId = null) else lesson
+            lesson.copy(
+                primaryObjectiveId = if (lesson.primaryObjectiveId.isNullOrBlank()) null else lesson.primaryObjectiveId
+            )
         }
         val valid = preparedList.filter { it.id.isNotBlank() && it.topicId.isNotBlank() }
         if (valid.isNotEmpty()) { lessonDao.insertAll(valid); Log.d(TAG, "Seeded ${valid.size} lessons") }
@@ -226,7 +228,10 @@ class DatabaseSeeder @Inject constructor(
         if (questionDao.countByLesson("lesson_5_1_1") > 0) { Log.d(TAG, "Questions already seeded, skipping"); return }
         val list = loader.loadList<QuestionEntity>(SeedConstants.QUESTIONS)
         val preparedList = list.map { question ->
-            if (question.primarySkillId.isNullOrBlank()) question.copy(primarySkillId = null) else question
+            question.copy(
+                primarySkillId = if (question.primarySkillId.isNullOrBlank()) null else question.primarySkillId,
+                questionType = question.questionType.ifBlank { "single_choice" }
+            )
         }
         val valid = preparedList.filter { it.id.isNotBlank() && it.lessonId.isNotBlank() }
         if (valid.isNotEmpty()) { questionDao.insertAll(valid); Log.d(TAG, "Seeded ${valid.size} questions") }
