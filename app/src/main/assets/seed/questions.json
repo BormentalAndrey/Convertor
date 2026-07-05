@@ -3124,7 +3124,7 @@
     "external_id": "q_5_82_1_1",
     "lesson_id": "lesson_5_82_1",
     "primary_objective_id": "",
-    "lesson_type": "single_choice",
+    "question_type": "single_choice",
     "prompt_text": "Какое из слов имеет форму только множественного числа?",
     "prompt_audio_path": "",
     "prompt_image_path": "",
