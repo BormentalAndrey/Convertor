@@ -57,6 +57,7 @@ import com.example.russianpath.presentation.components.EmojiText
 import com.example.russianpath.presentation.theme.ErrorRed
 import com.example.russianpath.presentation.theme.SuccessGreen
 import com.example.russianpath.presentation.theme.VasilisaBlue
+import com.example.russianpath.presentation.theme.XpGold
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
