@@ -149,22 +149,6 @@ fun LessonScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // Текст упражнения для чтения (exercise_text_json)
-                    val exerciseText = lesson?.getExerciseText() ?: ""
-                    if (exerciseText.isNotBlank()) {
-                        Card(
-                            modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = VasilisaBlue.copy(alpha = 0.05f))
-                        ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                Text(text = "📖 Прочитайте текст", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = VasilisaBlue)
-                                Spacer(Modifier.height(8.dp))
-                                Text(text = exerciseText, style = MaterialTheme.typography.bodyMedium)
-                            }
-                        }
-                    }
-
                     // Инструкция к заданию (instruction_text)
                     val instructionText = lesson?.instructionText ?: ""
                     if (instructionText.isNotBlank()) {
@@ -177,6 +161,22 @@ fun LessonScreen(
                                 Text(text = "📝 Задание", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = SuccessGreen)
                                 Spacer(Modifier.height(8.dp))
                                 Text(text = instructionText, style = MaterialTheme.typography.bodyMedium)
+                            }
+                        }
+                    }
+
+                    // Текст упражнения для чтения (exercise_text_json)
+                    val exerciseText = lesson?.getExerciseText() ?: ""
+                    if (exerciseText.isNotBlank()) {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = VasilisaBlue.copy(alpha = 0.05f))
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(text = "📖 Прочитайте текст", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold, color = VasilisaBlue)
+                                Spacer(Modifier.height(8.dp))
+                                Text(text = exerciseText, style = MaterialTheme.typography.bodyMedium)
                             }
                         }
                     }
