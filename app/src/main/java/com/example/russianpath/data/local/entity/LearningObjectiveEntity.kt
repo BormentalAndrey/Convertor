@@ -1,3 +1,5 @@
+// app/src/main/java/com/example/russianpath/data/local/entity/LearningObjectiveEntity.kt
+
 package com.example.russianpath.data.local.entity
 
 import androidx.room.ColumnInfo
@@ -6,11 +8,6 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
-/**
- * Цели обучения внутри темы.
- * Пример: "Научиться различать приставки ПРЕ- и ПРИ- по значению".
- * Связаны с TopicEntity.
- */
 @Entity(
     tableName = "learning_objectives",
     foreignKeys = [
@@ -23,23 +20,10 @@ import androidx.room.PrimaryKey
         )
     ],
     indices = [
-        Index(
-            value = ["topic_id", "sort_order"],
-            name = "idx_objectives_topic_sort"
-        ),
-        Index(
-            value = ["external_id"],
-            name = "idx_objectives_external_id",
-            unique = true
-        ),
-        Index(
-            value = ["topic_id"],
-            name = "idx_objectives_topic_id"
-        ),
-        Index(
-            value = ["skill_code_id"],
-            name = "idx_objectives_skill_code"
-        )
+        Index(value = ["topic_id", "sort_order"], name = "idx_objectives_topic_sort"),
+        Index(value = ["external_id"], name = "idx_objectives_external_id", unique = true),
+        Index(value = ["topic_id"], name = "idx_objectives_topic_id"),
+        Index(value = ["skill_code_id"], name = "idx_objectives_skill_code")
     ]
 )
 data class LearningObjectiveEntity(
@@ -57,13 +41,13 @@ data class LearningObjectiveEntity(
     val skillCodeId: Int = 0,
 
     @ColumnInfo(name = "name", defaultValue = "")
-    val name: String,
+    val name: String = "",
 
     @ColumnInfo(name = "description", defaultValue = "")
     val description: String = "",
 
     @ColumnInfo(name = "sort_order", defaultValue = "0")
-    val sortOrder: Int,
+    val sortOrder: Int = 0,
 
     @ColumnInfo(name = "prerequisite_objective_ids_json", defaultValue = "[]")
     val prerequisiteObjectiveIdsJson: String = "[]",
