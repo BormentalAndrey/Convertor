@@ -214,13 +214,8 @@ class DatabaseSeeder @Inject constructor(
     private suspend fun seedLessons() {
         if (lessonDao.countByTopic("topic_5_1") > 0) { Log.d(TAG, "Lessons already seeded, skipping"); return }
         val list = loader.loadList<LessonEntity>(SeedConstants.LESSONS)
-        // Преобразуем пустые строки primaryObjectiveId в null для ForeignKey SET_NULL
         val preparedList = list.map { lesson ->
-            if (lesson.primaryObjectiveId.isNullOrBlank()) {
-                lesson.copy(primaryObjectiveId = null)
-            } else {
-                lesson
-            }
+            if (lesson.primaryObjectiveId.isNullOrBlank()) lesson.copy(primaryObjectiveId = null) else lesson
         }
         val valid = preparedList.filter { it.id.isNotBlank() && it.topicId.isNotBlank() }
         if (valid.isNotEmpty()) { lessonDao.insertAll(valid); Log.d(TAG, "Seeded ${valid.size} lessons") }
@@ -230,7 +225,10 @@ class DatabaseSeeder @Inject constructor(
     private suspend fun seedQuestions() {
         if (questionDao.countByLesson("lesson_5_1_1") > 0) { Log.d(TAG, "Questions already seeded, skipping"); return }
         val list = loader.loadList<QuestionEntity>(SeedConstants.QUESTIONS)
-        val valid = list.filter { it.id.isNotBlank() && it.lessonId.isNotBlank() }
+        val preparedList = list.map { question ->
+            if (question.primarySkillId.isNullOrBlank()) question.copy(primarySkillId = null) else question
+        }
+        val valid = preparedList.filter { it.id.isNotBlank() && it.lessonId.isNotBlank() }
         if (valid.isNotEmpty()) { questionDao.insertAll(valid); Log.d(TAG, "Seeded ${valid.size} questions") }
         else Log.w(TAG, "No valid questions found")
     }
