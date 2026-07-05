@@ -34,8 +34,8 @@ data class MicroSkillEntity(
     @ColumnInfo(name = "external_id", defaultValue = "")
     val externalId: String = "",
 
-    @ColumnInfo(name = "objective_id", defaultValue = "")
-    val objectiveId: String = "",
+    @ColumnInfo(name = "objective_id")
+    val objectiveId: String,
 
     @ColumnInfo(name = "skill_code_id", defaultValue = "0")
     val skillCodeId: Int = 0,
