@@ -1,9 +1,11 @@
+// app/src/main/java/com/example/russianpath/domain/model/Lesson.kt
+
 package com.example.russianpath.domain.model
 
 /**
  * Доменная модель урока.
  *
- * Представляет один урок внутри темы. Содержит теорию и набор вопросов.
+ * Представляет один урок внутри темы. Содержит теорию, текст упражнения и набор вопросов.
  */
 data class Lesson(
     /** Уникальный идентификатор урока. */
@@ -26,6 +28,9 @@ data class Lesson(
 
     /** Текст инструкции к уроку. */
     val instructionText: String = "",
+
+    /** Текст упражнения для чтения в формате JSON. */
+    val exerciseTextJson: String = "{}",
 
     /** Уровень сложности (1–5). */
     val difficulty: Int = 1,
@@ -76,28 +81,15 @@ data class Lesson(
     val attemptCount: Int = 0
 ) {
 
-    /**
-     * Вычисляет награду XP в зависимости от результата.
-     * При 100% правильных ответов добавляется бонус.
-     */
     fun calculateXpReward(scorePercent: Int): Int {
-        return if (scorePercent >= 100) {
-            xpBaseReward + xpPerfectBonus
-        } else {
-            (xpBaseReward * scorePercent / 100).coerceAtLeast(1)
-        }
+        return if (scorePercent >= 100) xpBaseReward + xpPerfectBonus
+        else (xpBaseReward * scorePercent / 100).coerceAtLeast(1)
     }
 
-    /**
-     * Определяет, пройден ли урок на основе процента правильных ответов.
-     */
     fun isPassed(scorePercent: Int): Boolean {
         return scorePercent >= passingScorePercent
     }
 
-    /**
-     * Вычисляет количество звёзд на основе процента правильных ответов.
-     */
     fun calculateStars(scorePercent: Int): Int {
         return when {
             scorePercent >= 95 -> maxStars
@@ -106,34 +98,31 @@ data class Lesson(
             else -> 0
         }
     }
+
+    /** Извлекает текст упражнения из JSON */
+    fun getExerciseText(): String {
+        if (exerciseTextJson == "{}" || exerciseTextJson.isBlank()) return ""
+        return try {
+            com.google.gson.Gson().fromJson(exerciseTextJson, Map::class.java)?.get("text") as? String ?: ""
+        } catch (_: Exception) { "" }
+    }
+
+    /** Извлекает текст теории из JSON */
+    fun getTheoryText(): String {
+        if (theoryJson == "{}" || theoryJson.isBlank()) return ""
+        return try {
+            com.google.gson.Gson().fromJson(theoryJson, Map::class.java)?.get("text") as? String ?: ""
+        } catch (_: Exception) { "" }
+    }
 }
 
-/**
- * Тип урока.
- */
 enum class LessonType {
-    /** Обычный урок с упражнениями. */
-    PRACTICE,
-
-    /** Урок с теоретическим материалом. */
-    THEORY,
-
-    /** Тест для проверки знаний. */
-    TEST,
-
-    /** Диагностический тест (входной/промежуточный/итоговый). */
-    DIAGNOSTIC,
-
-    /** Бонусный урок (повышенная награда). */
-    BONUS;
+    PRACTICE, THEORY, TEST, DIAGNOSTIC, BONUS;
 
     companion object {
         fun fromString(value: String): LessonType {
-            return try {
-                valueOf(value.uppercase())
-            } catch (_: IllegalArgumentException) {
-                PRACTICE
-            }
+            return try { valueOf(value.uppercase()) }
+            catch (_: IllegalArgumentException) { PRACTICE }
         }
     }
 }
