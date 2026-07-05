@@ -65,9 +65,7 @@ class LessonRepository @Inject constructor(
     }
 
     suspend fun getLessonCountByTopic(topicId: String): Int {
-        return withContext(Dispatchers.IO) {
-            lessonDao.countByTopic(topicId)
-        }
+        return withContext(Dispatchers.IO) { lessonDao.countByTopic(topicId) }
     }
 
     suspend fun enrichWithProgress(lesson: Lesson): Lesson {
@@ -163,6 +161,7 @@ class LessonRepository @Inject constructor(
             title = title,
             description = description,
             instructionText = instructionText,
+            exerciseTextJson = exerciseTextJson,
             difficulty = difficulty,
             sortOrder = sortOrder,
             theoryJson = theoryJson,
