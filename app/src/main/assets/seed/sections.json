@@ -143,4 +143,53 @@
     "updated_at": 0,
     "server_updated_at": 0
   }
-]
+[
+  {
+    "id": "section_5_morphology",
+    "external_id": "section_5_morphology",
+    "grade_id": "5",
+    "name": "Морфология. Орфография. Культура речи",
+    "display_name": "Морфология. Орфография. Культура речи",
+    "description": "Морфология как раздел лингвистики. Имя существительное, имя прилагательное, глагол как части речи. Правописание гласных в суффиксах и окончаниях.",
+    "sort_order": 10,
+    "icon_name": "ic_extension",
+    "color_hex": "#FF0277BD",
+    "is_active": true,
+    "schema_version": 1,
+    "created_at": 0,
+    "updated_at": 0,
+    "server_updated_at": 0
+  },
+  {
+    "id": "section_5_syntax",
+    "external_id": "section_5_syntax",
+    "grade_id": "5",
+    "name": "Синтаксис. Пунктуация. Культура речи",
+    "display_name": "Синтаксис. Пунктуация. Культура речи",
+    "description": "Понятие о синтаксисе и пунктуации. Словосочетание и предложение. Главные и второстепенные члены предложения. Простые и сложные предложения. Обращение. Прямая речь. Письмо.",
+    "sort_order": 11,
+    "icon_name": "ic_chat",
+    "color_hex": "#FFE65100",
+    "is_active": true,
+    "schema_version": 1,
+    "created_at": 0,
+    "updated_at": 0,
+    "server_updated_at": 0
+  },
+  {
+    "id": "section_5_revision",
+    "external_id": "section_5_revision",
+    "grade_id": "5",
+    "name": "Повторение и систематизация изученного",
+    "display_name": "Повторение и систематизация изученного",
+    "description": "Разделы науки о языке. Орфограммы в приставках, корнях, окончаниях. Употребление букв Ъ и Ь. Монолог, диалог, полилог. Знаки препинания в простых и сложных предложениях.",
+    "sort_order": 12,
+    "icon_name": "ic_replay",
+    "color_hex": "#FF2E7D32",
+    "is_active": true,
+    "schema_version": 1,
+    "created_at": 0,
+    "updated_at": 0,
+    "server_updated_at": 0
+  }
+
