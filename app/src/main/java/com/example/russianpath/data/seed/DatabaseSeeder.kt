@@ -172,9 +172,6 @@ class DatabaseSeeder @Inject constructor(
     private suspend fun seedObjectives() {
         val list = loader.loadList<LearningObjectiveEntity>(SeedConstants.OBJECTIVES)
         Log.d(TAG, "Loaded ${list.size} objectives from JSON")
-        list.forEach { obj ->
-            Log.d(TAG, "Objective: id='${obj.id}', topicId='${obj.topicId}', name='${obj.name}'")
-        }
         val valid = list.filter { it.id.isNotBlank() && it.topicId.isNotBlank() }
         Log.d(TAG, "Valid objectives after filter: ${valid.size}")
         if (valid.isNotEmpty()) { objectiveDao.insertAll(valid); Log.d(TAG, "Seeded ${valid.size} objectives") }
@@ -184,9 +181,6 @@ class DatabaseSeeder @Inject constructor(
     private suspend fun seedMicroSkills() {
         val list = loader.loadList<MicroSkillEntity>(SeedConstants.MICRO_SKILLS)
         Log.d(TAG, "Loaded ${list.size} micro_skills from JSON")
-        list.forEach { skill ->
-            Log.d(TAG, "Skill: id='${skill.id}', name='${skill.name}', objectiveId='${skill.objectiveId}', description='${skill.description}'")
-        }
         val valid = list.filter { it.id.isNotBlank() && it.objectiveId.isNotBlank() }
         Log.d(TAG, "Valid micro_skills after filter: ${valid.size}")
         if (valid.isNotEmpty()) {
@@ -220,7 +214,15 @@ class DatabaseSeeder @Inject constructor(
     private suspend fun seedLessons() {
         if (lessonDao.countByTopic("topic_5_1") > 0) { Log.d(TAG, "Lessons already seeded, skipping"); return }
         val list = loader.loadList<LessonEntity>(SeedConstants.LESSONS)
-        val valid = list.filter { it.id.isNotBlank() && it.topicId.isNotBlank() }
+        // Преобразуем пустые строки primaryObjectiveId в null для ForeignKey SET_NULL
+        val preparedList = list.map { lesson ->
+            if (lesson.primaryObjectiveId.isNullOrBlank()) {
+                lesson.copy(primaryObjectiveId = null)
+            } else {
+                lesson
+            }
+        }
+        val valid = preparedList.filter { it.id.isNotBlank() && it.topicId.isNotBlank() }
         if (valid.isNotEmpty()) { lessonDao.insertAll(valid); Log.d(TAG, "Seeded ${valid.size} lessons") }
         else Log.w(TAG, "No valid lessons found")
     }
