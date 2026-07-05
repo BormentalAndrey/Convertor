@@ -22,6 +22,7 @@
     "external_id": "skill_5_1_2",
     "objective_id": "obj_5_1_1",
     "skill_code_id": 22,
+    "parent_micro_skill_id": "",
     "name": "Нахождение антонимов в тексте",
     "description": "Уметь находить слова, противоположные по значению",
     "sort_order": 2,
