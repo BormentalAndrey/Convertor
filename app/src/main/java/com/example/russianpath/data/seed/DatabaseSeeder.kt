@@ -86,7 +86,6 @@ class DatabaseSeeder @Inject constructor(
 
     private suspend fun performFullSeed(manifest: SeedManifest) {
         Log.d(TAG, "Performing full seed...")
-
         val enabledModules = manifest.getEnabledModules()
         validateRequiredFiles()
 
@@ -110,7 +109,6 @@ class DatabaseSeeder @Inject constructor(
 
     private suspend fun performIncrementalUpdate(manifest: SeedManifest) {
         Log.d(TAG, "Performing incremental update...")
-
         for (module in manifest.getEnabledModules()) {
             val savedVersion = versionManager.getModuleVersion(module.id)
             if (savedVersion < manifest.contentVersion) {
@@ -119,7 +117,6 @@ class DatabaseSeeder @Inject constructor(
                 versionManager.saveModuleVersion(module.id, manifest.contentVersion)
             }
         }
-
         Log.d(TAG, "Incremental update finished")
     }
 
@@ -140,18 +137,10 @@ class DatabaseSeeder @Inject constructor(
     }
 
     private fun validateRequiredFiles() {
-        val requiredFiles = listOf(
-            SeedConstants.GRADES,
-            SeedConstants.SECTIONS,
-            SeedConstants.TOPICS,
-            SeedConstants.LESSONS,
-            SeedConstants.QUESTIONS
-        )
+        val requiredFiles = listOf(SeedConstants.GRADES, SeedConstants.SECTIONS, SeedConstants.TOPICS, SeedConstants.LESSONS, SeedConstants.QUESTIONS)
         for (file in requiredFiles) {
             if (!loader.fileExists(file.removePrefix("seed/"))) {
-                throw ContentLoadException(
-                    "Required seed file not found: $file. All required files must be present in assets/seed/ for initial setup."
-                )
+                throw ContentLoadException("Required seed file not found: $file.")
             }
         }
     }
@@ -182,20 +171,38 @@ class DatabaseSeeder @Inject constructor(
 
     private suspend fun seedObjectives() {
         val list = loader.loadList<LearningObjectiveEntity>(SeedConstants.OBJECTIVES)
+        Log.d(TAG, "Loaded ${list.size} objectives from JSON")
+        list.forEach { obj ->
+            Log.d(TAG, "Objective: id='${obj.id}', topicId='${obj.topicId}', name='${obj.name}'")
+        }
         val valid = list.filter { it.id.isNotBlank() && it.topicId.isNotBlank() }
+        Log.d(TAG, "Valid objectives after filter: ${valid.size}")
         if (valid.isNotEmpty()) { objectiveDao.insertAll(valid); Log.d(TAG, "Seeded ${valid.size} objectives") }
         else Log.d(TAG, "No objectives found, skipping (optional)")
     }
 
     private suspend fun seedMicroSkills() {
         val list = loader.loadList<MicroSkillEntity>(SeedConstants.MICRO_SKILLS)
+        Log.d(TAG, "Loaded ${list.size} micro_skills from JSON")
+        list.forEach { skill ->
+            Log.d(TAG, "Skill: id='${skill.id}', name='${skill.name}', objectiveId='${skill.objectiveId}', description='${skill.description}'")
+        }
         val valid = list.filter { it.id.isNotBlank() && it.objectiveId.isNotBlank() }
-        if (valid.isNotEmpty()) { microSkillDao.insertAll(valid); Log.d(TAG, "Seeded ${valid.size} micro_skills") }
-        else Log.d(TAG, "No micro_skills found, skipping (optional)")
+        Log.d(TAG, "Valid micro_skills after filter: ${valid.size}")
+        if (valid.isNotEmpty()) {
+            try {
+                microSkillDao.insertAll(valid)
+                Log.d(TAG, "Seeded ${valid.size} micro_skills")
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to seed micro_skills: ${e.message}", e)
+            }
+        } else {
+            Log.d(TAG, "No valid micro_skills found, skipping")
+        }
     }
 
     private suspend fun seedRules() {
-        if (ruleDao.countByTopic("topic_5_phonetics_2") > 0) { Log.d(TAG, "Rules already seeded, skipping"); return }
+        if (ruleDao.countByTopic("topic_5_4") > 0) { Log.d(TAG, "Rules already seeded, skipping"); return }
         val list = loader.loadList<RuleEntity>(SeedConstants.RULES)
         val valid = list.filter { it.id.isNotBlank() }
         if (valid.isNotEmpty()) { ruleDao.insertAll(valid); Log.d(TAG, "Seeded ${valid.size} rules") }
@@ -211,7 +218,7 @@ class DatabaseSeeder @Inject constructor(
     }
 
     private suspend fun seedLessons() {
-        if (lessonDao.countByTopic("topic_5_phonetics_1") > 0) { Log.d(TAG, "Lessons already seeded, skipping"); return }
+        if (lessonDao.countByTopic("topic_5_1") > 0) { Log.d(TAG, "Lessons already seeded, skipping"); return }
         val list = loader.loadList<LessonEntity>(SeedConstants.LESSONS)
         val valid = list.filter { it.id.isNotBlank() && it.topicId.isNotBlank() }
         if (valid.isNotEmpty()) { lessonDao.insertAll(valid); Log.d(TAG, "Seeded ${valid.size} lessons") }
@@ -219,7 +226,7 @@ class DatabaseSeeder @Inject constructor(
     }
 
     private suspend fun seedQuestions() {
-        if (questionDao.countByLesson("lesson_5_phonetics_1_1") > 0) { Log.d(TAG, "Questions already seeded, skipping"); return }
+        if (questionDao.countByLesson("lesson_5_1_1") > 0) { Log.d(TAG, "Questions already seeded, skipping"); return }
         val list = loader.loadList<QuestionEntity>(SeedConstants.QUESTIONS)
         val valid = list.filter { it.id.isNotBlank() && it.lessonId.isNotBlank() }
         if (valid.isNotEmpty()) { questionDao.insertAll(valid); Log.d(TAG, "Seeded ${valid.size} questions") }
@@ -254,13 +261,6 @@ class DatabaseSeeder @Inject constructor(
 
     suspend fun forceReseed() {
         Log.w(TAG, "Force reseeding all content...")
-        performFullSeed(
-            SeedManifest(
-                schemaVersion = Int.MAX_VALUE,
-                contentVersion = Int.MAX_VALUE,
-                generated = "forced",
-                modules = emptyList()
-            )
-        )
+        performFullSeed(SeedManifest(schemaVersion = Int.MAX_VALUE, contentVersion = Int.MAX_VALUE, generated = "forced", modules = emptyList()))
     }
 }
