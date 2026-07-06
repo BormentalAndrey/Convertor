@@ -1,3 +1,5 @@
+// app/src/main/assets/seed/grades.json
+
 [
   {
     "id": "5",
@@ -17,9 +19,35 @@
     "external_id": "grade_6",
     "name": "6 класс",
     "display_name": "6 класс",
-    "description": "Морфология. Имя существительное. Имя прилагательное. Глагол.",
+    "description": "Морфология. Имя существительное. Имя прилагательное. Имя числительное. Местоимение. Глагол.",
     "sort_order": 6,
-    "is_active": false,
+    "is_active": true,
+    "schema_version": 1,
+    "created_at": 0,
+    "updated_at": 0,
+    "server_updated_at": 0
+  },
+  {
+    "id": "7",
+    "external_id": "grade_7",
+    "name": "7 класс",
+    "display_name": "7 класс",
+    "description": "Морфология и орфография. Причастие. Деепричастие. Наречие. Служебные части речи.",
+    "sort_order": 7,
+    "is_active": true,
+    "schema_version": 1,
+    "created_at": 0,
+    "updated_at": 0,
+    "server_updated_at": 0
+  },
+  {
+    "id": "8",
+    "external_id": "grade_8",
+    "name": "8 класс",
+    "display_name": "8 класс",
+    "description": "Синтаксис и пунктуация. Словосочетание. Простое предложение. Односоставные предложения. Обращение. Вводные слова.",
+    "sort_order": 8,
+    "is_active": true,
     "schema_version": 1,
     "created_at": 0,
     "updated_at": 0,
