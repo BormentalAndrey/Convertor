@@ -8310,8 +8310,8 @@
     "server_updated_at": 0
   },
   {
-    "id": "q_7_2_1_1",
-    "external_id": "q_7_2_1_1",
+    "id": "q_7_2_2_1",
+    "external_id": "q_7_2_2_1",
     "lesson_id": "lesson_7_2_2",
     "primary_skill_id": "",
     "question_type": "single_choice",
@@ -8340,8 +8340,8 @@
     "server_updated_at": 0
   },
   {
-    "id": "q_7_2_1_2",
-    "external_id": "q_7_2_1_2",
+    "id": "q_7_2_2_2",
+    "external_id": "q_7_2_2_2",
     "lesson_id": "lesson_7_2_2",
     "primary_skill_id": "",
     "question_type": "single_choice",
