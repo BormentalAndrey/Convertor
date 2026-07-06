@@ -64,29 +64,20 @@ class DatabaseSeeder @Inject constructor(
         val savedSchemaVersion = versionManager.getSchemaVersion()
         val savedContentVersion = versionManager.getContentVersion()
 
-        val needsSchemaMigration = manifest.requiresSchemaMigration(savedSchemaVersion)
-        val needsContentUpdate = manifest.requiresContentUpdate(savedContentVersion)
-
-        if (!needsSchemaMigration && !needsContentUpdate) {
+        if (!manifest.requiresSchemaMigration(savedSchemaVersion) && !manifest.requiresContentUpdate(savedContentVersion)) {
             Log.d(TAG, "Content is up to date. Schema: $savedSchemaVersion, Content: $savedContentVersion")
             return
         }
 
-        if (needsSchemaMigration) {
-            Log.d(TAG, "Schema migration required: $savedSchemaVersion → ${manifest.schemaVersion}")
-            performFullSeed(manifest)
-        } else {
-            Log.d(TAG, "Content update required: $savedContentVersion → ${manifest.contentVersion}")
-            performIncrementalUpdate(manifest)
-        }
-
+        // Всегда делаем полный сид при несовпадении версий
+        Log.d(TAG, "Schema or content version mismatch. Forcing full seed.")
+        performFullSeed(manifest)
         versionManager.update(manifest.schemaVersion, manifest.contentVersion)
         Log.d(TAG, "Seed completed. Schema: ${manifest.schemaVersion}, Content: ${manifest.contentVersion}")
     }
 
     private suspend fun performFullSeed(manifest: SeedManifest) {
         Log.d(TAG, "Performing full seed...")
-        val enabledModules = manifest.getEnabledModules()
         validateRequiredFiles()
 
         seedGrades()
@@ -100,40 +91,11 @@ class DatabaseSeeder @Inject constructor(
         seedQuestions()
         seedUserProgress()
 
-        if (enabledModules.any { it.id == "lesson_completions" }) {
+        if (manifest.getEnabledModules().any { it.id == "lesson_completions" }) {
             seedLessonCompletions()
         }
 
         Log.d(TAG, "Full seed finished successfully")
-    }
-
-    private suspend fun performIncrementalUpdate(manifest: SeedManifest) {
-        Log.d(TAG, "Performing incremental update...")
-        for (module in manifest.getEnabledModules()) {
-            val savedVersion = versionManager.getModuleVersion(module.id)
-            if (savedVersion < manifest.contentVersion) {
-                Log.d(TAG, "Updating module: ${module.id} (v$savedVersion → v${manifest.contentVersion})")
-                seedModuleByName(module.id, module.archive)
-                versionManager.saveModuleVersion(module.id, manifest.contentVersion)
-            }
-        }
-        Log.d(TAG, "Incremental update finished")
-    }
-
-    private suspend fun seedModuleByName(moduleId: String, fileName: String) {
-        when (moduleId) {
-            "grades" -> seedGrades()
-            "sections" -> seedSections()
-            "topics" -> seedTopics()
-            "objectives" -> seedObjectives()
-            "micro_skills" -> seedMicroSkills()
-            "rules" -> seedRules()
-            "dictionary" -> seedDictionary()
-            "lessons" -> seedLessons()
-            "questions" -> seedQuestions()
-            "lesson_completions" -> seedLessonCompletions()
-            else -> Log.w(TAG, "Unknown module: $moduleId")
-        }
     }
 
     private fun validateRequiredFiles() {
@@ -146,7 +108,6 @@ class DatabaseSeeder @Inject constructor(
     }
 
     private suspend fun seedGrades() {
-        if (gradeDao.count() > 0) { Log.d(TAG, "Grades already seeded, skipping"); return }
         val list = loader.loadList<GradeEntity>(SeedConstants.GRADES)
         val valid = list.filter { it.id.isNotBlank() }
         if (valid.isNotEmpty()) { gradeDao.insertAll(valid); Log.d(TAG, "Seeded ${valid.size} grades") }
@@ -154,7 +115,6 @@ class DatabaseSeeder @Inject constructor(
     }
 
     private suspend fun seedSections() {
-        if (sectionDao.countByGrade("5") > 0) { Log.d(TAG, "Sections already seeded, skipping"); return }
         val list = loader.loadList<SectionEntity>(SeedConstants.SECTIONS)
         val valid = list.filter { it.id.isNotBlank() && it.gradeId.isNotBlank() }
         if (valid.isNotEmpty()) { sectionDao.insertAll(valid); Log.d(TAG, "Seeded ${valid.size} sections") }
@@ -162,7 +122,6 @@ class DatabaseSeeder @Inject constructor(
     }
 
     private suspend fun seedTopics() {
-        if (topicDao.countByGrade("5") > 0) { Log.d(TAG, "Topics already seeded, skipping"); return }
         val list = loader.loadList<TopicEntity>(SeedConstants.TOPICS)
         val valid = list.filter { it.id.isNotBlank() && it.sectionId.isNotBlank() }
         if (valid.isNotEmpty()) { topicDao.insertAll(valid); Log.d(TAG, "Seeded ${valid.size} topics") }
@@ -171,32 +130,21 @@ class DatabaseSeeder @Inject constructor(
 
     private suspend fun seedObjectives() {
         val list = loader.loadList<LearningObjectiveEntity>(SeedConstants.OBJECTIVES)
-        Log.d(TAG, "Loaded ${list.size} objectives from JSON")
         val valid = list.filter { it.id.isNotBlank() && it.topicId.isNotBlank() }
-        Log.d(TAG, "Valid objectives after filter: ${valid.size}")
         if (valid.isNotEmpty()) { objectiveDao.insertAll(valid); Log.d(TAG, "Seeded ${valid.size} objectives") }
         else Log.d(TAG, "No objectives found, skipping (optional)")
     }
 
     private suspend fun seedMicroSkills() {
         val list = loader.loadList<MicroSkillEntity>(SeedConstants.MICRO_SKILLS)
-        Log.d(TAG, "Loaded ${list.size} micro_skills from JSON")
         val valid = list.filter { it.id.isNotBlank() && it.objectiveId.isNotBlank() }
-        Log.d(TAG, "Valid micro_skills after filter: ${valid.size}")
         if (valid.isNotEmpty()) {
-            try {
-                microSkillDao.insertAll(valid)
-                Log.d(TAG, "Seeded ${valid.size} micro_skills")
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to seed micro_skills: ${e.message}", e)
-            }
-        } else {
-            Log.d(TAG, "No valid micro_skills found, skipping")
-        }
+            try { microSkillDao.insertAll(valid); Log.d(TAG, "Seeded ${valid.size} micro_skills") }
+            catch (e: Exception) { Log.e(TAG, "Failed to seed micro_skills: ${e.message}", e) }
+        } else Log.d(TAG, "No valid micro_skills found, skipping")
     }
 
     private suspend fun seedRules() {
-        if (ruleDao.countByTopic("topic_5_4") > 0) { Log.d(TAG, "Rules already seeded, skipping"); return }
         val list = loader.loadList<RuleEntity>(SeedConstants.RULES)
         val valid = list.filter { it.id.isNotBlank() }
         if (valid.isNotEmpty()) { ruleDao.insertAll(valid); Log.d(TAG, "Seeded ${valid.size} rules") }
@@ -204,7 +152,6 @@ class DatabaseSeeder @Inject constructor(
     }
 
     private suspend fun seedDictionary() {
-        if (dictionaryDao.count() > 0) { Log.d(TAG, "Dictionary already seeded, skipping"); return }
         val list = loader.loadList<DictionaryWordEntity>(SeedConstants.DICTIONARY)
         val valid = list.filter { it.id.isNotBlank() && it.normalized.isNotBlank() }
         if (valid.isNotEmpty()) { dictionaryDao.insertAll(valid); Log.d(TAG, "Seeded ${valid.size} dictionary words") }
@@ -212,47 +159,25 @@ class DatabaseSeeder @Inject constructor(
     }
 
     private suspend fun seedLessons() {
-        if (lessonDao.countByTopic("topic_5_1") > 0) { Log.d(TAG, "Lessons already seeded, skipping"); return }
         val list = loader.loadList<LessonEntity>(SeedConstants.LESSONS)
-        val preparedList = list.map { lesson ->
-            lesson.copy(
-                primaryObjectiveId = if (lesson.primaryObjectiveId.isNullOrBlank()) null else lesson.primaryObjectiveId
-            )
-        }
-        val valid = preparedList.filter { it.id.isNotBlank() && it.topicId.isNotBlank() }
+        val prepared = list.map { it.copy(primaryObjectiveId = if (it.primaryObjectiveId.isNullOrBlank()) null else it.primaryObjectiveId) }
+        val valid = prepared.filter { it.id.isNotBlank() && it.topicId.isNotBlank() }
         if (valid.isNotEmpty()) { lessonDao.insertAll(valid); Log.d(TAG, "Seeded ${valid.size} lessons") }
         else Log.w(TAG, "No valid lessons found")
     }
 
     private suspend fun seedQuestions() {
-        if (questionDao.countByLesson("lesson_5_1_1") > 0) { Log.d(TAG, "Questions already seeded, skipping"); return }
         val list = loader.loadList<QuestionEntity>(SeedConstants.QUESTIONS)
-        val preparedList = list.map { question ->
-            question.copy(
-                primarySkillId = if (question.primarySkillId.isNullOrBlank()) null else question.primarySkillId,
-                questionType = question.questionType.ifBlank { "single_choice" }
-            )
-        }
-        val valid = preparedList.filter { it.id.isNotBlank() && it.lessonId.isNotBlank() }
+        val prepared = list.map { it.copy(primarySkillId = if (it.primarySkillId.isNullOrBlank()) null else it.primarySkillId, questionType = it.questionType.ifBlank { "single_choice" }) }
+        val valid = prepared.filter { it.id.isNotBlank() && it.lessonId.isNotBlank() }
         if (valid.isNotEmpty()) { questionDao.insertAll(valid); Log.d(TAG, "Seeded ${valid.size} questions") }
         else Log.w(TAG, "No valid questions found")
     }
 
     private suspend fun seedUserProgress() {
-        val existing = userProgressDao.getUserProgress()
-        if (existing != null) { Log.d(TAG, "UserProgress already exists, skipping"); return }
+        if (userProgressDao.getUserProgress() != null) { Log.d(TAG, "UserProgress already exists, skipping"); return }
         val now = System.currentTimeMillis()
-        userProgressDao.upsertProgress(
-            UserProgressEntity(
-                id = 1, totalXp = 0, currentLevel = 1, xpToNextLevel = 100,
-                currentStreak = 0, longestStreak = 0, lastActiveDate = now, streakStartDate = 0,
-                gemsBalance = 50, livesCount = 5, maxLives = 5, lastLifeRefillTime = now,
-                totalLessonsCompleted = 0, totalMistakesCount = 0, totalTimeSpentSeconds = 0,
-                totalPerfectLessons = 0, totalDaysActive = 0,
-                currentGradeId = "", currentTopicId = "", onboardingCompleted = false,
-                lastSyncTime = 0, schemaVersion = 1, createdAt = now, updatedAt = now
-            )
-        )
+        userProgressDao.upsertProgress(UserProgressEntity(id = 1, totalXp = 0, currentLevel = 1, xpToNextLevel = 100, currentStreak = 0, longestStreak = 0, lastActiveDate = now, streakStartDate = 0, gemsBalance = 50, livesCount = 5, maxLives = 5, lastLifeRefillTime = now, totalLessonsCompleted = 0, totalMistakesCount = 0, totalTimeSpentSeconds = 0, totalPerfectLessons = 0, totalDaysActive = 0, currentGradeId = "", currentTopicId = "", onboardingCompleted = false, lastSyncTime = 0, schemaVersion = 1, createdAt = now, updatedAt = now))
         Log.d(TAG, "UserProgress initialized")
     }
 
