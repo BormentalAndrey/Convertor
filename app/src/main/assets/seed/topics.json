@@ -5132,7 +5132,7 @@
     "is_active": true,
     "difficulty_level": 2,
     "estimated_minutes": 45,
-    "prerequisite_topic_ids_json": "[\"topic_6_165\"]",
+    "prerequisite_topic_ids_json": "[\"topic_8_30\"]",
     "schema_version": 1,
     "content_hash": "",
     "created_at": 0,
