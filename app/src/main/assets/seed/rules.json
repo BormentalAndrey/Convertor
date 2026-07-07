@@ -3037,9 +3037,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_7_2",
@@ -3063,9 +3063,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_7_3",
@@ -3089,9 +3089,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_7_4",
@@ -3115,9 +3115,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_7_5",
@@ -3130,7 +3130,7 @@
     "rule_text": "Две буквы Н пишутся в суффиксах полных страдательных причастий прошедшего времени, образованных от глаголов совершенного вида (решённая) или несовершенного вида при наличии приставки (закрученная), суффикса -ова-/-ева- (маринованные) или зависимых слов (сеянная через сито). Одна буква Н пишется в кратких страдательных причастиях (ошибка исправлена).",
     "examples_json": "[\"закрученная нитка\", \"маринованные огурцы\", \"сеянная через сито мука\", \"решённая задача\", \"крашеный пол\", \"ошибка исправлена\"]",
     "counterexamples_json": "[\"крашеный (несов. вид, нет завис. слов)\", \"раненый боец (искл.)\"]",
-    "exceptions_json": "[\"раненый\", \"желанный\", \"медленный\", \"невиданный\", \"негаданный\" и др.]",
+    "exceptions_json": "[\"раненый\", \"желанный\", \"медленный\", \"невиданный\", \"негаданный\"]",
     "rule_category": "orthography",
     "difficulty_level": 4,
     "sort_order": 5,
@@ -3141,9 +3141,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_7_6",
@@ -3167,9 +3167,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_7_7",
@@ -3193,9 +3193,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_7_8",
@@ -3219,9 +3219,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_7_9",
@@ -3245,9 +3245,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_7_10",
@@ -3271,9 +3271,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_7_11",
@@ -3297,9 +3297,87 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
+  },
+  {
+    "id": "rule_7_12",
+    "external_id": "rule_7_12",
+    "topic_id": "topic_7_9",
+    "grade_id": "7",
+    "title": "Наречие как часть речи",
+    "short_description": "Наречие — самостоятельная неизменяемая часть речи, обозначающая признак действия.",
+    "full_description": "Наречия присоединяются к глаголам, причастиям, деепричастиям, существительным, прилагательным и другим наречиям. Наречия не изменяются. В предложении обычно бывают обстоятельствами, реже — определениями или сказуемыми.",
+    "rule_text": "Наречие — самостоятельная часть речи, которая обычно обозначает признак действия. Наречия отвечают на вопросы где? куда? зачем? как? когда? и др. Наречия не изменяются. В предложении чаще всего бывают обстоятельствами.",
+    "examples_json": "[\"Солнце невысоко поднялось над горизонтом.\", \"Аптека находится в доме напротив.\", \"В комнате душно.\"]",
+    "counterexamples_json": "[]",
+    "exceptions_json": "[]",
+    "rule_category": "morphology",
+    "difficulty_level": 2,
+    "sort_order": 12,
+    "icon_name": "ic_rule",
+    "related_rule_ids_json": "[]",
+    "mnemonic_text": "Где? Куда? Когда? Зачем? Как? — наречие ответит, не склоняясь никак.",
+    "video_url": "",
+    "image_path": "",
+    "is_active": true,
+    "schema_version": 1,
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
+  },
+  {
+    "id": "rule_7_13",
+    "external_id": "rule_7_13",
+    "topic_id": "topic_7_11",
+    "grade_id": "7",
+    "title": "Мягкий знак после шипящих на конце наречий",
+    "short_description": "После букв Ш и Ч на конце наречий пишется Ь. Исключение: настежь (на Ж).",
+    "full_description": "После букв ш и ч на конце наречий пишется мягкий знак. После буквы ж мягкий знак пишется только в слове настежь. В словах замуж, невтерпёж мягкий знак не пишется.",
+    "rule_text": "После букв ш и ч на конце наречий пишется мягкий знак: вскачь, сплошь. После буквы ж мягкий знак пишется только в слове настежь.",
+    "examples_json": "[\"вскачь\", \"сплошь\", \"настежь (искл.)\", \"замуж (без Ь)\", \"невтерпёж (без Ь)\"]",
+    "counterexamples_json": "[]",
+    "exceptions_json": "[\"уж\", \"замуж\", \"невтерпёж\"]",
+    "rule_category": "orthography",
+    "difficulty_level": 2,
+    "sort_order": 13,
+    "icon_name": "ic_rule",
+    "related_rule_ids_json": "[]",
+    "mnemonic_text": "Наречие на Ш и Ч — мягкий знак не увлечь!",
+    "video_url": "",
+    "image_path": "",
+    "is_active": true,
+    "schema_version": 1,
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
+  },
+  {
+    "id": "rule_7_14",
+    "external_id": "rule_7_14",
+    "topic_id": "topic_7_13",
+    "grade_id": "7",
+    "title": "Частица как часть речи. Разряды частиц.",
+    "short_description": "Частица — служебная часть речи, вносящая оттенки значения или образующая наклонения глагола.",
+    "full_description": "Частицы делятся на формообразующие (бы, пусть, давай), отрицательные (не, ни) и модальные (вопрос, восклицание, указание, сомнение, уточнение, усиление, смягчение).",
+    "rule_text": "Частица — служебная часть речи, которая вносит различные оттенки значения в предложение или служит для образования наклонений глагола. По значению частицы делятся на формообразующие, отрицательные и модальные.",
+    "examples_json": "[\"Пусть мальчики встретят артистов.\", \"Не бывать этому.\", \"Кругом ни деревца.\", \"Что за прелесть эти сказки!\", \"Именно он был чемпионом.\"]",
+    "counterexamples_json": "[]",
+    "exceptions_json": "[]",
+    "rule_category": "morphology",
+    "difficulty_level": 2,
+    "sort_order": 14,
+    "icon_name": "ic_rule",
+    "related_rule_ids_json": "[]",
+    "mnemonic_text": "Частица — служебное слово, для оттенков всегда готово.",
+    "video_url": "",
+    "image_path": "",
+    "is_active": true,
+    "schema_version": 1,
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_8_1",
