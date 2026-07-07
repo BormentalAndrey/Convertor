@@ -702,5 +702,53 @@
     "created_at": 1710352800,
     "updated_at": 1710352800,
     "server_updated_at": 1710352800
+  },
+  {
+    "id": "section_9-oge_syntax_punctuation",
+    "external_id": "section_9-oge_syntax_punctuation",
+    "grade_id": "9-oge",
+    "name": "Синтаксис и пунктуация",
+    "display_name": "Синтаксис и пунктуационный анализ",
+    "description": "Раздел посвящён синтаксическому анализу словосочетания, предложения и текста, а также применению правил пунктуации в соответствии с заданиями 2-5 ОГЭ.",
+    "sort_order": 1,
+    "icon_name": "ic_list",
+    "color_hex": "#1565C0",
+    "is_active": true,
+    "schema_version": 1,
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
+  },
+  {
+    "id": "section_9-oge_orthography_norms",
+    "external_id": "section_9-oge_orthography_norms",
+    "grade_id": "9-oge",
+    "name": "Орфография и нормы языка",
+    "display_name": "Орфография, лексика и грамматические нормы",
+    "description": "Раздел охватывает орфографический анализ, морфологические и синтаксические нормы современного русского литературного языка, проверяемые в заданиях 6-9 ОГЭ.",
+    "sort_order": 2,
+    "icon_name": "ic_create",
+    "color_hex": "#00897B",
+    "is_active": true,
+    "schema_version": 1,
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
+  },
+  {
+    "id": "section_9-oge_text_analysis",
+    "external_id": "section_9-oge_text_analysis",
+    "grade_id": "9-oge",
+    "name": "Анализ текста и сочинение",
+    "display_name": "Работа с текстом: анализ содержания, выразительных средств и написание сочинения",
+    "description": "Раздел направлен на формирование навыков смыслового и лингвистического анализа текста, понимания выразительных средств языка и создания собственного развёрнутого аргументированного высказывания на основе прочитанного (задания 1, 10-13).",
+    "sort_order": 3,
+    "icon_name": "ic_menu_book",
+    "color_hex": "#E65100",
+    "is_active": true,
+    "schema_version": 1,
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   }
 ]
