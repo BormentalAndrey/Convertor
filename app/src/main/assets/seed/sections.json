@@ -686,5 +686,21 @@
     "created_at": 1710352800,
     "updated_at": 1710352800,
     "server_updated_at": 1710352800
+  },
+  {
+    "id": "section_11_syntax",
+    "external_id": "section_11_syntax",
+    "grade_id": "11",
+    "name": "Синтаксис и пунктуация",
+    "display_name": "Синтаксис и пунктуация",
+    "description": "Основные принципы русской пунктуации. Словосочетание. Простое предложение. Осложнённое предложение. Сложное предложение. Предложения с чужой речью. Цитирование. Сочетание знаков препинания.",
+    "sort_order": 1,
+    "icon_name": "ic_list",
+    "color_hex": "#607D8B",
+    "is_active": true,
+    "schema_version": 1,
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   }
 ]
