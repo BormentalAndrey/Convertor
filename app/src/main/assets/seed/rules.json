@@ -1633,9 +1633,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_2",
@@ -1646,7 +1646,7 @@
     "short_description": "Слоги, ударение, гласные и согласные звуки с их характеристикой, количество букв и звуков.",
     "full_description": "1. Слоги, ударение. 2. Гласные звуки: ударные и безударные; какими буквами обозначены. 3. Согласные звуки: звонкие (в том числе сонорные) и глухие (парные и непарные), твёрдые и мягкие (парные и непарные); какими буквами обозначены. 4. Количество букв и звуков.",
     "rule_text": "Порядок фонетического разбора: 1. Слоги, ударение. 2. Гласные звуки (ударные и безударные). 3. Согласные звуки (звонкие/глухие, твёрдые/мягкие). 4. Количество букв, звуков.",
-    "examples_json": "[\"ведёшь [в’ид’о́ш] — 6 букв, 5 звуков\"]",
+    "examples_json": "[\"ведёшь [в'ид'о́ш] — 6 букв, 5 звуков\"]",
     "counterexamples_json": "[]",
     "exceptions_json": "[]",
     "rule_category": "phonetics",
@@ -1659,9 +1659,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_3",
@@ -1685,9 +1685,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_4",
@@ -1711,9 +1711,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_5",
@@ -1737,9 +1737,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_6",
@@ -1763,9 +1763,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_7",
@@ -1789,9 +1789,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_8",
@@ -1815,9 +1815,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_9",
@@ -1841,9 +1841,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_10",
@@ -1867,9 +1867,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_11",
@@ -1893,9 +1893,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_12",
@@ -1919,9 +1919,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_13",
@@ -1945,9 +1945,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_14",
@@ -1971,9 +1971,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_15",
@@ -1997,9 +1997,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_16",
@@ -2023,9 +2023,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_17",
@@ -2049,9 +2049,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_18",
@@ -2075,9 +2075,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_19",
@@ -2101,9 +2101,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_20",
@@ -2127,9 +2127,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_21",
@@ -2153,9 +2153,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_22",
@@ -2179,9 +2179,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_23",
@@ -2205,9 +2205,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_24",
@@ -2231,9 +2231,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_25",
@@ -2257,9 +2257,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_26",
@@ -2283,9 +2283,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_27",
@@ -2309,9 +2309,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_28",
@@ -2335,9 +2335,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_29",
@@ -2361,9 +2361,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_30",
@@ -2387,9 +2387,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_31",
@@ -2413,9 +2413,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_32",
@@ -2439,9 +2439,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_33",
@@ -2465,9 +2465,9 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_34",
@@ -2491,14 +2491,14 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_35",
     "external_id": "rule_6_35",
-    "topic_id": "topic_6_49",
+    "topic_id": "topic_6_57",
     "grade_id": "6",
     "title": "Степени сравнения имён прилагательных",
     "short_description": "Сравнительная степень: простые формы с -ее, -ше, составные с более/менее. Превосходная: -ейш-, -айш-, самый/наиболее.",
@@ -2517,14 +2517,14 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_36",
     "external_id": "rule_6_36",
-    "topic_id": "topic_6_49",
+    "topic_id": "topic_6_58",
     "grade_id": "6",
     "title": "Разряды прилагательных. Качественные прилагательные",
     "short_description": "Обозначают признак, который может проявляться в разной степени. Образуют степени сравнения и краткую форму.",
@@ -2543,14 +2543,14 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_37",
     "external_id": "rule_6_37",
-    "topic_id": "topic_6_49",
+    "topic_id": "topic_6_59",
     "grade_id": "6",
     "title": "Относительные прилагательные",
     "short_description": "Признак через отношение к материалу, месту, времени. Нет степеней сравнения.",
@@ -2569,14 +2569,14 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_38",
     "external_id": "rule_6_38",
-    "topic_id": "topic_6_49",
+    "topic_id": "topic_6_60",
     "grade_id": "6",
     "title": "Притяжательные прилагательные",
     "short_description": "Указывают на принадлежность предмета. Отвечают на вопрос чей?",
@@ -2595,14 +2595,14 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_39",
     "external_id": "rule_6_39",
-    "topic_id": "topic_6_49",
+    "topic_id": "topic_6_64",
     "grade_id": "6",
     "title": "Одна и две буквы Н в суффиксах прилагательных",
     "short_description": "-АН-, -ЯН-, -ИН- — одна Н (искл.: стеклянный, оловянный, деревянный). -ОНН-, -ЕНН-, основа на Н + Н — НН.",
@@ -2621,14 +2621,14 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_40",
     "external_id": "rule_6_40",
-    "topic_id": "topic_6_49",
+    "topic_id": "topic_6_65",
     "grade_id": "6",
     "title": "Суффиксы прилагательных -К- и -СК-",
     "short_description": "-К- в прилагательных с краткой формой и от основ на -К, -Ч, -Ц. В остальных — -СК-.",
@@ -2647,14 +2647,14 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_41",
     "external_id": "rule_6_41",
-    "topic_id": "topic_6_49",
+    "topic_id": "topic_6_66",
     "grade_id": "6",
     "title": "Дефисное и слитное написание сложных прилагательных",
     "short_description": "Дефис: оттенки цветов, равноправные слова, от сущ. через дефис. Слитно: от подчинительных словосочетаний.",
@@ -2673,14 +2673,14 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_42",
     "external_id": "rule_6_42",
-    "topic_id": "topic_6_49",
+    "topic_id": "topic_6_69",
     "grade_id": "6",
     "title": "Мягкий знак в числительных",
     "short_description": "Ь на конце: 5-20, 30. Ь в середине: 50-80, 500-900.",
@@ -2699,14 +2699,14 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_43",
     "external_id": "rule_6_43",
-    "topic_id": "topic_6_49",
+    "topic_id": "topic_6_77",
     "grade_id": "6",
     "title": "Личные местоимения",
     "short_description": "Я, ты, он, она, оно, мы, вы, они. У 3-го лица после предлогов появляется Н.",
@@ -2725,14 +2725,14 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_44",
     "external_id": "rule_6_44",
-    "topic_id": "topic_6_49",
+    "topic_id": "topic_6_80",
     "grade_id": "6",
     "title": "Неопределённые местоимения",
     "short_description": "Образуются с помощью -то, -либо, -нибудь, кое-. Дефис и раздельное написание.",
@@ -2751,14 +2751,14 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_45",
     "external_id": "rule_6_45",
-    "topic_id": "topic_6_49",
+    "topic_id": "topic_6_81",
     "grade_id": "6",
     "title": "Отрицательные местоимения",
     "short_description": "НЕ — под ударением, НИ — без ударения. Слитно, кроме предлогов.",
@@ -2777,14 +2777,14 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_46",
     "external_id": "rule_6_46",
-    "topic_id": "topic_6_49",
+    "topic_id": "topic_6_89",
     "grade_id": "6",
     "title": "Разноспрягаемые глаголы",
     "short_description": "ХОТЕТЬ, БЕЖАТЬ, ЕСТЬ, ДАТЬ. Смешанные окончания I и II спряжения.",
@@ -2803,14 +2803,14 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_47",
     "external_id": "rule_6_47",
-    "topic_id": "topic_6_49",
+    "topic_id": "topic_6_90",
     "grade_id": "6",
     "title": "Переходные и непереходные глаголы",
     "short_description": "Переходные — В. п. без предлога. Непереходные — все остальные.",
@@ -2829,14 +2829,14 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_48",
     "external_id": "rule_6_48",
-    "topic_id": "topic_6_49",
+    "topic_id": "topic_6_91",
     "grade_id": "6",
     "title": "Наклонение глагола. Изъявительное наклонение",
     "short_description": "Действия реальные. Изменение по временам.",
@@ -2855,14 +2855,14 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_49",
     "external_id": "rule_6_49",
-    "topic_id": "topic_6_49",
+    "topic_id": "topic_6_92",
     "grade_id": "6",
     "title": "Условное наклонение",
     "short_description": "Образуется от основы инфинитива + -Л- + частица БЫ (Б). Изменяется по числам и родам.",
@@ -2881,14 +2881,14 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_50",
     "external_id": "rule_6_50",
-    "topic_id": "topic_6_49",
+    "topic_id": "topic_6_93",
     "grade_id": "6",
     "title": "Повелительное наклонение",
     "short_description": "Приказ, просьба. Формы 2-го лица ед. и мн. числа. Ь после шипящих.",
@@ -2907,14 +2907,14 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_51",
     "external_id": "rule_6_51",
-    "topic_id": "topic_6_49",
+    "topic_id": "topic_6_95",
     "grade_id": "6",
     "title": "Безличные глаголы",
     "short_description": "Действие без действующего лица. Нет подлежащего. 3-е лицо ед. ч., ср. род.",
@@ -2933,14 +2933,14 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_6_52",
     "external_id": "rule_6_52",
-    "topic_id": "topic_6_49",
+    "topic_id": "topic_6_98",
     "grade_id": "6",
     "title": "Правописание суффиксов глаголов -ОВА-/-ЕВА- и -ЫВА-/-ИВА-",
     "short_description": "Если в 1-м лице ед. ч. -УЮ/-ЮЮ — -ОВА-/-ЕВА-. Если -ЫВАЮ/-ИВАЮ — -ЫВА-/-ИВА-.",
@@ -2959,9 +2959,61 @@
     "image_path": "",
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
+  },
+  {
+    "id": "rule_6_53",
+    "external_id": "rule_6_53",
+    "topic_id": "topic_6_55",
+    "grade_id": "6",
+    "title": "Склонение имён прилагательных",
+    "short_description": "Прилагательные согласуются с существительными в роде, числе и падеже. Безударные окончания проверяются вопросом.",
+    "full_description": "Имена прилагательные изменяются по родам, числам и падежам и согласуются с существительными. Для проверки безударного окончания прилагательного нужно задать вопрос от существительного: в небе (какОМ?) голубОМ.",
+    "rule_text": "Прилагательное согласуется с существительным в роде, числе и падеже. Безударные окончания проверяй вопросом: какая? — -ая/-яя; какой? — -ой/-ый/-ий; какое? — -ое/-ее.",
+    "examples_json": "[\"раннЯЯ осень (какая?)\", \"в синЕМ небе (каком?)\", \"большОЙ дорогой (какой?)\"]",
+    "counterexamples_json": "[]",
+    "exceptions_json": "[]",
+    "rule_category": "morphology",
+    "difficulty_level": 1,
+    "sort_order": 53,
+    "icon_name": "ic_rule",
+    "related_rule_ids_json": "[]",
+    "mnemonic_text": "Каков вопрос — таков и ответ (окончание).",
+    "video_url": "",
+    "image_path": "",
+    "is_active": true,
+    "schema_version": 1,
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
+  },
+  {
+    "id": "rule_6_54",
+    "external_id": "rule_6_54",
+    "topic_id": "topic_6_62",
+    "grade_id": "6",
+    "title": "НЕ с прилагательными",
+    "short_description": "Слитно: не употребляется без НЕ, можно заменить синонимом. Раздельно: противопоставление с А, слова далеко не, вовсе не.",
+    "full_description": "Не с полными и краткими качественными прилагательными пишется слитно: 1) если слово не употребляется без не (небрежный); 2) если можно заменить синонимом без не (неглубокий = мелкий). Раздельно: 1) при противопоставлении с союзом а (не дорогой, а дешёвый); 2) при словах далеко не, вовсе не, ничуть не.",
+    "rule_text": "НЕ с прилагательными слитно: 1) не употр. без НЕ (небрежный); 2) можно заменить синонимом (неглубокий = мелкий). Раздельно: при противопоставлении с А (не дорогой, а дешёвый).",
+    "examples_json": "[\"небрежный (нет слова брежный)\", \"неглубокий пруд (мелкий)\", \"не дорогой, а дешёвый (противопоставление)\"]",
+    "counterexamples_json": "[]",
+    "exceptions_json": "[]",
+    "rule_category": "orthography",
+    "difficulty_level": 2,
+    "sort_order": 54,
+    "icon_name": "ic_rule",
+    "related_rule_ids_json": "[\"rule_6_31\"]",
+    "mnemonic_text": "",
+    "video_url": "",
+    "image_path": "",
+    "is_active": true,
+    "schema_version": 1,
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "rule_7_1",
