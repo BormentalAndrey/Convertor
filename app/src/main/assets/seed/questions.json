@@ -5395,9 +5395,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_1_1_2",
@@ -5425,9 +5425,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_1_1_3",
@@ -5455,9 +5455,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_2_1_1",
@@ -5485,9 +5485,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_2_1_2",
@@ -5515,9 +5515,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_3_1_1",
@@ -5545,9 +5545,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_3_1_2",
@@ -5575,9 +5575,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_3_1_3",
@@ -5605,9 +5605,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_4_1_1",
@@ -5635,9 +5635,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_4_1_2",
@@ -5651,8 +5651,8 @@
     "data_json": "[\"7\", \"8\", \"6\", \"9\"]",
     "correct_answer_json": "7",
     "acceptable_answers_json": "[\"7\"]",
-    "hint_text": "Буква «ю» после гласной обозначает два звука [й’у].",
-    "explanation_text": "В слове «чернеют» 7 букв, но 7 звуков: [ч’], [и], [р], [н’], [э], [й’], [у]. Буква «ю» обозначает два звука.",
+    "hint_text": "Буква «ю» после гласной обозначает два звука [й'у].",
+    "explanation_text": "В слове «чернеют» 7 букв, но 7 звуков: [ч'], [и], [р], [н'], [э], [й'], [у]. Буква «ю» обозначает два звука.",
     "audio_path": "",
     "rule_reference": "",
     "rule_reference_id": "",
@@ -5665,9 +5665,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_4_1_3",
@@ -5695,9 +5695,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_5_1_1",
@@ -5725,9 +5725,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_5_1_2",
@@ -5755,9 +5755,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_5_1_3",
@@ -5785,9 +5785,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_6_1_1",
@@ -5815,9 +5815,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_6_1_2",
@@ -5845,9 +5845,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_6_1_3",
@@ -5875,9 +5875,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_13_1_1",
@@ -5905,9 +5905,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_13_1_2",
@@ -5935,9 +5935,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_13_1_3",
@@ -5965,9 +5965,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_20_1_1",
@@ -5995,9 +5995,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_20_1_2",
@@ -6025,9 +6025,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_20_1_3",
@@ -6055,9 +6055,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_24_1_1",
@@ -6085,9 +6085,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_24_1_2",
@@ -6115,9 +6115,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_24_1_3",
@@ -6145,9 +6145,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_29_1_1",
@@ -6175,9 +6175,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_29_1_2",
@@ -6205,9 +6205,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_29_1_3",
@@ -6235,9 +6235,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_33_1_1",
@@ -6265,9 +6265,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_33_1_2",
@@ -6295,9 +6295,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_33_1_3",
@@ -6325,9 +6325,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_36_1_1",
@@ -6355,9 +6355,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_36_1_2",
@@ -6385,9 +6385,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_36_1_3",
@@ -6415,9 +6415,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_40_1_1",
@@ -6445,9 +6445,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_40_1_2",
@@ -6475,9 +6475,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_40_1_3",
@@ -6505,9 +6505,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_41_1_1",
@@ -6535,9 +6535,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_41_1_2",
@@ -6552,7 +6552,7 @@
     "correct_answer_json": "Е",
     "acceptable_answers_json": "[\"Е\"]",
     "hint_text": "Первая основа оканчивается на Ц.",
-    "explanation_text": "В слове «птицелов» после [ц] (шипящего/ц) пишется соединительная гласная Е.",
+    "explanation_text": "В слове «птицелов» после [ц] пишется соединительная гласная Е.",
     "audio_path": "",
     "rule_reference": "",
     "rule_reference_id": "rule_6_23",
@@ -6565,9 +6565,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_41_1_3",
@@ -6595,9 +6595,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_45_1_1",
@@ -6625,9 +6625,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_45_1_2",
@@ -6655,9 +6655,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_45_1_3",
@@ -6685,9 +6685,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_51_1_1",
@@ -6715,9 +6715,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_51_1_2",
@@ -6745,9 +6745,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_51_1_3",
@@ -6775,9 +6775,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_52_1_1",
@@ -6805,9 +6805,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_52_1_2",
@@ -6835,9 +6835,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_52_1_3",
@@ -6865,9 +6865,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_53_1_1",
@@ -6895,9 +6895,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_53_1_2",
@@ -6925,9 +6925,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_53_1_3",
@@ -6955,9 +6955,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_54_1_1",
@@ -6985,9 +6985,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_54_1_2",
@@ -7015,9 +7015,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_54_1_3",
@@ -7045,9 +7045,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_55_1_1",
@@ -7065,7 +7065,7 @@
     "explanation_text": "Существительное «осень» женского рода, стоит в именительном падеже. Прилагательное «ранний» в женском роде, И. п. имеет окончание -яя (ранняя).",
     "audio_path": "",
     "rule_reference": "",
-    "rule_reference_id": "rule_6_42",
+    "rule_reference_id": "rule_6_53",
     "difficulty": 1,
     "sort_order": 1,
     "time_limit_seconds": 0,
@@ -7075,9 +7075,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_55_1_2",
@@ -7095,7 +7095,7 @@
     "explanation_text": "Прилагательное «зловещие» согласуется с существительным «космы» в винительном падеже (нагонял что? — космы).",
     "audio_path": "",
     "rule_reference": "",
-    "rule_reference_id": "rule_6_42",
+    "rule_reference_id": "rule_6_53",
     "difficulty": 2,
     "sort_order": 2,
     "time_limit_seconds": 0,
@@ -7105,9 +7105,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_55_1_3",
@@ -7125,7 +7125,7 @@
     "explanation_text": "Прилагательное «большой» в дательном падеже, женском роде, единственном числе имеет окончание -ой.",
     "audio_path": "",
     "rule_reference": "",
-    "rule_reference_id": "rule_6_42",
+    "rule_reference_id": "rule_6_53",
     "difficulty": 1,
     "sort_order": 3,
     "time_limit_seconds": 0,
@@ -7135,9 +7135,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_57_1_1",
@@ -7155,7 +7155,7 @@
     "explanation_text": "Прилагательное «самый высокий» — это составная форма превосходной степени, показывающая, что вулкан превосходит все остальные по высоте.",
     "audio_path": "",
     "rule_reference": "",
-    "rule_reference_id": "",
+    "rule_reference_id": "rule_6_35",
     "difficulty": 1,
     "sort_order": 1,
     "time_limit_seconds": 0,
@@ -7165,9 +7165,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_57_1_2",
@@ -7185,7 +7185,7 @@
     "explanation_text": "Простая сравнительная степень прилагательного «суровее» образована от основы «суров-» с помощью суффикса -ее.",
     "audio_path": "",
     "rule_reference": "",
-    "rule_reference_id": "",
+    "rule_reference_id": "rule_6_35",
     "difficulty": 2,
     "sort_order": 2,
     "time_limit_seconds": 0,
@@ -7195,9 +7195,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_57_1_3",
@@ -7215,7 +7215,7 @@
     "explanation_text": "Простая превосходная степень прилагательного «крупный» — «крупнейший» (образуется с помощью суффикса -ейш-).",
     "audio_path": "",
     "rule_reference": "",
-    "rule_reference_id": "",
+    "rule_reference_id": "rule_6_35",
     "difficulty": 2,
     "sort_order": 3,
     "time_limit_seconds": 0,
@@ -7225,9 +7225,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_60_1_1",
@@ -7245,7 +7245,7 @@
     "explanation_text": "Прилагательное «медвежьими» отвечает на вопрос чьими? и обозначает принадлежность (тропы медведей).",
     "audio_path": "",
     "rule_reference": "",
-    "rule_reference_id": "",
+    "rule_reference_id": "rule_6_38",
     "difficulty": 1,
     "sort_order": 1,
     "time_limit_seconds": 0,
@@ -7255,9 +7255,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_60_1_2",
@@ -7285,9 +7285,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_60_1_3",
@@ -7315,9 +7315,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_62_1_1",
@@ -7335,7 +7335,7 @@
     "explanation_text": "В этом предложении есть противопоставление с союзом А, поэтому НЕ пишется раздельно: не дорогую, а дешёвую.",
     "audio_path": "",
     "rule_reference": "",
-    "rule_reference_id": "rule_6_45",
+    "rule_reference_id": "rule_6_54",
     "difficulty": 2,
     "sort_order": 1,
     "time_limit_seconds": 0,
@@ -7345,9 +7345,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_62_1_2",
@@ -7365,7 +7365,7 @@
     "explanation_text": "Слова «брежный» не существует, поэтому НЕ с «небрежный» пишется слитно.",
     "audio_path": "",
     "rule_reference": "",
-    "rule_reference_id": "rule_6_45",
+    "rule_reference_id": "rule_6_54",
     "difficulty": 1,
     "sort_order": 2,
     "time_limit_seconds": 0,
@@ -7375,9 +7375,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_62_1_3",
@@ -7395,7 +7395,7 @@
     "explanation_text": "В предложении «Река неглубока» НЕ пишется слитно, так как нет противопоставления и прилагательное можно заменить синонимом «мелка».",
     "audio_path": "",
     "rule_reference": "",
-    "rule_reference_id": "rule_6_45",
+    "rule_reference_id": "rule_6_54",
     "difficulty": 2,
     "sort_order": 3,
     "time_limit_seconds": 0,
@@ -7405,9 +7405,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_67_1_1",
@@ -7435,9 +7435,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_67_1_2",
@@ -7465,9 +7465,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_67_1_3",
@@ -7495,9 +7495,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_72_1_1",
@@ -7525,9 +7525,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_72_1_2",
@@ -7555,9 +7555,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_72_1_3",
@@ -7585,9 +7585,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_76_1_1",
@@ -7615,9 +7615,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_76_1_2",
@@ -7645,9 +7645,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_76_1_3",
@@ -7675,9 +7675,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_77_1_1",
@@ -7705,9 +7705,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_77_1_2",
@@ -7725,7 +7725,7 @@
     "explanation_text": "После предлога «с» у местоимения «она» появляется начальная буква Н: с ней.",
     "audio_path": "",
     "rule_reference": "",
-    "rule_reference_id": "",
+    "rule_reference_id": "rule_6_43",
     "difficulty": 2,
     "sort_order": 2,
     "time_limit_seconds": 0,
@@ -7735,9 +7735,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_77_1_3",
@@ -7765,9 +7765,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_80_1_1",
@@ -7785,7 +7785,7 @@
     "explanation_text": "Неопределённое местоимение «кое-кто» пишется через дефис.",
     "audio_path": "",
     "rule_reference": "",
-    "rule_reference_id": "rule_6_47",
+    "rule_reference_id": "rule_6_44",
     "difficulty": 1,
     "sort_order": 1,
     "time_limit_seconds": 0,
@@ -7795,9 +7795,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_80_1_2",
@@ -7815,7 +7815,7 @@
     "explanation_text": "Суффикс -то в неопределённых местоимениях пишется через дефис: какие-то.",
     "audio_path": "",
     "rule_reference": "",
-    "rule_reference_id": "rule_6_47",
+    "rule_reference_id": "rule_6_44",
     "difficulty": 1,
     "sort_order": 2,
     "time_limit_seconds": 0,
@@ -7825,9 +7825,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_80_1_3",
@@ -7855,9 +7855,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_89_1_1",
@@ -7875,7 +7875,7 @@
     "explanation_text": "Глагол «хотеть» в единственном числе спрягается по I спряжению (хочешь, хочет), а во множественном — по II (хотим, хотите, хотят).",
     "audio_path": "",
     "rule_reference": "",
-    "rule_reference_id": "rule_6_49",
+    "rule_reference_id": "rule_6_46",
     "difficulty": 2,
     "sort_order": 1,
     "time_limit_seconds": 0,
@@ -7885,9 +7885,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_89_1_2",
@@ -7915,9 +7915,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_89_1_3",
@@ -7945,9 +7945,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_92_1_1",
@@ -7965,7 +7965,7 @@
     "explanation_text": "Условное наклонение образуется с помощью частицы БЫ (Б), которая пишется с глаголами раздельно.",
     "audio_path": "",
     "rule_reference": "",
-    "rule_reference_id": "rule_6_50",
+    "rule_reference_id": "rule_6_49",
     "difficulty": 1,
     "sort_order": 1,
     "time_limit_seconds": 0,
@@ -7975,9 +7975,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_92_1_2",
@@ -8005,9 +8005,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_92_1_3",
@@ -8035,9 +8035,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_93_1_1",
@@ -8055,7 +8055,7 @@
     "explanation_text": "Глаголы «не говори», «режь» стоят в повелительном наклонении, выражая совет, побуждение.",
     "audio_path": "",
     "rule_reference": "",
-    "rule_reference_id": "",
+    "rule_reference_id": "rule_6_50",
     "difficulty": 1,
     "sort_order": 1,
     "time_limit_seconds": 0,
@@ -8065,9 +8065,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_93_1_2",
@@ -8085,7 +8085,7 @@
     "explanation_text": "В глаголах повелительного наклонения после шипящих пишется мягкий знак: режь, ешь.",
     "audio_path": "",
     "rule_reference": "",
-    "rule_reference_id": "",
+    "rule_reference_id": "rule_6_50",
     "difficulty": 1,
     "sort_order": 2,
     "time_limit_seconds": 0,
@@ -8095,9 +8095,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_93_1_3",
@@ -8125,9 +8125,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_98_1_1",
@@ -8155,9 +8155,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_98_1_2",
@@ -8185,9 +8185,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_98_1_3",
@@ -8215,9 +8215,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_100_1_1",
@@ -8228,11 +8228,11 @@
     "prompt_text": "Какая орфограмма пропущена в слове «сбившись»?",
     "prompt_audio_path": "",
     "prompt_image_path": "",
-    "data_json": "[\"Приставка на -з/-с\", \"Разделительный Ъ\", \"Непроизносимая согласная\", \"Безударная гласная в корне\"]",
-    "correct_answer_json": "Приставка на -з/-с",
-    "acceptable_answers_json": "[\"Приставка на -з/-с\"]",
-    "hint_text": "Приставка С- пишется перед глухим согласным.",
-    "explanation_text": "В слове «сбившись» приставка С- (не на -з/-с). Здесь орфограмма — приставка С- перед звонким [б].",
+    "data_json": "[\"Приставка С- перед звонким согласным\", \"Разделительный Ъ\", \"Непроизносимая согласная\", \"Безударная гласная в корне\"]",
+    "correct_answer_json": "Приставка С- перед звонким согласным",
+    "acceptable_answers_json": "[\"Приставка С- перед звонким согласным\"]",
+    "hint_text": "Приставка С- пишется перед звонким согласным [б].",
+    "explanation_text": "В слове «сбившись» орфограмма — приставка С- перед звонким [б], которая не меняется на письме в отличие от приставок на -з/-с.",
     "audio_path": "",
     "rule_reference": "",
     "rule_reference_id": "rule_5_20",
@@ -8245,9 +8245,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_100_1_2",
@@ -8265,7 +8265,7 @@
     "explanation_text": "Прилагательное «весенний» образовано от слова «весна» (основа на -Н) с помощью суффикса -Н-, поэтому пишется НН.",
     "audio_path": "",
     "rule_reference": "",
-    "rule_reference_id": "rule_6_44",
+    "rule_reference_id": "rule_6_39",
     "difficulty": 1,
     "sort_order": 2,
     "time_limit_seconds": 0,
@@ -8275,9 +8275,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_6_100_1_3",
@@ -8295,7 +8295,7 @@
     "explanation_text": "Прилагательное «унавоженная» имеет суффикс -ЕНН-, в котором всегда пишется НН.",
     "audio_path": "",
     "rule_reference": "",
-    "rule_reference_id": "rule_6_44",
+    "rule_reference_id": "rule_6_39",
     "difficulty": 2,
     "sort_order": 3,
     "time_limit_seconds": 0,
@@ -8305,9 +8305,9 @@
     "is_required": true,
     "is_active": true,
     "schema_version": 1,
-    "created_at": 0,
-    "updated_at": 0,
-    "server_updated_at": 0
+    "created_at": 1710352800,
+    "updated_at": 1710352800,
+    "server_updated_at": 1710352800
   },
   {
     "id": "q_7_2_2_1",
