@@ -21,12 +21,15 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -78,9 +81,32 @@ fun DashboardScreen(
 
     Scaffold(
         topBar = {
-            DashboardTopBar(
-                userStats = userStats,
-                onProfileClick = onProfileClick
+            TopAppBar(
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        EmojiText(Emoji.BOOK, fontSize = 28)
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            text = "Русский Путь",
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onProfileClick) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Профиль",
+                            tint = Color.White
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = VasilisaBlue,
+                    titleContentColor = Color.White,
+                    actionIconContentColor = Color.White
+                )
             )
         },
         containerColor = Color.White
@@ -104,6 +130,11 @@ fun DashboardScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    // Ресурсы пользователя (XP, алмазы, жизни, стрик)
+                    item {
+                        StatusBarRow(userStats = userStats)
+                    }
+
                     item { MascotCard(userStats = userStats, mascotMessage = mascotMessage) }
                     item { LevelProgressCard(userStats = userStats) }
                     item {
@@ -153,45 +184,51 @@ fun DashboardScreen(
 }
 
 // ========================================================================
-// Top Bar
+// Status Bar Row (Ресурсы пользователя)
 // ========================================================================
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DashboardTopBar(
-    userStats: com.example.russianpath.domain.model.UserStats,
-    onProfileClick: () -> Unit
+private fun StatusBarRow(
+    userStats: com.example.russianpath.domain.model.UserStats
 ) {
-    TopAppBar(
-        title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                EmojiText(Emoji.BOOK, fontSize = 28)
-                Spacer(Modifier.width(8.dp))
-                Text(text = "Русский Путь", fontWeight = FontWeight.Bold)
-            }
-        },
-        actions = {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(end = 8.dp)
-            ) {
-                StatusChip(emoji = Emoji.XP, value = userStats.totalXp.toString(), color = XpGold)
-                Spacer(Modifier.width(4.dp))
-                StatusChip(emoji = Emoji.GEM, value = userStats.gemsBalance.toString(), color = GemCrystal)
-                Spacer(Modifier.width(4.dp))
-                StatusChip(emoji = Emoji.HEART, value = userStats.livesCount.toString(), color = ErrorRed)
-                Spacer(Modifier.width(4.dp))
-                IconButton(onClick = onProfileClick) {
-                    EmojiText(Emoji.PROFILE, fontSize = 28)
-                }
-            }
-        },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = VasilisaBlue,
-            titleContentColor = Color.White,
-            actionIconContentColor = Color.White
-        )
-    )
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            StatusChip(
+                emoji = Emoji.XP,
+                value = "${userStats.totalXp}",
+                label = "Опыт",
+                color = XpGold
+            )
+            StatusChip(
+                emoji = Emoji.GEM,
+                value = "${userStats.gemsBalance}",
+                label = "Алмазы",
+                color = GemCrystal
+            )
+            StatusChip(
+                emoji = Emoji.HEART,
+                value = "${userStats.livesCount}/${userStats.maxLives}",
+                label = "Жизни",
+                color = ErrorRed
+            )
+            StatusChip(
+                emoji = Emoji.STREAK,
+                value = "${userStats.currentStreak}",
+                label = "Дней подряд",
+                color = KnopaOrange
+            )
+        }
+    }
 }
 
 // ========================================================================
@@ -227,18 +264,6 @@ private fun MascotCard(
             }
             Spacer(Modifier.height(12.dp))
             Text(text = mascotMessage, style = MaterialTheme.typography.bodyLarge, color = Color.DarkGray)
-            if (userStats.currentStreak > 0) {
-                Spacer(Modifier.height(8.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    EmojiText(Emoji.STREAK, fontSize = 20)
-                    Spacer(Modifier.width(4.dp))
-                    Text(
-                        text = "Серия: ${userStats.currentStreak} ${getStreakDaysWord(userStats.currentStreak)}",
-                        color = KnopaOrange,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
         }
     }
 }
@@ -370,13 +395,33 @@ private fun TopicCard(topic: Topic, onClick: () -> Unit) {
 // ========================================================================
 
 @Composable
-fun StatusChip(emoji: String, value: String, color: Color) {
-    Card(shape = RoundedCornerShape(16.dp), colors = CardDefaults.cardColors(containerColor = color.copy(alpha = 0.2f))) {
-        Row(modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
-            EmojiText(emoji, fontSize = 16)
+private fun StatusChip(
+    emoji: String,
+    value: String,
+    label: String,
+    color: Color
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            EmojiText(emoji, fontSize = 18)
             Spacer(Modifier.width(4.dp))
-            Text(text = value, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = color)
+            Text(
+                text = value,
+                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                color = color
+            )
         }
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = Color.Gray,
+            fontSize = 11.sp
+        )
     }
 }
 
