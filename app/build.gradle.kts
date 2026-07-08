@@ -42,6 +42,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = true
+            isShrinkResources = true  // ← ДОБАВЛЕНО: сжатие ресурсов
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -51,10 +52,18 @@ android {
         }
         debug {
             isMinifyEnabled = false
+            isShrinkResources = false  // ← ДОБАВЛЕНО
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
             isDebuggable = true
         }
+    }
+
+    // ======================================================================
+    // НЕ СЖИМАТЬ JSON ФАЙЛЫ (ВАЖНО ДЛЯ АКТИВОВ!)
+    // ======================================================================
+    aaptOptions {
+        noCompress += listOf("json")  // ← ДОБАВЛЕНО: не сжимать JSON
     }
 
     compileOptions {
