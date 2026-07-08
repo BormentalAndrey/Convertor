@@ -1,3 +1,5 @@
+// app/src/main/java/com/example/russianpath/data/repository/UserRepository.kt
+
 package com.example.russianpath.data.repository
 
 import com.example.russianpath.data.local.dao.LessonCompletionDao
@@ -26,17 +28,28 @@ class UserRepository @Inject constructor(
 ) {
 
     // ========================================================================
+    // Константы
+    // ========================================================================
+
+    companion object {
+        /** Время восстановления одной жизни в миллисекундах (10 минут) */
+        private const val LIFE_REFILL_INTERVAL_MS = 10 * 60 * 1000L
+    }
+
+    // ========================================================================
     // Статистика пользователя
     // ========================================================================
 
     /**
      * Возвращает Flow со статистикой пользователя для реактивного обновления UI.
      * Если записи прогресса ещё нет (первый запуск), возвращает UserStats по умолчанию.
+     * Автоматически восстанавливает жизни перед возвратом данных.
      */
     fun observeUserStats(): Flow<UserStats> {
         return userProgressDao.observeUserProgress().map { entity ->
             if (entity != null) {
-                entity.toDomainModel()
+                val updatedEntity = refillLivesIfNeeded(entity)
+                updatedEntity.toDomainModel()
             } else {
                 UserStats()
             }
@@ -45,10 +58,114 @@ class UserRepository @Inject constructor(
 
     /**
      * Возвращает текущую статистику однократно (для не-UI операций).
+     * Автоматически восстанавливает жизни.
      */
     suspend fun getUserStats(): UserStats {
         val entity = userProgressDao.getUserProgress()
-        return entity?.toDomainModel() ?: UserStats()
+        return if (entity != null) {
+            val updatedEntity = refillLivesIfNeeded(entity)
+            updatedEntity.toDomainModel()
+        } else {
+            UserStats()
+        }
+    }
+
+    // ========================================================================
+    // Восстановление жизней
+    // ========================================================================
+
+    /**
+     * Проверяет и восстанавливает жизни, если прошло достаточно времени.
+     * 
+     * Алгоритм:
+     * 1. Если жизни на максимуме — выходит
+     * 2. Вычисляет сколько времени прошло с последнего восстановления
+     * 3. Восстанавливает по 1 жизни за каждые 10 минут
+     * 4. Не превышает maxLives
+     *
+     * @param entity Текущий прогресс пользователя.
+     * @return Обновлённый UserProgressEntity.
+     */
+    private suspend fun refillLivesIfNeeded(entity: UserProgressEntity): UserProgressEntity {
+        // Если жизни уже на максимуме — ничего не делаем
+        if (entity.livesCount >= entity.maxLives) return entity
+        
+        val now = System.currentTimeMillis()
+        val lastRefillTime = entity.lastLifeRefillTime
+        
+        // Если время последнего восстановления не задано — устанавливаем сейчас и выходим
+        if (lastRefillTime <= 0) {
+            userProgressDao.updateLastLifeRefillTime(now, now)
+            return userProgressDao.getUserProgress() ?: entity
+        }
+        
+        // Вычисляем, сколько времени прошло с последнего восстановления
+        val elapsedMs = now - lastRefillTime
+        
+        // Вычисляем, сколько жизней должно восстановиться
+        val livesToRefill = (elapsedMs / LIFE_REFILL_INTERVAL_MS).toInt()
+        
+        if (livesToRefill > 0) {
+            // Вычисляем новое количество жизней (не больше максимума)
+            val newLivesCount = minOf(entity.livesCount + livesToRefill, entity.maxLives)
+            
+            // Вычисляем новое время последнего восстановления
+            val newLastRefillTime = if (newLivesCount < entity.maxLives) {
+                // Если не все жизни восстановлены — сдвигаем время на количество восстановленных
+                lastRefillTime + (livesToRefill * LIFE_REFILL_INTERVAL_MS)
+            } else {
+                // Если все жизни восстановлены — сбрасываем таймер
+                now
+            }
+            
+            // Обновляем в БД
+            userProgressDao.updateLivesAndRefillTime(newLivesCount, newLastRefillTime, now)
+            
+            // Возвращаем обновлённую сущность
+            return userProgressDao.getUserProgress() ?: entity
+        }
+        
+        return entity
+    }
+
+    /**
+     * Возвращает время до восстановления следующей жизни в миллисекундах.
+     * 
+     * @return Количество миллисекунд до восстановления жизни, или 0 если жизни на максимуме.
+     */
+    suspend fun getTimeUntilNextLife(): Long {
+        val entity = userProgressDao.getUserProgress() ?: return 0
+        
+        if (entity.livesCount >= entity.maxLives) return 0
+        
+        val now = System.currentTimeMillis()
+        val lastRefillTime = entity.lastLifeRefillTime
+        
+        if (lastRefillTime <= 0) return 0
+        
+        val elapsedMs = now - lastRefillTime
+        val remainingMs = LIFE_REFILL_INTERVAL_MS - (elapsedMs % LIFE_REFILL_INTERVAL_MS)
+        
+        return remainingMs
+    }
+
+    /**
+     * Возвращает форматированное время до восстановления жизни.
+     * Например: "8 мин 30 сек"
+     */
+    suspend fun getFormattedTimeUntilNextLife(): String {
+        val ms = getTimeUntilNextLife()
+        if (ms <= 0) return "0 сек"
+        
+        val totalSeconds = ms / 1000
+        val minutes = totalSeconds / 60
+        val seconds = totalSeconds % 60
+        
+        return if (minutes > 0) {
+            "${minutes} мин ${seconds} сек"
+        } else {
+            "${seconds} сек"
+        }
     }
 
     // ========================================================================
@@ -128,16 +245,24 @@ class UserRepository @Inject constructor(
 
     /**
      * Теряет одну жизнь.
+     * Если жизни были на максимуме — запускает таймер восстановления.
      * Жизни не могут упасть ниже 0.
      */
     suspend fun loseLife() {
         val now = System.currentTimeMillis()
-        userProgressDao.loseLife(now)
+        val progress = userProgressDao.getUserProgress() ?: return
+        
+        // Если жизни на максимуме — сбрасываем таймер восстановления
+        if (progress.livesCount >= progress.maxLives) {
+            userProgressDao.loseLifeAndResetRefillTime(now, now)
+        } else {
+            userProgressDao.loseLife(now)
+        }
     }
 
     /**
-     * Восстанавливает одну жизнь.
-     * Жизни не могут превысить maxLives.
+     * Восстанавливает одну жизнь вручную (например, за самоцветы).
+     * Не сбрасывает таймер автовосстановления.
      */
     suspend fun refillLife() {
         val now = System.currentTimeMillis()
@@ -156,10 +281,12 @@ class UserRepository @Inject constructor(
     }
 
     /**
-     * Возвращает текущее количество жизней.
+     * Возвращает текущее количество жизней с учётом автовосстановления.
      */
     suspend fun getLivesCount(): Int {
-        return userProgressDao.getUserProgress()?.livesCount ?: 0
+        val entity = userProgressDao.getUserProgress() ?: return 0
+        val updatedEntity = refillLivesIfNeeded(entity)
+        return updatedEntity.livesCount
     }
 
     // ========================================================================
@@ -280,6 +407,12 @@ class UserRepository @Inject constructor(
 
         // Обновляем стрик
         updateStreak()
+        
+        // Восстанавливаем жизни после завершения урока
+        val progress = userProgressDao.getUserProgress()
+        if (progress != null) {
+            refillLivesIfNeeded(progress)
+        }
     }
 
     // ========================================================================
