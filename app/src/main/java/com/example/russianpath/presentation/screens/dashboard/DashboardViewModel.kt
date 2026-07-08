@@ -2,6 +2,7 @@
 
 package com.example.russianpath.presentation.screens.dashboard
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.russianpath.data.repository.LessonRepository
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -86,6 +88,9 @@ class DashboardViewModel @Inject constructor(
 
     // Job для управления Flow коллектором тем
     private var topicsCollectionJob: Job? = null
+    
+    // Флаг для отслеживания первой загрузки
+    private var isFirstLoad = true
 
     init {
         loadUserStats()
@@ -108,7 +113,9 @@ class DashboardViewModel @Inject constructor(
                     _userStats.value = stats
                 }
             } catch (e: Exception) {
-                _errorMessage.value = "Не удалось загрузить статистику: ${e.message}"
+                if (e !is kotlinx.coroutines.CancellationException) {
+                    _errorMessage.value = "Не удалось загрузить статистику: ${e.message}"
+                }
             }
         }
     }
@@ -130,19 +137,35 @@ class DashboardViewModel @Inject constructor(
         
         topicsCollectionJob = viewModelScope.launch {
             try {
+                if (!isActive) return@launch
+                
                 _isLoading.value = true
                 _errorMessage.value = null
 
                 topicRepository.observeTopicsByGrade(gradeId).collect { topicList ->
+                    if (!isActive) return@collect
+                    
                     val enrichedTopics = withContext(Dispatchers.IO) {
                         enrichTopicsWithProgress(topicList)
                     }
                     _topics.value = enrichedTopics
                     _isLoading.value = false
+                    
+                    // После первой загрузки проверяем разблокировку
+                    if (isFirstLoad) {
+                        isFirstLoad = false
+                        delay(500)
+                        checkAndUnlockNextTopics()
+                    }
                 }
             } catch (e: Exception) {
-                _errorMessage.value = "Не удалось загрузить темы: ${e.message}"
-                _isLoading.value = false
+                if (e is kotlinx.coroutines.CancellationException) {
+                    // Нормальная отмена коллектора, не показываем ошибку
+                    Log.d("DashboardVM", "Коллектор тем отменён")
+                } else {
+                    _errorMessage.value = "Не удалось загрузить темы: ${e.message}"
+                    _isLoading.value = false
+                }
             }
         }
     }
@@ -227,12 +250,6 @@ class DashboardViewModel @Inject constructor(
         }
 
         loadTopics(gradeId)
-        
-        // Проверяем разблокировку тем после смены класса
-        viewModelScope.launch {
-            delay(300) // Небольшая задержка для загрузки тем
-            checkAndUnlockNextTopics()
-        }
     }
 
     /**
@@ -259,25 +276,36 @@ class DashboardViewModel @Inject constructor(
      * Проверяет все темы текущего класса и разблокирует те,
      * чьи пререквизиты полностью пройдены.
      * 
+     * ВАЖНО: Обновляет UI НЕМЕДЛЕННО через прямое изменение _topics,
+     * не дожидаясь перезагрузки из базы данных.
+     * 
      * Логика работы:
      * 1. Перебирает все темы текущего класса
      * 2. Пропускает уже разблокированные темы
      * 3. Для заблокированных тем проверяет пререквизиты
      * 4. Если все уроки в темах-пререквизитах пройдены — разблокирует тему
      * 5. Если у темы нет пререквизитов — разблокирует сразу
-     * 6. После разблокировки обновляет список тем
+     * 6. НЕМЕДЛЕННО обновляет UI через _topics.value
      */
     fun checkAndUnlockNextTopics() {
         viewModelScope.launch {
             try {
                 val currentTopics = _topics.value
                 
+                Log.d("DashboardVM", "🔍 Проверяю ${currentTopics.size} тем на разблокировку")
+                
                 // Если темы ещё не загружены — выходим
-                if (currentTopics.isEmpty()) return@launch
+                if (currentTopics.isEmpty()) {
+                    Log.d("DashboardVM", "⚠️ Темы пусты, выхожу")
+                    return@launch
+                }
                 
                 var hasUnlockedTopics = false
+                val updatedTopics = currentTopics.toMutableList()
                 
-                for (topic in currentTopics) {
+                for (i in updatedTopics.indices) {
+                    val topic = updatedTopics[i]
+                    
                     // Пропускаем уже разблокированные темы
                     if (topic.isUnlocked) continue
                     
@@ -286,12 +314,16 @@ class DashboardViewModel @Inject constructor(
                         topicRepository.getPrerequisiteTopicIds(topic.id)
                     }
                     
+                    Log.d("DashboardVM", "🔒 Тема: ${topic.title}, пререквизиты: $prerequisiteIds")
+                    
                     // Если пререквизитов нет — разблокируем тему
                     if (prerequisiteIds.isEmpty()) {
                         withContext(Dispatchers.IO) {
                             topicRepository.unlockTopic(topic.id)
                         }
+                        updatedTopics[i] = topic.copy(isUnlocked = true)
                         hasUnlockedTopics = true
+                        Log.d("DashboardVM", "✅ Разблокирована (нет пререквизитов): ${topic.title}")
                         continue
                     }
                     
@@ -306,6 +338,8 @@ class DashboardViewModel @Inject constructor(
                         val allLessonsCompleted = lessonsWithQuestions.isNotEmpty() && 
                             lessonsWithQuestions.all { it.lesson.isCompleted }
                         
+                        Log.d("DashboardVM", "   📝 Пререквизит $prereqId: уроков=${lessonsWithQuestions.size}, все пройдены=$allLessonsCompleted")
+                        
                         if (!allLessonsCompleted) {
                             allCompleted = false
                             break
@@ -317,21 +351,67 @@ class DashboardViewModel @Inject constructor(
                         withContext(Dispatchers.IO) {
                             topicRepository.unlockTopic(topic.id)
                         }
+                        updatedTopics[i] = topic.copy(isUnlocked = true)
                         hasUnlockedTopics = true
+                        Log.d("DashboardVM", "✅ Разблокирована (пререквизиты пройдены): ${topic.title}")
                     }
                 }
                 
-                // Если были разблокированы темы — обновляем UI
+                // НЕМЕДЛЕННО обновляем UI
                 if (hasUnlockedTopics) {
-                    // Перезагружаем темы для отображения изменений
-                    loadTopics(_currentGradeId.value)
+                    _topics.value = updatedTopics
+                    Log.d("DashboardVM", "🔄 UI обновлён немедленно")
                     
                     // Показываем сообщение маскота о новой доступной теме
                     _mascotMessage.value = "🎉 Открыта новая тема! " +
                         "Ты отлично справляешься, продолжай в том же духе!"
+                    
+                    // Запускаем фоновую синхронизацию с БД для актуализации данных
+                    syncTopicsInBackground()
+                } else {
+                    Log.d("DashboardVM", "ℹ️ Нет тем для разблокировки")
                 }
             } catch (e: Exception) {
-                _errorMessage.value = "Ошибка обновления тем: ${e.message}"
+                if (e !is kotlinx.coroutines.CancellationException) {
+                    Log.e("DashboardVM", "❌ Ошибка разблокировки: ${e.message}", e)
+                    _errorMessage.value = "Ошибка обновления тем: ${e.message}"
+                }
+            }
+        }
+    }
+
+    /**
+     * Синхронизирует список тем с БД в фоновом режиме.
+     * Используется после немедленного обновления UI для актуализации данных.
+     */
+    private fun syncTopicsInBackground() {
+        viewModelScope.launch {
+            try {
+                delay(1000) // Даём время БД сохранить изменения
+                
+                val gradeId = _currentGradeId.value
+                val freshTopics = withContext(Dispatchers.IO) {
+                    val topicEntities = topicRepository.observeTopicsByGrade(gradeId)
+                    var result: List<Topic> = emptyList()
+                    // Получаем первое значение из Flow
+                    val job = launch {
+                        topicEntities.collect { list ->
+                            result = enrichTopicsWithProgress(list)
+                            cancel() // Отменяем коллектор после получения данных
+                        }
+                    }
+                    job.join()
+                    result
+                }
+                
+                if (freshTopics.isNotEmpty()) {
+                    _topics.value = freshTopics
+                    Log.d("DashboardVM", "✅ Фоновая синхронизация завершена")
+                }
+            } catch (e: Exception) {
+                if (e !is kotlinx.coroutines.CancellationException) {
+                    Log.e("DashboardVM", "Ошибка фоновой синхронизации: ${e.message}")
+                }
             }
         }
     }
@@ -346,8 +426,14 @@ class DashboardViewModel @Inject constructor(
      */
     private fun observeMascotMessage() {
         viewModelScope.launch {
-            userRepository.observeUserStats().collect { stats ->
-                _mascotMessage.value = generateMascotMessage(stats)
+            try {
+                userRepository.observeUserStats().collect { stats ->
+                    _mascotMessage.value = generateMascotMessage(stats)
+                }
+            } catch (e: Exception) {
+                if (e !is kotlinx.coroutines.CancellationException) {
+                    // Игнорируем ошибки маскота — некритично
+                }
             }
         }
     }
@@ -487,18 +573,20 @@ class DashboardViewModel @Inject constructor(
     fun onAppOpened() {
         viewModelScope.launch {
             try {
+                Log.d("DashboardVM", "📱 onAppOpened вызван")
+                
                 withContext(Dispatchers.IO) {
                     userRepository.updateStreak()
                 }
-                // Обновляем статистику и темы после обновления стрика
-                refresh()
                 
-                // Проверяем и разблокируем новые темы после возвращения с урока
-                delay(300) // Небольшая задержка для завершения refresh
+                // Не вызываем refresh() чтобы не отменять текущий коллектор тем
+                // Вместо этого просто проверяем разблокировку на текущих данных
+                delay(500)
                 checkAndUnlockNextTopics()
-            } catch (_: Exception) {
-                // Стрик — некритичная операция.
-                // Если не удалось обновить — продолжаем работу с текущими данными.
+            } catch (e: Exception) {
+                if (e !is kotlinx.coroutines.CancellationException) {
+                    Log.e("DashboardVM", "Ошибка onAppOpened: ${e.message}")
+                }
             }
         }
     }
