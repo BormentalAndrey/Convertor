@@ -1,3 +1,5 @@
+// app/src/main/java/com/example/russianpath/presentation/screens/dashboard/DashboardViewModel.kt
+
 package com.example.russianpath.presentation.screens.dashboard
 
 import androidx.lifecycle.ViewModel
@@ -89,12 +91,6 @@ class DashboardViewModel @Inject constructor(
         loadUserStats()
         loadUserDefaultGrade()
         observeMascotMessage()
-        
-        // Проверка разблокировки тем при входе с небольшой задержкой
-        viewModelScope.launch {
-            delay(500) // Даём время на загрузку тем
-            checkAndUnlockNextTopics()
-        }
     }
 
     // ========================================================================
