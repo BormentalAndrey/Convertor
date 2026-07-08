@@ -102,5 +102,18 @@
     "created_at": 1710352800,
     "updated_at": 1710352800,
     "server_updated_at": 1710352800
-  }
+  },
+{
+  "id": "10-11",
+  "external_id": "grade_10-11",
+  "name": "ЕГЭ",
+  "display_name": "Подготовка к ЕГЭ",
+  "description": "Систематизация знаний и подготовка к ЕГЭ по русскому языку.",
+  "sort_order": 13,
+  "is_active": true,
+  "schema_version": 1,
+  "created_at": 0,
+  "updated_at": 0,
+  "server_updated_at": 0
+}
 ]
