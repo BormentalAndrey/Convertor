@@ -9,6 +9,8 @@ import com.example.russianpath.domain.model.Topic
 import com.example.russianpath.domain.model.UserStats
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -28,6 +30,7 @@ import javax.inject.Inject
  * - Сообщениями маскота (контекстные, на основе статистики)
  * - Сменой класса (с сохранением выбора)
  * - Обновлением стрика
+ * - Автоматической разблокировкой тем при выполнении пререквизитов
  *
  * Все данные предоставляются через StateFlow для реактивного обновления UI.
  * Тяжёлые операции (обогащение тем прогрессом) выполняются на IO-диспетчере.
@@ -79,10 +82,19 @@ class DashboardViewModel @Inject constructor(
         !isLoading && topics.isEmpty()
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
+    // Job для управления Flow коллектором тем
+    private var topicsCollectionJob: Job? = null
+
     init {
         loadUserStats()
         loadUserDefaultGrade()
         observeMascotMessage()
+        
+        // Проверка разблокировки тем при входе с небольшой задержкой
+        viewModelScope.launch {
+            delay(500) // Даём время на загрузку тем
+            checkAndUnlockNextTopics()
+        }
     }
 
     // ========================================================================
@@ -117,7 +129,10 @@ class DashboardViewModel @Inject constructor(
      * @param gradeId ID класса (например, "5", "11", "oge", "ege").
      */
     private fun loadTopics(gradeId: String) {
-        viewModelScope.launch {
+        // Отменяем предыдущий коллектор, если он есть
+        topicsCollectionJob?.cancel()
+        
+        topicsCollectionJob = viewModelScope.launch {
             try {
                 _isLoading.value = true
                 _errorMessage.value = null
@@ -216,6 +231,12 @@ class DashboardViewModel @Inject constructor(
         }
 
         loadTopics(gradeId)
+        
+        // Проверяем разблокировку тем после смены класса
+        viewModelScope.launch {
+            delay(300) // Небольшая задержка для загрузки тем
+            checkAndUnlockNextTopics()
+        }
     }
 
     /**
@@ -230,6 +251,91 @@ class DashboardViewModel @Inject constructor(
                 loadTopics(_currentGradeId.value)
             } finally {
                 _isRefreshing.value = false
+            }
+        }
+    }
+
+    // ========================================================================
+    // Автоматическая разблокировка тем
+    // ========================================================================
+
+    /**
+     * Проверяет все темы текущего класса и разблокирует те,
+     * чьи пререквизиты полностью пройдены.
+     * 
+     * Логика работы:
+     * 1. Перебирает все темы текущего класса
+     * 2. Пропускает уже разблокированные темы
+     * 3. Для заблокированных тем проверяет пререквизиты
+     * 4. Если все уроки в темах-пререквизитах пройдены — разблокирует тему
+     * 5. Если у темы нет пререквизитов — разблокирует сразу
+     * 6. После разблокировки обновляет список тем
+     */
+    fun checkAndUnlockNextTopics() {
+        viewModelScope.launch {
+            try {
+                val currentTopics = _topics.value
+                
+                // Если темы ещё не загружены — выходим
+                if (currentTopics.isEmpty()) return@launch
+                
+                var hasUnlockedTopics = false
+                
+                for (topic in currentTopics) {
+                    // Пропускаем уже разблокированные темы
+                    if (topic.isUnlocked) continue
+                    
+                    // Получаем пререквизиты темы из репозитория
+                    val prerequisiteIds = withContext(Dispatchers.IO) {
+                        topicRepository.getPrerequisiteTopicIds(topic.id)
+                    }
+                    
+                    // Если пререквизитов нет — разблокируем тему
+                    if (prerequisiteIds.isEmpty()) {
+                        withContext(Dispatchers.IO) {
+                            topicRepository.unlockTopic(topic.id)
+                        }
+                        hasUnlockedTopics = true
+                        continue
+                    }
+                    
+                    // Проверяем, все ли пререквизиты пройдены (завершены на 100%)
+                    var allCompleted = true
+                    for (prereqId in prerequisiteIds) {
+                        val lessonsWithQuestions = withContext(Dispatchers.IO) {
+                            lessonRepository.getLessonsWithQuestionsByTopic(prereqId)
+                        }
+                        
+                        // Если уроков нет или не все пройдены — пререквизит не выполнен
+                        val allLessonsCompleted = lessonsWithQuestions.isNotEmpty() && 
+                            lessonsWithQuestions.all { it.lesson.isCompleted }
+                        
+                        if (!allLessonsCompleted) {
+                            allCompleted = false
+                            break
+                        }
+                    }
+                    
+                    // Если все пререквизиты выполнены — разблокируем тему
+                    if (allCompleted) {
+                        withContext(Dispatchers.IO) {
+                            topicRepository.unlockTopic(topic.id)
+                        }
+                        hasUnlockedTopics = true
+                    }
+                }
+                
+                // Если были разблокированы темы — обновляем UI
+                if (hasUnlockedTopics) {
+                    // Перезагружаем темы для отображения изменений
+                    loadTopics(_currentGradeId.value)
+                    
+                    // Показываем сообщение маскота о новой доступной теме
+                    _mascotMessage.value = "🎉 Открыта новая тема! " +
+                        "Ты отлично справляешься, продолжай в том же духе!"
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "Ошибка обновления тем: ${e.message}"
             }
         }
     }
@@ -379,7 +485,8 @@ class DashboardViewModel @Inject constructor(
      * Обновляет стрик при открытии приложения.
      *
      * Вызывается из Activity или NavGraph при старте приложения.
-     * После обновления стрика запускает refresh() для актуализации статистики.
+     * После обновления стрика запускает refresh() для актуализации статистики
+     * и проверяет разблокировку новых тем.
      */
     fun onAppOpened() {
         viewModelScope.launch {
@@ -389,6 +496,10 @@ class DashboardViewModel @Inject constructor(
                 }
                 // Обновляем статистику и темы после обновления стрика
                 refresh()
+                
+                // Проверяем и разблокируем новые темы после возвращения с урока
+                delay(300) // Небольшая задержка для завершения refresh
+                checkAndUnlockNextTopics()
             } catch (_: Exception) {
                 // Стрик — некритичная операция.
                 // Если не удалось обновить — продолжаем работу с текущими данными.
@@ -420,5 +531,13 @@ class DashboardViewModel @Inject constructor(
             lastDigit in 2..4 -> "дня"
             else -> "дней"
         }
+    }
+
+    /**
+     * Очищает ресурсы при уничтожении ViewModel.
+     */
+    override fun onCleared() {
+        super.onCleared()
+        topicsCollectionJob?.cancel()
     }
 }
