@@ -4,13 +4,15 @@ package com.example.russianpath.presentation.navigation
 
 import android.os.Bundle
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.russianpath.presentation.screens.dashboard.DashboardScreen
+import com.example.russianpath.presentation.screens.dashboard.DashboardViewModel
 import com.example.russianpath.presentation.screens.lesson.LessonResult
 import com.example.russianpath.presentation.screens.lesson.LessonScreen
 import com.example.russianpath.presentation.screens.lesson.RuleListScreen
@@ -82,23 +84,26 @@ fun NavGraph(
 ) {
     val navController = rememberNavController()
 
-    remember {
-        onAppOpened()
-        true
-    }
-
     NavHost(
         navController = navController,
         startDestination = Screen.Dashboard.route
     ) {
         composable(Screen.Dashboard.route) {
+            val dashboardViewModel: DashboardViewModel = hiltViewModel()
+            
+            // Вызываем onAppOpened каждый раз при отображении Dashboard
+            LaunchedEffect(Unit) {
+                dashboardViewModel.onAppOpened()
+            }
+            
             DashboardScreen(
                 onTopicClick = { topicId ->
                     navController.navigate(Screen.Topic.createRoute(topicId))
                 },
                 onProfileClick = {
                     navController.navigate(Screen.Profile.route)
-                }
+                },
+                viewModel = dashboardViewModel
             )
         }
 
