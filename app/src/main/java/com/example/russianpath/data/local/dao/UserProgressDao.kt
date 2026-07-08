@@ -1,3 +1,5 @@
+// app/src/main/java/com/example/russianpath/data/local/dao/UserProgressDao.kt
+
 package com.example.russianpath.data.local.dao
 
 import androidx.room.Dao
@@ -99,6 +101,33 @@ interface UserProgressDao {
     suspend fun updateLives(lives: Int, now: Long = System.currentTimeMillis())
 
     /**
+     * Обновление жизней и времени последнего восстановления.
+     */
+    @Query(
+        """
+        UPDATE user_progress
+        SET lives_count = :lives,
+            last_life_refill_time = :refillTime,
+            updated_at = :now
+        WHERE id = 1
+        """
+    )
+    suspend fun updateLivesAndRefillTime(lives: Int, refillTime: Long, now: Long = System.currentTimeMillis())
+
+    /**
+     * Обновление только времени последнего восстановления жизней.
+     */
+    @Query(
+        """
+        UPDATE user_progress
+        SET last_life_refill_time = :refillTime,
+            updated_at = :now
+        WHERE id = 1
+        """
+    )
+    suspend fun updateLastLifeRefillTime(refillTime: Long, now: Long = System.currentTimeMillis())
+
+    /**
      * Потеря одной жизни (с проверкой, что жизни > 0).
      */
     @Query(
@@ -110,6 +139,21 @@ interface UserProgressDao {
         """
     )
     suspend fun loseLife(now: Long = System.currentTimeMillis())
+
+    /**
+     * Потеря жизни со сбросом таймера восстановления.
+     * Используется когда жизни были на максимуме и начинают тратиться.
+     */
+    @Query(
+        """
+        UPDATE user_progress
+        SET lives_count = MAX(0, lives_count - 1),
+            last_life_refill_time = :refillTime,
+            updated_at = :now
+        WHERE id = 1 AND lives_count > 0
+        """
+    )
+    suspend fun loseLifeAndResetRefillTime(refillTime: Long, now: Long = System.currentTimeMillis())
 
     /**
      * Восстановление одной жизни (с проверкой максимума).
