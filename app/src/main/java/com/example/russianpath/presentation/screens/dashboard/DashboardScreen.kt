@@ -293,7 +293,7 @@ private fun GradeSelector(
     val grades = listOf(
         "5" to "5 класс", "6" to "6 класс", "7" to "7 класс",
         "8" to "8 класс", "9" to "9 класс", "10" to "10 класс",
-        "11" to "11 класс", "9-oge" to "ОГЭ", "ege" to "ЕГЭ"
+        "11" to "11 класс", "9-oge" to "ОГЭ", "10-11" to "ЕГЭ"
     )
 
     LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
