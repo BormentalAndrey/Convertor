@@ -1,3 +1,5 @@
+// app/src/main/java/com/example/russianpath/presentation/screens/lesson/LessonViewModel.kt
+
 package com.example.russianpath.presentation.screens.lesson
 
 import androidx.lifecycle.ViewModel
@@ -6,6 +8,7 @@ import com.example.russianpath.data.repository.LessonRepository
 import com.example.russianpath.data.repository.UserRepository
 import com.example.russianpath.domain.model.Lesson
 import com.example.russianpath.domain.model.Question
+import com.example.russianpath.domain.model.QuestionType
 import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -25,6 +28,7 @@ import javax.inject.Inject
  * - Проверкой ответов (полиморфная, через domain Question.checkAnswer)
  * - Подсчётом статистики попытки
  * - Сохранением результатов (через UserRepository)
+ * - Перемешиванием вариантов ответов для объективности
  *
  * Все операции ввода-вывода выполняются на IO-диспетчере.
  * Состояния UI предоставляются через StateFlow для реактивного обновления.
@@ -105,6 +109,9 @@ class LessonViewModel @Inject constructor(
      * Использует LessonRepository.getLessonWithQuestions() для получения
      * урока вместе с вопросами и прогрессом пользователя.
      *
+     * Для вопросов типа SINGLE_CHOICE и MULTIPLE_CHOICE
+     * варианты ответов автоматически перемешиваются.
+     *
      * @param lessonId Уникальный идентификатор урока.
      */
     fun loadLesson(lessonId: String) {
@@ -129,8 +136,13 @@ class LessonViewModel @Inject constructor(
                 }
 
                 _lesson.value = lessonWithQuestions.lesson
-                _questions.value = lessonWithQuestions.questions
-                _totalQuestions.value = lessonWithQuestions.questions.size
+                
+                // Перемешиваем варианты ответов для вопросов с выбором
+                val shuffledQuestions = lessonWithQuestions.questions.map { question ->
+                    shuffleQuestionOptions(question)
+                }
+                _questions.value = shuffledQuestions
+                _totalQuestions.value = shuffledQuestions.size
                 _isLoading.value = false
 
                 // Загружаем текущее количество жизней пользователя
@@ -141,6 +153,47 @@ class LessonViewModel @Inject constructor(
                 _errorMessage.value = "Ошибка загрузки урока: ${e.message}. Пожалуйста, попробуйте снова."
                 _isLoading.value = false
             }
+        }
+    }
+
+    /**
+     * Перемешивает варианты ответов в вопросе для объективности.
+     * 
+     * Для SINGLE_CHOICE и MULTIPLE_CHOICE перемешивает порядок options.
+     * Правильный ответ остаётся тем же, но его позиция меняется.
+     * Для остальных типов вопросов (TEXT_INPUT, DICTATION и др.)
+     * возвращает вопрос без изменений.
+     *
+     * @param question Исходный вопрос из базы данных.
+     * @return Вопрос с перемешанными вариантами ответов.
+     */
+    private fun shuffleQuestionOptions(question: Question): Question {
+        return when (question.questionType) {
+            QuestionType.SINGLE_CHOICE -> {
+                if (question.options.isEmpty()) return question
+                
+                // Перемешиваем варианты ответов
+                val shuffledOptions = question.options.shuffled()
+                
+                question.copy(options = shuffledOptions)
+            }
+            QuestionType.MULTIPLE_CHOICE -> {
+                if (question.options.isEmpty()) return question
+                
+                // Перемешиваем варианты ответов
+                val shuffledOptions = question.options.shuffled()
+                
+                question.copy(options = shuffledOptions)
+            }
+            // Для остальных типов не перемешиваем
+            QuestionType.TEXT_INPUT,
+            QuestionType.FILL_IN_BLANK,
+            QuestionType.DICTATION,
+            QuestionType.WORD_DRAG,
+            QuestionType.SEQUENCE_ORDER,
+            QuestionType.MATCHING,
+            QuestionType.STRESS_SELECTION,
+            QuestionType.MORPHEMIC_ANALYSIS -> question
         }
     }
 
