@@ -11,18 +11,22 @@ import com.example.russianpath.data.repository.UserRepository
 import com.example.russianpath.domain.model.Topic
 import com.example.russianpath.domain.model.UserStats
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import javax.inject.Inject
 
 /**
@@ -113,7 +117,7 @@ class DashboardViewModel @Inject constructor(
                     _userStats.value = stats
                 }
             } catch (e: Exception) {
-                if (e !is kotlinx.coroutines.CancellationException) {
+                if (e !is CancellationException) {
                     _errorMessage.value = "Не удалось загрузить статистику: ${e.message}"
                 }
             }
@@ -159,7 +163,7 @@ class DashboardViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
-                if (e is kotlinx.coroutines.CancellationException) {
+                if (e is CancellationException) {
                     // Нормальная отмена коллектора, не показываем ошибку
                     Log.d("DashboardVM", "Коллектор тем отменён")
                 } else {
@@ -372,7 +376,7 @@ class DashboardViewModel @Inject constructor(
                     Log.d("DashboardVM", "ℹ️ Нет тем для разблокировки")
                 }
             } catch (e: Exception) {
-                if (e !is kotlinx.coroutines.CancellationException) {
+                if (e !is CancellationException) {
                     Log.e("DashboardVM", "❌ Ошибка разблокировки: ${e.message}", e)
                     _errorMessage.value = "Ошибка обновления тем: ${e.message}"
                 }
@@ -391,25 +395,26 @@ class DashboardViewModel @Inject constructor(
                 
                 val gradeId = _currentGradeId.value
                 val freshTopics = withContext(Dispatchers.IO) {
-                    val topicEntities = topicRepository.observeTopicsByGrade(gradeId)
-                    var result: List<Topic> = emptyList()
-                    // Получаем первое значение из Flow
-                    val job = launch {
-                        topicEntities.collect { list ->
-                            result = enrichTopicsWithProgress(list)
-                            cancel() // Отменяем коллектор после получения данных
+                    try {
+                        // Получаем первое значение из Flow с таймаутом
+                        withTimeout(3000L) {
+                            topicRepository.observeTopicsByGrade(gradeId).first()
                         }
+                    } catch (e: Exception) {
+                        // Если не удалось получить данные — возвращаем пустой список
+                        emptyList()
                     }
-                    job.join()
-                    result
                 }
                 
                 if (freshTopics.isNotEmpty()) {
-                    _topics.value = freshTopics
+                    val enrichedTopics = withContext(Dispatchers.IO) {
+                        enrichTopicsWithProgress(freshTopics)
+                    }
+                    _topics.value = enrichedTopics
                     Log.d("DashboardVM", "✅ Фоновая синхронизация завершена")
                 }
             } catch (e: Exception) {
-                if (e !is kotlinx.coroutines.CancellationException) {
+                if (e !is CancellationException) {
                     Log.e("DashboardVM", "Ошибка фоновой синхронизации: ${e.message}")
                 }
             }
@@ -431,7 +436,7 @@ class DashboardViewModel @Inject constructor(
                     _mascotMessage.value = generateMascotMessage(stats)
                 }
             } catch (e: Exception) {
-                if (e !is kotlinx.coroutines.CancellationException) {
+                if (e !is CancellationException) {
                     // Игнорируем ошибки маскота — некритично
                 }
             }
@@ -584,7 +589,7 @@ class DashboardViewModel @Inject constructor(
                 delay(500)
                 checkAndUnlockNextTopics()
             } catch (e: Exception) {
-                if (e !is kotlinx.coroutines.CancellationException) {
+                if (e !is CancellationException) {
                     Log.e("DashboardVM", "Ошибка onAppOpened: ${e.message}")
                 }
             }
