@@ -3,6 +3,7 @@
 package com.example.russianpath.data.seed
 
 import android.content.Context
+import android.util.Log
 import com.example.russianpath.data.seed.model.ContentFile
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.Gson
@@ -31,6 +32,10 @@ class SeedLoader @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
 
+    companion object {
+        private const val TAG = "SeedLoader"
+    }
+
     @PublishedApi
     internal val gson: Gson = GsonBuilder()
         .setLenient()
@@ -47,24 +52,28 @@ class SeedLoader @Inject constructor(
         return try {
             val json = readFile(fileName)
             if (json.isBlank()) {
+                Log.w(TAG, "Файл $fileName пуст")
                 emptyList()
             } else {
                 val type = object : TypeToken<List<T>>() {}.type
                 val list: List<T> = gson.fromJson(json, type) ?: emptyList()
+                Log.d(TAG, "✅ Загружен $fileName: ${list.size} записей")
                 list
             }
+        } catch (e: ContentLoadException) {
+            Log.e(TAG, "❌ Файл не найден: $fileName - ${e.message}")
+            emptyList()
+        } catch (e: JsonSyntaxException) {
+            Log.e(TAG, "❌ Ошибка парсинга JSON: $fileName - ${e.message}")
+            emptyList()
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e(TAG, "❌ Ошибка загрузки $fileName: ${e.message}", e)
             emptyList()
         }
     }
 
     /**
      * Загружает список сущностей с расширенной обработкой ошибок.
-     * Возвращает Result для функциональной обработки.
-     *
-     * @param fileName Имя файла.
-     * @return Result с данными или исключением.
      */
     @Suppress("UNCHECKED_CAST")
     inline fun <reified T> loadListSafe(fileName: String): Result<List<T>> {
@@ -89,10 +98,6 @@ class SeedLoader @Inject constructor(
 
     /**
      * Загружает содержимое файла как строку.
-     *
-     * @param fileName Имя файла относительно assets/seed/.
-     * @return Содержимое файла.
-     * @throws ContentLoadException если файл не найден.
      */
     fun loadString(fileName: String): String {
         return readFile(fileName)
@@ -111,9 +116,6 @@ class SeedLoader @Inject constructor(
 
     /**
      * Загружает контент из ContentFile модели манифеста.
-     *
-     * @param contentFile Модель файла из манифеста.
-     * @return Содержимое файла как строка.
      */
     fun loadContentFile(contentFile: ContentFile): String {
         return readFile(contentFile.path)
@@ -124,7 +126,8 @@ class SeedLoader @Inject constructor(
      */
     fun fileExists(fileName: String): Boolean {
         return try {
-            context.assets.open("seed/$fileName").close()
+            val path = if (fileName.startsWith("seed/")) fileName else "seed/$fileName"
+            context.assets.open(path).close()
             true
         } catch (_: IOException) {
             false
@@ -136,8 +139,11 @@ class SeedLoader @Inject constructor(
      */
     fun listSeedFiles(): List<String> {
         return try {
-            context.assets.list("seed")?.toList() ?: emptyList()
-        } catch (_: IOException) {
+            val files = context.assets.list("seed")?.toList() ?: emptyList()
+            Log.d(TAG, "📁 Файлы в seed/: ${files.joinToString(", ")}")
+            files
+        } catch (e: IOException) {
+            Log.e(TAG, "❌ Ошибка чтения списка файлов: ${e.message}")
             emptyList()
         }
     }
@@ -154,14 +160,18 @@ class SeedLoader @Inject constructor(
         val path = if (fileName.startsWith("seed/")) fileName else "seed/$fileName"
 
         return try {
-            context.assets
+            val content = context.assets
                 .open(path)
                 .bufferedReader()
                 .use { it.readText() }
+            
+            Log.d(TAG, "📄 Прочитан файл $path (${content.length} байт)")
+            content
         } catch (e: IOException) {
+            Log.e(TAG, "❌ Не удалось прочитать $path: ${e.message}")
             throw ContentLoadException(
                 "Cannot read file: $path. Ensure the file is placed in assets/seed/ " +
-                        "and is not corrupted.",
+                        "and is not corrupted. Error: ${e.message}",
                 e
             )
         }
