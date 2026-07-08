@@ -32,10 +32,6 @@ class SeedLoader @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
 
-    companion object {
-        private const val TAG = "SeedLoader"
-    }
-
     @PublishedApi
     internal val gson: Gson = GsonBuilder()
         .setLenient()
@@ -52,28 +48,32 @@ class SeedLoader @Inject constructor(
         return try {
             val json = readFile(fileName)
             if (json.isBlank()) {
-                Log.w(TAG, "Файл $fileName пуст")
+                Log.w("SeedLoader", "Файл $fileName пуст")
                 emptyList()
             } else {
                 val type = object : TypeToken<List<T>>() {}.type
                 val list: List<T> = gson.fromJson(json, type) ?: emptyList()
-                Log.d(TAG, "✅ Загружен $fileName: ${list.size} записей")
+                Log.d("SeedLoader", "Загружен $fileName: ${list.size} записей")
                 list
             }
         } catch (e: ContentLoadException) {
-            Log.e(TAG, "❌ Файл не найден: $fileName - ${e.message}")
+            Log.e("SeedLoader", "Файл не найден: $fileName - ${e.message}")
             emptyList()
         } catch (e: JsonSyntaxException) {
-            Log.e(TAG, "❌ Ошибка парсинга JSON: $fileName - ${e.message}")
+            Log.e("SeedLoader", "Ошибка парсинга JSON: $fileName - ${e.message}")
             emptyList()
         } catch (e: Exception) {
-            Log.e(TAG, "❌ Ошибка загрузки $fileName: ${e.message}", e)
+            Log.e("SeedLoader", "Ошибка загрузки $fileName: ${e.message}", e)
             emptyList()
         }
     }
 
     /**
      * Загружает список сущностей с расширенной обработкой ошибок.
+     * Возвращает Result для функциональной обработки.
+     *
+     * @param fileName Имя файла.
+     * @return Result с данными или исключением.
      */
     @Suppress("UNCHECKED_CAST")
     inline fun <reified T> loadListSafe(fileName: String): Result<List<T>> {
@@ -98,6 +98,10 @@ class SeedLoader @Inject constructor(
 
     /**
      * Загружает содержимое файла как строку.
+     *
+     * @param fileName Имя файла относительно assets/seed/.
+     * @return Содержимое файла.
+     * @throws ContentLoadException если файл не найден.
      */
     fun loadString(fileName: String): String {
         return readFile(fileName)
@@ -116,6 +120,9 @@ class SeedLoader @Inject constructor(
 
     /**
      * Загружает контент из ContentFile модели манифеста.
+     *
+     * @param contentFile Модель файла из манифеста.
+     * @return Содержимое файла как строка.
      */
     fun loadContentFile(contentFile: ContentFile): String {
         return readFile(contentFile.path)
@@ -140,10 +147,10 @@ class SeedLoader @Inject constructor(
     fun listSeedFiles(): List<String> {
         return try {
             val files = context.assets.list("seed")?.toList() ?: emptyList()
-            Log.d(TAG, "📁 Файлы в seed/: ${files.joinToString(", ")}")
+            Log.d("SeedLoader", "Файлы в seed/: ${files.joinToString(", ")}")
             files
         } catch (e: IOException) {
-            Log.e(TAG, "❌ Ошибка чтения списка файлов: ${e.message}")
+            Log.e("SeedLoader", "Ошибка чтения списка файлов: ${e.message}")
             emptyList()
         }
     }
@@ -165,10 +172,10 @@ class SeedLoader @Inject constructor(
                 .bufferedReader()
                 .use { it.readText() }
             
-            Log.d(TAG, "📄 Прочитан файл $path (${content.length} байт)")
+            Log.d("SeedLoader", "Прочитан файл $path (${content.length} байт)")
             content
         } catch (e: IOException) {
-            Log.e(TAG, "❌ Не удалось прочитать $path: ${e.message}")
+            Log.e("SeedLoader", "Не удалось прочитать $path: ${e.message}")
             throw ContentLoadException(
                 "Cannot read file: $path. Ensure the file is placed in assets/seed/ " +
                         "and is not corrupted. Error: ${e.message}",
