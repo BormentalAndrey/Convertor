@@ -24,14 +24,36 @@ android {
         }
     }
 
+    // ======================================================================
+    // КОНФИГУРАЦИЯ ПОДПИСИ ДЛЯ РЕЛИЗА
+    // ======================================================================
+    signingConfigs {
+        create("release") {
+            // Ключ лежит в папке app/
+            storeFile = file("my-release-key.jks")
+            
+            // Читаем пароли из переменных окружения (GitHub Secrets)
+            storePassword = System.getenv("RELEASE_STORE_PASSWORD") ?: ""
+            keyAlias = System.getenv("RELEASE_KEY_ALIAS") ?: ""
+            keyPassword = System.getenv("RELEASE_KEY_PASSWORD") ?: ""
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
-
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            // Подключаем подпись для релиза
+            signingConfig = signingConfigs.getByName("release")
+        }
+        debug {
+            isMinifyEnabled = false
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
+            isDebuggable = true
         }
     }
 
